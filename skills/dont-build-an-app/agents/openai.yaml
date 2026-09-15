@@ -1,0 +1,10 @@
+interface:
+  display_name: "不要再做 App 了"
+  short_description: "查重与价值筛查、产品审讯、体验挑刺，支持进度保存与恢复"
+  icon_small: "./assets/jobs-product-review.png"
+  icon_large: "./assets/jobs-product-review.png"
+  brand_color: "#111111"
+  default_prompt: "Use $dont-build-an-app to 审查并完善我的产品创意，按阶段讨论并整理开发设计；如我提供进度文档，先读取后继续。"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,14 @@
+# Local screenshots and personal working files
+/*.png
+/*.jpg
+/*.jpeg
+/output/
+/outputs/
+/tmp/
+*.log
+*.zip
+.env
+.env.*
+.DS_Store
+Thumbs.db
+__pycache__/
