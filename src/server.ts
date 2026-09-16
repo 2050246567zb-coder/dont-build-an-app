@@ -8,6 +8,7 @@ import { findRollout, RolloutReader } from './adapters/rollout.ts';
 import { Store } from './store.ts';
 import type { HostAdapter } from './adapters/types.ts';
 import { evidence } from './evidence.ts';
+import { visibleCodexUserText } from './adapters/codex-text.ts';
 
 const webRoot = fileURLToPath(new URL('../web/',import.meta.url));
 type ServerOptions = { dataDir:string;port:number; adapter?:HostAdapter;rolloutPath?:string;quiet?:boolean;pollMs?:number;heartbeatMs?:number };
@@ -57,7 +58,10 @@ export async function startServer(options: ServerOptions) {
   try{await poll();}catch(error){adapter.close();store.close();throw error;}
   const state = (after = 0) => ({
     adapter:'codex-desktop-app-tools', compatibility:'experimental', thread:{id:threadId,title:host.thread.title},
-    connected, hostStatus, lastError, messages:store.messages(threadId,after), submissions:store.submissions(threadId),
+    connected, hostStatus, lastError, messages:store.messages(threadId,after).map(message => ({
+      ...message,
+      displayText:message.role==='user' && message.kind==='native' ? visibleCodexUserText(message.text) : message.text,
+    })), submissions:store.submissions(threadId),
     draft:store.get(`draft:${threadId}`,''), serverTime:new Date().toISOString(),
     latestMessageId:store.messages(threadId).at(-1)?.id ?? null,
     draftBaseMessageId:store.get(`draft-base:${threadId}`,null),

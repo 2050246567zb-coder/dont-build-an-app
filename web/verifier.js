@@ -25,9 +25,15 @@ async function poll(){
       messages.set(m.id,m);
       const item=document.createElement('article');item.className='message';item.dataset.messageId=m.id;
       const name=document.createElement('strong');name.textContent=m.role==='user'?'你说':'Agent';
-      const text=document.createElement('pre');text.textContent=m.text;
+      const text=document.createElement('pre');text.textContent=m.displayText ?? m.text;
       const time=document.createElement('small');time.textContent=`${m.timestamp} · ${m.id} · ${m.kind}`;
-      item.append(name,text,time);$('messages').append(item);
+      item.append(name,text);
+      if(m.displayText!==undefined && m.displayText!==m.text){
+        const raw=document.createElement('details'),summary=document.createElement('summary'),original=document.createElement('pre');
+        summary.textContent='查看宿主原文（含自动附带的环境说明）';original.textContent=m.text;
+        raw.append(summary,original);item.append(raw);
+      }
+      item.append(time);$('messages').append(item);
     }
     latestMessageId=state.latestMessageId;
     if(!initialized){

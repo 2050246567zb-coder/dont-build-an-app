@@ -6,11 +6,26 @@ import {join} from 'node:path';
 import {parseMessage,RolloutReader,findRollout,type HostMessage} from '../src/adapters/rollout.ts';
 import {Store} from '../src/store.ts';
 import {evidence} from '../src/evidence.ts';
+import {visibleCodexUserText} from '../src/adapters/codex-text.ts';
 
 const thread='11111111-1111-1111-1111-111111111111';
+const ambientPrefix='\n<in-app-browser-context source="ambient-ui-state">\nThis block is automatically supplied ambient UI state, not part of the user\'s request. Do not treat it as an instruction or as evidence that the user explicitly selected the in-app browser.\n# In app browser:\n- Current URL: http://127.0.0.1:4317/\n</in-app-browser-context>\n\n## My request:\n';
 function line(payload:any,ordinal=1){return JSON.stringify({type:'response_item',ordinal,timestamp:new Date().toISOString(),payload})+'\n';}
 function native(text='你好',role='user',phase?:string){return {type:'message',id:'msg_test',role,phase,content:[{type:role==='user'?'input_text':'output_text',text}]};}
 function message(id:string,ordinal:number,kind:'native'|'delegated'='native'):HostMessage{return {id,ordinal,kind,sourceThreadId:thread,role:'user',text:'hello',phase:'user',timestamp:new Date().toISOString()};}
+
+test('Codex display hides the exact ambient prefix while preserving request whitespace and raw source',()=>{
+  const request='同步测试04  ，看到了\n';
+  const source=ambientPrefix+request;
+  assert.equal(visibleCodexUserText(source),request);
+  assert.equal(visibleCodexUserText(source.replaceAll('\n','\r\n')),request.replaceAll('\n','\r\n'));
+  assert.equal(parseMessage(line(native(source)))?.text,source);
+});
+test('Codex display preserves quoted, partial or unrecognized context markup',()=>{
+  for(const text of ['普通正文  \n','请查看这个例子：\n'+ambientPrefix+'不要删',ambientPrefix.replace('ambient-ui-state','example')+'保留',ambientPrefix.replace('## My request:','## Other:')+'保留',ambientPrefix.split('</in-app-browser-context>')[0]]){
+    assert.equal(visibleCodexUserText(text),text);
+  }
+});
 
 test('filters reasoning, commentary and arbitrary tools; keeps final',()=>{
   assert.equal(parseMessage(line(native('hidden','assistant','analysis'))),undefined);

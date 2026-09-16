@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:15:57.501Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "test03NativeWindowConfirmation": {
+    "confirmed": true,
+    "answer": "看到了",
+    "source": "user reply in original task"
+  },
+  "previousFinalReply": {
+    "ordinal": 3389,
+    "found": true,
+    "browserVisible": true,
+    "role": "assistant"
+  },
+  "nativeTest04": {
+    "rawHostTextUnchanged": true,
+    "displayTextExact": true,
+    "ordinal": 3396,
+    "browserVisible": true,
+    "kind": "native",
+    "count": 1
+  },
+  "observedOrderCorrect": true,
+  "serviceRestart": {
+    "confirmedBrowserSubmissions": 2,
+    "afterMessageCount": 130,
+    "duplicateHostMessages": 0,
+    "beforeMessageCount": 130,
+    "messageIdsAndOrderUnchanged": true,
+    "sameOriginalThread": true,
+    "draftRetained": true
+  },
+  "automatedChecks": {
+    "build": "passed",
+    "typecheck": "passed",
+    "scope": "local contract tests; do not certify real host compatibility",
+    "testsPassed": 22
+  },
+  "limitations": [
+    "The final reply to native Test04 has not yet been emitted at observation time.",
+    "No new browser test sent during this active turn; next input should occur after the final reply for a complete alternating round.",
+    "Ten complete alternating rounds, independent-task isolation, mid-submit disconnect and idle wake-up remain unverified."
+  ]
+}
