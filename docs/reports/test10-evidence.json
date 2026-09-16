@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:32:45.152Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "sameOriginalThread": true,
+  "test09NativeWindowConfirmation": {
+    "source": "user reply in original task",
+    "confirmed": true,
+    "answer": "看到了"
+  },
+  "test09FinalReply": {
+    "browserVisible": true,
+    "found": true,
+    "role": "assistant",
+    "ordinal": 3711
+  },
+  "nativeTest10": {
+    "kind": "native",
+    "displayTextExact": true,
+    "count": 1,
+    "browserVisible": true,
+    "ordinal": 3718
+  },
+  "previousReplyBeforeInput": true,
+  "messageCount": 142,
+  "duplicateHostMessages": 0,
+  "hostOrderMonotonic": true,
+  "limitations": [
+    "Test10 final reply is pending at observation time.",
+    "The strict uninterrupted alternating sequence begins at Test04; tests01-03 remain separate preflight evidence.",
+    "Ten complete alternating rounds and remaining failure/isolation cases are not yet complete."
+  ]
+}

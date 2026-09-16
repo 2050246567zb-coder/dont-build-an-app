@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:32:45.152Z",
+  "compatibility": "not-certified",
+  "countingRule": "One input and one subsequent distinct final reply per round. The uninterrupted alternating sequence starts at Test04; earlier preflight is not counted again.",
+  "completeRounds": 6,
+  "requiredRounds": 10,
+  "rounds": [
+    {
+      "round": 1,
+      "test": "04",
+      "inputSide": "original-agent",
+      "inputOrdinal": 3396,
+      "replyOrdinal": 3512,
+      "status": "input-and-final-observed"
+    },
+    {
+      "round": 2,
+      "test": "05",
+      "inputSide": "browser",
+      "inputOrdinal": 3519,
+      "replyOrdinal": 3553,
+      "status": "input-and-final-observed"
+    },
+    {
+      "round": 3,
+      "test": "06",
+      "inputSide": "original-agent",
+      "inputOrdinal": 3560,
+      "replyOrdinal": 3596,
+      "status": "input-and-final-observed"
+    },
+    {
+      "round": 4,
+      "test": "07",
+      "inputSide": "browser",
+      "inputOrdinal": 3603,
+      "replyOrdinal": 3636,
+      "status": "input-and-final-observed"
+    },
+    {
+      "round": 5,
+      "test": "08",
+      "inputSide": "original-agent",
+      "inputOrdinal": 3643,
+      "replyOrdinal": 3676,
+      "status": "input-and-final-observed"
+    },
+    {
+      "round": 6,
+      "test": "09",
+      "inputSide": "browser",
+      "inputOrdinal": 3683,
+      "replyOrdinal": 3711,
+      "status": "input-and-final-observed"
+    },
+    {
+      "round": 7,
+      "test": "10",
+      "inputSide": "original-agent",
+      "inputOrdinal": 3718,
+      "replyOrdinal": null,
+      "status": "awaiting-final"
+    },
+    {
+      "round": 8,
+      "test": "11",
+      "inputSide": "browser",
+      "inputOrdinal": null,
+      "replyOrdinal": null,
+      "status": "not-started"
+    },
+    {
+      "round": 9,
+      "test": "12",
+      "inputSide": "original-agent",
+      "inputOrdinal": null,
+      "replyOrdinal": null,
+      "status": "not-started"
+    },
+    {
+      "round": 10,
+      "test": "13",
+      "inputSide": "browser",
+      "inputOrdinal": null,
+      "replyOrdinal": null,
+      "status": "not-started"
+    }
+  ],
+  "note": "This is a host-record ledger. Browser observations and native-window confirmations remain in the per-test evidence files. No automatic compatibility certification."
+}
