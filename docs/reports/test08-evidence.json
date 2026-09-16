@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:27:39.881Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "sameOriginalThread": true,
+  "test07FinalReply": {
+    "role": "assistant",
+    "ordinal": 3636,
+    "found": true,
+    "browserVisible": true
+  },
+  "test07NativeWindowHumanConfirmation": "not-provided-in-test08",
+  "nativeTest08": {
+    "kind": "native",
+    "ordinal": 3643,
+    "count": 1,
+    "displayTextExact": true,
+    "browserVisible": true
+  },
+  "previousReplyBeforeInput": true,
+  "messageCount": 138,
+  "duplicateHostMessages": 0,
+  "hostOrderMonotonic": true,
+  "limitations": [
+    "Test08 final reply is pending at observation time.",
+    "Test07 native-window visibility has not been manually confirmed; a numbered follow-up alone is not confirmation.",
+    "Ten complete alternating rounds and remaining failure/isolation cases are not yet complete."
+  ]
+}
