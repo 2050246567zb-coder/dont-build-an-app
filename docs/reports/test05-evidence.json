@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:20:50.607Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "sameOriginalThread": true,
+  "nativeTest04Reply": {
+    "phase": "final_answer",
+    "ordinal": 3512,
+    "role": "assistant",
+    "browserVisible": true
+  },
+  "browserTest05": {
+    "ordinal": 3519,
+    "browserVisible": true,
+    "nativeWindowHumanConfirmation": "not-yet-observed-for-test05",
+    "receivedByCurrentAgent": true,
+    "submissionStatus": "confirmed",
+    "submissionBaseline": 3512,
+    "count": 1
+  },
+  "idleWake": {
+    "previousTurnCompletedAt": "2026-09-16T11:17:04.418Z",
+    "newTurnInSameOriginalThread": true,
+    "observed": true,
+    "idleGapSeconds": 142.216,
+    "independentModelConversationCreated": false,
+    "previousTurnCompletedOrdinal": 3515,
+    "nextTurnStartedAt": "2026-09-16T11:19:26.728Z",
+    "nextTurnStartedOrdinal": 3517,
+    "browserSubmittedAt": "2026-09-16T11:19:26.634Z"
+  },
+  "messageCount": 132,
+  "duplicateHostMessages": 0,
+  "hostOrderMonotonic": true,
+  "limitations": [
+    "This records one successful idle wake-up on the installed Windows Codex Desktop, not general compatibility.",
+    "The final reply to Test05 is pending at observation time.",
+    "Ten complete alternating rounds and the remaining isolation, interruption and concurrent-send acceptance cases are still incomplete."
+  ]
+}
