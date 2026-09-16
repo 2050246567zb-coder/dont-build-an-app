@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-16",
+  "certified": [],
+  "candidates": [
+    {
+      "application": "Codex Desktop",
+      "applicationVersion": "26.908.9136.0",
+      "bundledCliVersion": "0.154.0-alpha.6.2",
+      "os": "Windows",
+      "status": "experimental-partial-validation",
+      "report": "reports/2026-09-16-sync-validation.md"
+    },
+    {
+      "application": "Claude Code",
+      "applicationVersion": null,
+      "os": "Windows",
+      "status": "not-tested",
+      "reason": "No executable found and no existing Claude Code conversation available. No sync adapter implemented."
+    },
+    {
+      "application": "Codex Desktop / Claude Code",
+      "applicationVersion": null,
+      "os": "macOS",
+      "status": "not-tested",
+      "reason": "No actual macOS host available in this run."
+    }
+  ]
+}

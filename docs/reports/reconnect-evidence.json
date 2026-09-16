@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-09-16T10:45:25.915Z",
+  "sameThread": true,
+  "replayHttpStatus": 200,
+  "reconnectHttpStatus": 200,
+  "beforeMessageCount": 125,
+  "afterMessageCount": 125,
+  "duplicates": 0,
+  "submissionCount": 1,
+  "submissionStatus": "confirmed",
+  "orderUnchanged": true,
+  "draftRetained": true
+}

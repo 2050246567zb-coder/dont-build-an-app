@@ -1,0 +1,27 @@
+name: GalGame verifier contract checks
+on:
+  push:
+    paths: ['src/**', 'tests/**', 'scripts/**', 'web/**', 'package*.json', 'tsconfig.json', '.github/workflows/galgame-check.yml']
+  pull_request:
+    paths: ['src/**', 'tests/**', 'scripts/**', 'web/**', 'package*.json', 'tsconfig.json', '.github/workflows/galgame-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract-checks:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      # These run fake-host contracts and local transports, not real Codex/Claude sessions.
+      # Never update compatibility.json based only on this workflow.
