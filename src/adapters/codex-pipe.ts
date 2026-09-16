@@ -118,6 +118,7 @@ export class CodexPipe {
   send(text: string): Promise<any> {
     return this.call('send_message_to_thread', { threadId: this.threadId, prompt: text });
   }
+  openOriginal():Promise<any>{return this.call('navigate_to_codex_page',{threadId:this.threadId});}
 
   close(): void { this.disconnect(new Error('Adapter closed')); }
 }

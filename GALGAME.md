@@ -1,92 +1,94 @@
-# GalGame 对话端：当前交付为同步验证器
+# 不要再做 App 了 · GalGame 对话端
 
-版本：`0.1.0-alpha.1`。这不是已经完成的 GalGame 产品，也不是跨 Agent 通用插件。目前交付 DEV-01 的验证器、Codex 桌面实验适配器、自动检查与实际结果记录；正式兼容列表为空。
+版本：**0.1.0-alpha.2，可运行的实验初版**。将现有 Skill 的筛查、乔布斯质询、小黑体验挑刺及方案交付呈现在浏览器里，推理仍由当前原 Agent 完成。
 
-完整目标见 [开发规格](docs/galgame-development-spec.md)，进度见 [验收报告](docs/reports/2026-09-16-sync-validation.md)。原有 [Skill 安装方式](INSTALL.md) 不变。
+当前是 **Windows Codex Desktop 的实验适配**，依赖本地桌面管道和只读日志格式。真实原任务双向消息已经跑通；用户于 2026-09-16 结束继续人工编号测试。未完成的兼容验收仍保留，**正式认证列表为空**。Claude Code 未实现适配；macOS 没有真实宿主测试。
 
-## 可以直接交给 Agent 的指令
+完整范围见 [开发规格](docs/galgame-development-spec.md)，证据见 [同步记录](docs/reports/2026-09-16-sync-validation.md) 与 [本版交付记录](docs/reports/2026-09-16-galgame-alpha2.md)。纯 Skill 仍可按 [INSTALL.md](INSTALL.md) 安装。
+
+## 发给 Agent 安装
 
 ```text
-请阅读这个仓库的 GALGAME.md，安装并运行其中的原会话同步验证器：
+请安装并运行“不要再做 App 了 · GalGame 对话端”实验版：
 https://github.com/2050246567zb-coder/dont-build-an-app/tree/codex/galgame-v0.1.0
 
-使用 codex/galgame-v0.1.0 开发分支，不能假定 main 已包含网页验证器。
-
-这是实验性开发版本。必须从当前原会话启动，先检查宿主能力。
-不要另外启动模型会话，不要更换我的模型或添加 API Key。
-如果当前宿主不满足绑定条件，报告缺失能力，不要伪装成已兼容。
+读取开发分支 codex/galgame-v0.1.0 的 GALGAME.md，检查当前宿主能力，
+完成依赖、构建和 Skill 安装，然后从当前原任务启动网页。
+不要另建模型会话，不添加 API Key。缺少原任务绑定能力时报告限制。
 ```
 
-## 当前运行条件
-
-- Node.js 24 或更高版本、npm、Git。
-- 由 **Codex 桌面应用当前任务中的 Agent** 执行启动命令，继承 `CODEX_THREAD_ID`、`CODEX_APP_TOOLS_PIPE_PATH`、`CODEX_HOME`。
-- 当前测试环境：Windows、Codex Desktop `26.908.9136.0`、内置 Codex CLI `0.154.0-alpha.6.2`。这是已测试环境记录，尚不是完整兼容认证。
-- 普通终端和 Codex CLI 独立运行时通常不具备该桌面管道。缺少绑定会明确失败，不创建新会话。
-- 本机未找到可用 Claude Code 命令或其当前原会话。**没有实现或验证 Claude Code 同步适配**。macOS 的真实宿主亦未验证。
-
-## 安装和启动
-
-先取得开发分支：
+需要 Node.js 24+、npm、Git，以及 Codex 桌面当前任务提供的 CODEX_THREAD_ID、CODEX_APP_TOOLS_PIPE_PATH、CODEX_HOME。普通终端或独立 CLI 缺少这些条件时明确失败。
 
 ```sh
 git clone --branch codex/galgame-v0.1.0 https://github.com/2050246567zb-coder/dont-build-an-app.git
 cd dont-build-an-app
-```
-
-在仓库目录执行：
-
-```sh
 npm ci
-npm run check
-npm test
 npm run build
+npm run install:skill
 npm run probe
 npm run launch
 ```
 
-Agent 打开 `launch` 输出的本地浏览器链接。`launch` 在后台运行验证器；在 Windows 隐藏辅助进程窗口。再次启动同目录、同任务会复用原实例。
+安装器把整个 Skill 安装到当前 CODEX_HOME/skills/dont-build-an-app，备份旧版，并记录本机工程路径。不改模型或全局 MCP 配置。搬迁工程后重新安装 Skill。
 
-开发时可用 `npm run dev` 前台运行。服务仅监听 `127.0.0.1:4317`。通过 `GALGAME_PORT` 改端口，通过 `GALGAME_DATA_DIR` 指定独立数据目录。多任务必须使用不同端口与数据目录，不能混用同一运行实例。
+让 Agent 打开 launch 输出的本机链接，然后说“使用不要再做 App 了，进入 GalGame 网页模式”。同一任务重复启动复用服务，不创建模型会话。Agent 必须读取 [网页输出约定](skills/dont-build-an-app/references/galgame-mode.md)；普通未结构化回复保留原文并提示处理，不猜测角色。
 
-**不要分享带 token 的启动链接。** 它是本机临时访问凭证，不是模型 API Key。更换宿主进程或重启服务后，从原任务重新取得链接；不要把旧链接当成永久书签。
+## 使用
 
-停止：
+- 开始游戏：选择当前已连接的存档，或开始当前任务的新网页记录。
+- 名字、情绪立绘和台词按顺序播放。立即显示只跳过当前逐字动画；点击继续进入下一段；最后的问题才开放输入。
+- 设置可调整文字速度，选择内置立绘或原 Agent 实时生成的图片。默认内置矢量图，不消耗生图额度；实时图片使用原 Agent 的能力和额度，失败回退。
+- 自动保存草稿，刷新后从主菜单读档。等待过久、连接失败会提醒检查原 Agent，不自动重发未知结果的消息。
+- 小黑告别后由 AI 交付实际 Markdown，可阅读、下载。主动选择“返回原 Agent 开始开发”并确认，才发送执行指令并切回原任务。
+- 删除网页存档移除剧情、草稿和专属缓存，保留原 Agent 历史及已交付的共享文件。重建须从对应原任务重新启动；当前不会恢复已删的旧剧情。
+
+只列出通过本产品显式连接过的任务，不扫描全部私人聊天。每个任务独立服务、端口和数据目录。多个页面打开同一存档时只允许一个发送，可显式接管。
+
+## MCP 与命令行桥接
+
+提供真正的 stdio MCP 服务，负责读取网页偏好、校验和暂存剧情；**MCP 本身不提供原会话同步能力**。同步由固定绑定当前任务的适配器完成。
+
+```sh
+npm run runtime
+```
+
+返回当前任务的 runtimePath、mcpCommand、mcpArgs。宿主能为此任务配置 MCP 时，可用返回值设置 stdio 服务。该实例只属于一个任务，不应作为所有任务共用的全局绑定。本机未自动安装 MCP，无需重启宿主即可使用等价 CLI：
+
+```sh
+node dist/publish.js "/actual/runtime.json" --context
+node dist/publish.js "/actual/runtime.json" "/actual/scene.json"
+```
+
+第二条返回 finalText。Agent 必须把它原样作为**当前原任务的最终回复**，全部角色图文都在正式正文中。网页观察到一致正文后才播放；工具输出、思考记录不能代替正式回复。
+
+协议见 [galgame-mode.md](skills/dont-build-an-app/references/galgame-mode.md)：系统/乔布斯/小黑、六种情绪、片段顺序、图片归属、文档关联及闭合/草案状态。模型不遵守格式会明确报错，不静默漏掉角色。
+
+## 数据与停止
+
+```text
+网页输入 → 本机 HTTP → Codex 当前任务的 app-tools 管道 → 当前原任务
+当前原任务只读日志 → 已确认消息 → 匹配暂存剧情 → 网页播放
+```
+
+新任务数据默认位于 Windows 的 %LOCALAPPDATA%/DontBuildAnApp 或 macOS 的 ~/Library/Application Support/DontBuildAnApp。macOS 路径实现不代表宿主已实测。工程以前的 .galgame 数据继续复用。可用 GALGAME_HOME、GALGAME_DATA_DIR、GALGAME_PORT 覆盖。
+
+只监听 127.0.0.1，校验来源和凭证。不要分享含 token 的链接。数据目录包含私有消息镜像、草稿和凭证，禁止整目录上传。published/ 是已链接到原 Agent 的共享交付文件，不随网页存档删除。
 
 ```sh
 npm run stop
 ```
 
-这只停止此数据目录对应的本地验证器，不关闭 Agent、不删除原会话。卸载时先停止，再删除克隆目录即可；需要保留诊断数据时先备份 `.galgame`。没有写入 Agent 全局配置或注册常驻系统服务。
+只停止当前服务，保留原 Agent 和数据。更新：停止后 git pull、npm ci、npm run build、npm run install:skill，再启动。卸载：先停止，再按需移除工程与安装的 Skill；保留文档请先备份 published。没有系统服务、独立模型服务、浏览器 API Key 或额外付费依赖；聊天和生图仍使用原有额度。
 
-## 实际数据路径
+## 开发检查
 
-```text
-网页输入 → 本地受控 HTTP → 当前 Codex 桌面 app-tools 管道
-        → 当前原会话的 send_message_to_thread → Agent 处理
-当前原会话只读日志 → 已确认消息镜像 → 网页
+```sh
+npm run check
+npm test
+npm run build
+node --import tsx scripts/ui-fixture.ts
 ```
 
-测试版本的 Codex 把特定 `codex_app.send_message_to_thread` 转交记录呈现为正常用户消息。验证器只接收**本网页已提交、来源为绑定任务、内容和序号相符**的这种记录；普通工具输出、其他 Agent 的转交、思考和过程消息不进入正式消息列表。
+最后一条启动标有“离线界面测试（无模型）”的确定性夹具，默认端口 4318，用于检查界面，**不能作为真实同步证明**。当前 30 项自动检查涵盖正式正文核对、数据边界、角色顺序、文档、MCP stdio、重连和幂等。
 
-现阶段依赖 Codex 桌面内部传输及本机日志格式，存在版本依赖。代码不修改 Codex 程序、数据库、日志、权限、模型配置，也不复制其程序代码。没有新增模型服务、浏览器 API Key 输入、云端存储或额外付费依赖。原 Agent 处理测试消息仍会使用其原本额度。
-
-`.galgame/` 包含本地会话镜像、草稿、提交核对状态、运行凭证与日志，已加入 Git 忽略。它可能含私人内容，**不要把整个目录上传**。页面的“导出脱敏检测记录”仅导出数量、顺序、提交状态统计及会话指纹，不包含正文、令牌或本机路径。
-
-## 怎样验收
-
-1. 从现有任务启动，核对页面任务 ID 与启动环境 ID 一致。
-2. 在网页发送明确的测试短句，确认它直接显示在原 Agent 正常对话区；等 Agent 正式回复完成，核对两端正文和顺序。
-3. 在原 Agent 正常输入框发送另一句，核对网页收到。两端交替完成至少 10 轮，记录每条宿主 ID、顺序和原窗口观察结果。不要把 10 次重复读取当成 10 轮。
-4. 分别测试发送前、发送后确认前、确认后断线。确认不丢已确认消息、不重复发送、不把未知状态当作失败自动重试。
-5. 测试双击、双标签页竞争、另一端出现新消息时保留旧草稿。新消息出现后必须阅读最新记录再提交。
-6. 测试两个真实原任务各自启动，确认绝不串任务。现阶段不能用模拟任务代替实际验收。
-7. 用 [测试记录模板](docs/sync-run-template.md) 填写结果，附页面导出的脱敏检测记录。只有适用验收完整通过后才更新 [兼容表](docs/compatibility.json)。
-
-页面的“已在原会话确认”只表示找到了宿主持久化记录，不自动代表所有兼容验收通过。遇到“结果待核对”，先查看原 Agent，不要重复提交相同请求。图片关联、结构化剧情、存档体系及文档交付不在当前验证器中实现。
-
-## 后续实现顺序
-
-完整同步验收 → 结构化剧情及正式正文核对 → GalGame 界面与图片回退 → 存档恢复 → 方案文档交付 → 各宿主安装包。
-
-沿用现有 Skill 的系统、乔布斯、小黑职责及设计闭合规则；不得因为网页效果或角色演出而省略审查。当前没有修改这些规则，也没有用预设假对话替代真实验收。
+真实宿主诊断页保留在 /verifier。不再要求当前用户重复编号测试；其他环境的认证仍须独立完成 [验收记录](docs/sync-run-template.md)。

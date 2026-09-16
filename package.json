@@ -1,6 +1,6 @@
 {
   "name": "dont-build-an-app-galgame",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "private": true,
   "type": "module",
   "engines": {
@@ -14,11 +14,17 @@
     "test": "tsx --test tests/*.test.ts",
     "start": "node dist/cli.js",
     "launch": "node scripts/launcher.mjs",
-    "stop": "node scripts/launcher.mjs stop"
+    "stop": "node scripts/launcher.mjs stop",
+    "runtime": "node scripts/launcher.mjs info",
+    "install:skill": "node scripts/install-skill.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.20.3",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.6.5"
   }
 }

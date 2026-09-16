@@ -25,5 +25,8 @@
       "status": "not-tested",
       "reason": "No actual macOS host available in this run."
     }
-  ]
+  ],
+  "productVersion": "0.1.0-alpha.2",
+  "manualValidation": "Stopped at user request; incomplete checks remain unverified.",
+  "implementationReport": "reports/2026-09-16-galgame-alpha2.md"
 }

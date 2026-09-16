@@ -9,17 +9,20 @@ import { Store } from './store.ts';
 import type { HostAdapter } from './adapters/types.ts';
 import { evidence } from './evidence.ts';
 import { visibleCodexUserText } from './adapters/codex-text.ts';
+import { Game } from './game.ts';
+import { portrait } from './portraits.ts';
+import {registerSave,listSaves} from './catalog.ts';
 
 const webRoot = fileURLToPath(new URL('../web/',import.meta.url));
-type ServerOptions = { dataDir:string;port:number; adapter?:HostAdapter;rolloutPath?:string;quiet?:boolean;pollMs?:number;heartbeatMs?:number };
+type ServerOptions = { dataDir:string;port:number; registryDir?:string;hostLabel?:string;adapter?:HostAdapter;rolloutPath?:string;quiet?:boolean;pollMs?:number;heartbeatMs?:number };
 
 function json(response: http.ServerResponse, code: number, value: unknown) {
   response.writeHead(code, { 'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store' });
   response.end(JSON.stringify(value));
 }
-async function body(request: http.IncomingMessage): Promise<any> {
+async function body(request: http.IncomingMessage,limit=100_000): Promise<any> {
   const chunks:Buffer[]=[];let size=0;
-  for await (const chunk of request) { size+=chunk.length;if(size>100_000)throw Object.assign(new Error('Request too large'),{statusCode:413});chunks.push(chunk); }
+  for await (const chunk of request) { size+=chunk.length;if(size>limit)throw Object.assign(new Error('Request too large'),{statusCode:413});chunks.push(chunk); }
   try{return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');}
   catch{throw Object.assign(new Error('Invalid JSON body'),{statusCode:400});}
 }
@@ -49,10 +52,11 @@ export async function startServer(options: ServerOptions) {
   let connected = true, hostStatus = host.thread.status, lastError: string | null = null;
   let hostPoll = false, submitting = false,closing=false;
   let activePoll:Promise<void>|undefined;
+  const game=new Game(store,threadId,options.dataDir,host.thread.title||'新的创意');
   const poll = async () => {
     if(closing)return;
     if(activePoll)return activePoll;
-    activePoll=(async()=>{await reader.poll(message => store.addMessage(threadId,message));store.reconcile(threadId);})().finally(()=>{activePoll=undefined;});
+    activePoll=(async()=>{await reader.poll(message => store.addMessage(threadId,message));store.reconcile(threadId);game.reconcile();})().finally(()=>{activePoll=undefined;});
     return activePoll;
   };
   try{await poll();}catch(error){adapter.close();store.close();throw error;}
@@ -76,14 +80,31 @@ export async function startServer(options: ServerOptions) {
       response.setHeader('X-Content-Type-Options','nosniff');
       response.setHeader('Referrer-Policy','no-referrer');
       if (url.pathname === '/' || url.pathname === '/verifier') {
-        response.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'"});
-        return response.end(await readFile(join(webRoot,'verifier.html')));
+        response.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"});
+        return response.end(await readFile(join(webRoot,url.pathname==='/verifier'?'verifier.html':'game.html')));
       }
-      if (['/verifier.js','/verifier.css'].includes(url.pathname)) {
-        response.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8'});
+      if (['/verifier.js','/verifier.css','/game.js','/game.css','/markdown.js'].includes(url.pathname)) {
+        response.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8','Cache-Control':'no-store'});
         return response.end(await readFile(join(webRoot,url.pathname.slice(1))));
       }
+      if(url.pathname.startsWith('/builtin/')){const [, ,role,emotion]=url.pathname.split('/');response.writeHead(200,{'Content-Type':'image/svg+xml'});return response.end(portrait(role,emotion));}
       if (!authorized(request,token)) return json(response,401,{error:'需要从原 Agent 提供的启动链接进入'});
+      if(url.pathname==='/api/health'&&request.method==='GET')return json(response,200,{connected,deleted:game.get()?.deleted??false});
+      if(url.pathname==='/api/saves'&&request.method==='GET')return json(response,200,await listSaves(options.registryDir,threadId,game.get(),connected));
+      if(url.pathname==='/api/game'&&request.method==='GET'){await poll();return json(response,200,{...game.state(),connected,hostLabel:options.hostLabel??'Codex 原任务',hostStatus,lastError,latestMessageId:store.messages(threadId).at(-1)?.id??null,draft:store.get(`draft:${threadId}`,''),draftBaseMessageId:store.get(`draft-base:${threadId}`,null),submissions:store.submissions(threadId).map(s=>({id:s.id,status:s.status,host_id:s.host_id})),serverTime:new Date().toISOString()});}
+      if(url.pathname==='/api/game/start'&&request.method==='POST'){game.start();await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,game.state());}
+      if(url.pathname==='/api/game/reactivate'&&request.method==='POST')return json(response,200,game.reactivate());
+      if(url.pathname==='/api/game/stage'&&request.method==='POST'){const staged=game.stage(await body(request,20_000_000));await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,staged);}
+      if(url.pathname==='/api/game/settings'&&request.method==='PUT')return json(response,200,game.preferences(await body(request)));
+      if(url.pathname==='/api/game/lease'&&request.method==='POST'){const input=await body(request);return json(response,200,game.lease(input.clientId,input.force===true));}
+      if(url.pathname==='/api/game/position'&&request.method==='PUT'){const input=await body(request);if(!game.lease(input.clientId).owned)return json(response,409,{error:'另一标签页正在使用'});game.position(input.position);return json(response,200,{saved:true});}
+      if(url.pathname==='/api/game/save'&&request.method==='DELETE'){const result=game.delete();await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,result);}
+      if(url.pathname==='/api/open-host'&&request.method==='POST'){if(!adapter.openOriginal)return json(response,409,{error:'请手动返回启动此网页的原 Agent 任务'});return json(response,200,{result:await adapter.openOriginal()});}
+      if(url.pathname.startsWith('/api/game/resource/')&&request.method==='GET'){
+        const parts=url.pathname.split('/'),kind=parts[4];if(kind!=='image'&&kind!=='document')return json(response,404,{error:'Not found'});
+        const resource=game.resource(parts[5],parts[6],kind);response.writeHead(200,{'Content-Type':resource.mime,'Cache-Control':'no-store'});return response.end(resource.bytes);
+      }
+      if(url.pathname==='/api/game/document'&&request.method==='GET'){const doc=game.resource(url.searchParams.get('turn')??'',url.searchParams.get('id')??'','document');return json(response,200,{title:doc.title,markdown:doc.bytes.toString('utf8'),path:doc.path,hash:doc.hash});}
       if(request.method==='POST' && url.pathname==='/api/shutdown'){
         json(response,200,{stopping:true});setImmediate(()=>void close());return;
       }
@@ -101,6 +122,7 @@ export async function startServer(options: ServerOptions) {
         const existing = store.submission(input.id);
         if (existing) return existing.text === input.text && existing.thread_id === threadId ? json(response,200,existing) : json(response,409,{error:'同一消息标识不能用于不同内容'});
         await poll();
+        if(input.gameSessionId){try{game.canSend(input);}catch(error:any){return json(response,409,{error:error.message});}}
         if(input.baseMessageId !== (store.messages(threadId).at(-1)?.id ?? null)) return json(response,409,{error:'原会话已有新消息，请先阅读最新消息再发送草稿'});
         if (submitting || store.submissions(threadId).some(s=>['submitting','accepted','unknown'].includes(s.status))) return json(response,409,{error:'上一条消息尚在确认，请先核对原会话'});
         if (!connected) return json(response,409,{error:'当前与原 Agent 断开，草稿仍保留'});
@@ -121,6 +143,7 @@ export async function startServer(options: ServerOptions) {
       if (request.method === 'PUT' && url.pathname === '/api/draft') {
         const input = await body(request);
         if (typeof input.text !== 'string' || input.text.length > 20_000) return json(response,400,{error:'Invalid draft'});
+        if(input.gameSessionId && (game.get()?.id!==input.gameSessionId || !game.lease(input.viewerId).owned || game.get()?.deleted))return json(response,409,{error:'存档已失效或由其他标签页操作'});
         store.put(`draft:${threadId}`,input.text);
         store.put(`draft-base:${threadId}`,typeof input.baseMessageId==='string'?input.baseMessageId:null);
         return json(response,200,{saved:true});
@@ -144,6 +167,7 @@ export async function startServer(options: ServerOptions) {
   catch(error){adapter.close();store.close();throw error;}
   const address = server.address() as {port:number};
   const url = `http://127.0.0.1:${address.port}/#token=${token}`;
+  await registerSave(options.registryDir,threadId,url,game.get());
   try{
     await mkdir(options.dataDir,{recursive:true});
     await writeFile(join(options.dataDir,'runtime.json'),JSON.stringify({url,threadId,pid:process.pid,port:address.port},null,2),{mode:0o600});

@@ -72,3 +72,26 @@ test('a missing reply context is rejected before any host mutation',async t=>{
   assert.equal((await f.request('/api/messages','POST',{id:'client-0001',text:'hello'})).status,409);
   assert.equal(f.count(),0);
 });
+
+test('web story only commits against formal host text; files, reply lease and delete boundary work over HTTP',async t=>{
+  const f=await fixture(t);
+  const started=await (await f.request('/api/game/start','POST')).json() as any;
+  const markdown='# 可执行方案\n'+ '这里是已明确的目标、范围、操作、异常和验收。'.repeat(12);
+  const scene={schema_version:'1.0',turn_id:'http_scene',stage:'delivery',design_closed:true,segments:[{segment_id:'end',speaker:'system',text:'方案已生成。',advance:'complete',document_id:'plan'}],documents:[{id:'plan',title:'方案',markdown}]};
+  const staged=await (await f.request('/api/game/stage','POST',scene)).json() as any;
+  assert.equal((await (await f.request('/api/game')).json() as any).timeline.length,0);
+  assert.notEqual((await f.request('/api/game/document?turn=http_scene&id=plan')).status,200);
+  await appendFile(f.log,JSON.stringify({timestamp:new Date().toISOString(),type:'response_item',ordinal:100,payload:{type:'message',id:'msg_formal',role:'assistant',phase:'final_answer',content:[{type:'output_text',text:staged.finalText}]}})+'\n');
+  const state=await (await f.request('/api/game')).json() as any;
+  assert.equal(state.timeline[0].speaker,'system');
+  const doc=await (await f.request('/api/game/document?turn=http_scene&id=plan')).json() as any;
+  assert.equal(doc.markdown,markdown);assert.ok(staged.finalText.includes(doc.path.replaceAll('\\','/')));
+  assert.equal(await (await f.request('/api/game/resource/document/http_scene/plan')).text(),markdown);
+  await f.request('/api/game/lease','POST',{clientId:'owner_111'});
+  const denied=await f.request('/api/messages','POST',{id:'guard_001',text:'开始开发',gameSessionId:started.save.id,viewerId:'owner_222',replyTo:state.timeline[0].id,baseMessageId:state.latestMessageId});
+  assert.equal(denied.status,409);assert.equal(f.count(),0);
+  await f.request('/api/game/save','DELETE');
+  assert.equal((await (await f.request('/api/game')).json() as any).deleted,true);
+  assert.equal((await (await f.request('/api/state')).json() as any).messages.length,1);
+  assert.notEqual((await f.request('/api/game/resource/document/http_scene/plan')).status,200);
+});

@@ -1,0 +1,23 @@
+// Deterministic browser fixture. This does not connect to or create a model session.
+import {mkdir,writeFile,appendFile,readFile} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
+import {startServer} from '../src/server.ts';
+import {Game} from '../src/game.ts';
+import type {HostAdapter} from '../src/adapters/types.ts';
+const dir=resolve(process.argv[2]||join('.galgame','ui-fixture-'+Date.now()));await mkdir(dir,{recursive:true});const log=join(dir,'host.jsonl');await appendFile(log,'');
+const thread='11111111-1111-1111-1111-111111111111';let ordinal=Math.max(0,...(await readFile(log,'utf8')).split('\n').filter(Boolean).map(line=>JSON.parse(line).ordinal||0)),count=0;
+const segment=(id:string,speaker:string,text:string,advance:string,emotion='neutral',document_id:string|null=null)=>({segment_id:id,speaker,text,advance,emotion,asset_id:null,document_id});
+const adapter:HostAdapter={threadId:thread,capabilities:async()=>[{name:'send_message_to_thread',namespace:'codex_app',inputSchema:{}}],readThread:async()=>({thread:{id:thread,title:'离线界面测试 · 不连接模型',status:{type:'idle'}}}),close(){},openOriginal:async()=>({fixture:true}),send:async(text)=>{
+  count++;await appendFile(log,JSON.stringify({timestamp:new Date().toISOString(),type:'response_item',ordinal:++ordinal,payload:{id:`fco_test_${count}`,type:'function_call_output',name:'send_message_to_thread',namespace:'codex_app',output:`<codex_delegation><source_thread_id>${thread}</source_thread_id><input>${text.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</input></codex_delegation>`}})+'\n');
+  setTimeout(()=>void response(),1200);return {threadId:thread};}};
+const app=await startServer({dataDir:dir,port:4318,adapter,rolloutPath:log,hostLabel:'离线界面测试（无模型）'});
+const game=new Game(app.store,thread,dir,'离线界面测试 · 不连接模型');game.start();
+count=app.store.submissions(thread).length;
+async function commit(scene:any){const staged=game.stage(scene);await appendFile(log,JSON.stringify({timestamp:new Date().toISOString(),type:'response_item',ordinal:++ordinal,payload:{id:`msg_fixture_${ordinal}`,type:'message',role:'assistant',phase:'final_answer',content:[{type:'output_text',text:staged.finalText}]}})+'\n');await app.poll();}
+async function response(){
+  if(count===1)await commit({schema_version:'1.0',turn_id:'handoff_demo',stage:'experience',segments:[segment('jobs_a','jobs','你已经说清楚：先保护那条最重要的使用路径，其余功能都可以等。这个取舍，我接受。','click','approval'),segment('jobs_b','jobs','接下来请我们的用户代表：小黑和你聊一聊。','click'),segment('black_a','xiaohei','你刚刚和乔布斯的对话我都看到了。听起来挺顺，但我可不会照着说明书生活。','click','skeptical'),segment('black_b','xiaohei','我写了一大段，手滑关了窗口。再打开，文字还在吗？别让我白打。','reply','angry')]});
+  else await commit({schema_version:'1.0',turn_id:'delivery_demo',stage:'delivery',design_closed:false,delivery_kind:'draft',segments:[segment('black_end','xiaohei','行，草稿能接着写，这个问题解决了。我觉得没啥好问的了，就这样吧。我帮你叫你的 AI 给你总结一下方案。','click','approval'),segment('system_end','system','这是一份用于界面检查的示例草案。它没有经过真实产品审查，不是你的正式方案。','complete','approval','demo_doc')],documents:[{id:'demo_doc',title:'界面验收示例文档',markdown:'# 界面验收示例文档\n\n这是离线夹具生成的演示数据，没有连接模型，也不冒充真实用户审查。\n\n## 目标\n检验文档阅读与下载内容一致，只有用户主动选择开始开发才发送指令。\n\n## 验收\n- 姓名和角色顺序正确。\n- 提问完成之前不能输入。\n- 刷新恢复草稿和播放位置。\n- 删除网页存档不会改变原宿主的消息。\n\n## 实施任务\n此文档仅用于测试，不应启动真实开发。'}]});
+}
+if(!game.get()?.turns.length)await commit({schema_version:'1.0',turn_id:'welcome_demo',stage:'screening',segments:[segment('hello','system','这是离线界面测试，没有连接任何模型。你可以发送一条测试文字，检查乔布斯与小黑的交接。','reply')]});
+await writeFile(resolve('.galgame','ui-fixture-runtime.json'),await (await import('node:fs/promises')).readFile(join(dir,'runtime.json')));
+process.on('SIGINT',()=>void app.close().then(()=>process.exit()));
