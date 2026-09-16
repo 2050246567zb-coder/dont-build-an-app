@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:29:41.698Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "sameOriginalThread": true,
+  "test07NativeWindowConfirmation": {
+    "confirmed": true,
+    "source": "user reply through browser in same original task",
+    "answer": "都看到了",
+    "scope": "previously requested Test07 visibility, not visibility of the newly submitted Test09"
+  },
+  "test08FinalReply": {
+    "ordinal": 3676,
+    "role": "assistant",
+    "found": true,
+    "browserVisible": true
+  },
+  "browserTest09": {
+    "submissionStatus": "confirmed",
+    "browserVisible": true,
+    "ordinal": 3683,
+    "nativeWindowHumanConfirmation": "not-yet-observed-for-test09",
+    "submissionBaseline": 3676,
+    "count": 1,
+    "receivedByCurrentAgent": true
+  },
+  "previousReplyBeforeInput": true,
+  "messageCount": 140,
+  "duplicateHostMessages": 0,
+  "hostOrderMonotonic": true,
+  "limitations": [
+    "Test09 final reply and native-window visual confirmation are pending.",
+    "Ten complete alternating rounds and remaining failure/isolation cases are not yet complete."
+  ]
+}
