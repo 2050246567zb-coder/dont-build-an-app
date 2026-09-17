@@ -56,30 +56,14 @@ header {
 }
 .menu h1 span { display: block; padding-left: .04em; color: #e5d7b7; }
 .title-en { font: 10px Georgia, serif; color: var(--gold); letter-spacing: .29em; margin: 18px 0 26px; }
-.intro { font-size: 13px; line-height: 1.9; color: #c4d1dc; text-shadow: 0 2px 6px #000; }
 .menu-actions { margin-top: 29px; display: flex; flex-direction: column; gap: 10px; width: 270px; }
 .menu-actions button {
   display: flex; align-items: center; justify-content: space-between;
   width: 100%; height: 57px; padding: 0 38px; font-size: 16px; letter-spacing: .12em;
 }
 .menu-actions small { font: 8px Georgia, serif; letter-spacing: .12em; color: #b9c9d5; }
-.menu-note { font-size: 11px; line-height: 1.9; margin-top: 22px; color: #b0bfcc; }
-.cover { position: absolute; top: 6px; bottom: 44px; right: 1%; width: 63%; z-index: 1; pointer-events: none; }
-.cover img { position: absolute; bottom: 0; height: 97%; width: 73%; object-fit: contain; object-position: bottom; }
-.cover-jobs { left: -4%; z-index: 2; }
-.cover-black { right: -9%; z-index: 1; height: 91% !important; }
-.cover-label {
-  position: absolute; bottom: 3%; left: 25%; right: 3%; z-index: 3;
-  text-align: center; padding: 24px 16px;
-  background: var(--button) center / 100% 155% no-repeat;
-}
-.cover-label span { font: 22px var(--serif); letter-spacing: .15em; }
-.cover-label b { margin: 0 25px; font-weight: 400; color: var(--gold); }
-.cover-label small { display: block; font-size: 10px; letter-spacing: .13em; margin-top: 9px; color: var(--muted); }
-.menu footer {
-  position: absolute; left: 7vw; right: 6vw; bottom: 21px;
-  display: flex; gap: 32px; color: #bcc8d3; font-size: 10px; letter-spacing: .12em;
-}
+.cover { position: absolute; top: 10%; bottom: 12%; right: 3%; width: 53%; z-index: 1; pointer-events: none; }
+.cover img { display: block; height: 100%; width: 100%; object-fit: contain; object-position: center; }
 .stage { position: relative; height: calc(100svh - 62px); min-height: 600px; overflow: hidden; }
 .stage-top {
   position: relative; z-index: 2; padding: 10px 4vw;
@@ -196,7 +180,6 @@ fieldset { border: 0; padding: 20px 0 5px; margin: 0; }
   .title-en { margin: 14px 0 18px; }
   .menu-actions { margin-top: 20px; gap: 5px; }
   .menu-actions button { height: 49px; }
-  .menu-note { margin-top: 15px; }
   .stage { min-height: 560px; }
   .reply-panel { top: 23%; }
   .character-area { top: 0; bottom: 90px; }
@@ -209,12 +192,7 @@ fieldset { border: 0; padding: 20px 0 5px; margin: 0; }
   .menu-copy { width: 60%; padding: 55px 0 0 6vw; }
   .menu h1 { font-size: 64px; }
   .menu-actions { width: 245px; }
-  .cover { top: 195px; bottom: 30px; width: 80%; right: -12%; }
-  .cover-jobs { left: 5%; }
-  .cover-black { right: -8%; height: 85% !important; }
-  .cover-label { display: none; }
-  .menu-note { max-width: 225px; }
-  .menu footer { left: 6vw; right: 6vw; gap: 20px; font-size: 9px; }
+  .cover { top: 32%; bottom: 14%; width: 58%; right: -2%; }
   .stage { height: calc(100svh - 58px); min-height: 650px; }
   .stage-top { padding: 12px 5vw; }
   .character-area { inset: 40px 0 95px; }
@@ -236,11 +214,8 @@ fieldset { border: 0; padding: 20px 0 5px; margin: 0; }
   #connection { max-width: 120px; }
   .menu-copy { width: 85%; padding-top: 32px; }
   .menu h1 { font-size: 55px; }
-  .intro { font-size: 11px; }
   .menu-actions { width: 220px; }
-  .cover { width: 97%; right: -28%; top: 245px; opacity: .9; }
-  .menu-note { max-width: 200px; }
-  .menu footer { gap: 13px; font-size: 8px; }
+  .cover { width: 69%; right: -5%; top: 47%; bottom: 2%; }
   .quick-menu button { min-width: 0; padding: 9px 16px; font-size: 10px; }
   .dialogue-caption { display: none; }
   .dialogue { padding: 36px 7vw 22px; }
