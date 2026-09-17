@@ -6,10 +6,33 @@ const faces = new Map(['approval', 'surprised'].map(emotion => {
   return [emotion, ready];
 }));
 
+export function prefersLive2d(){try{return localStorage.getItem('spirit-live2d')!=='off';}catch{return true;}}
+export function setLive2dPreference(value){try{localStorage.setItem('spirit-live2d',value?'on':'off');}catch{}window.dispatchEvent(new Event('spirit-preference'));}
+let runtimePromise;
+function runtime(){
+  return runtimePromise??=fetch('/live2d/status').then(r=>r.json()).then(async status=>{
+    if(!status.available)return null;
+    await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/live2d/core.js';script.onload=resolve;script.onerror=()=>reject(Error('Live2D Core unavailable'));document.head.append(script);});
+    return import('/live2d/runtime.js');
+  }).catch(()=>null);
+}
+
 export function bindCompanion({floating, body, image, button, enabled = true}) {
   let active = enabled, reacting = false, count = 0, revision = 0, restoreTimer;
   let originalSrc = '', originalAlt = '';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let live2d=null,attempted=false;
+  function useLive2d(){return live2d&&prefersLive2d();}
+  async function enhance(){
+    if(attempted||!active||!prefersLive2d())return;
+    attempted=true;body.dataset.renderer='loading';
+    try{
+      const module=await runtime();if(!module){body.dataset.renderer='image';return;}
+      live2d=await module.createSpirit({body,image,button,onFailure(){live2d=null;body.dataset.renderer='image';floating.classList.toggle('is-floating',active);}});
+      reset();live2d.setEnabled(active&&prefersLive2d());body.dataset.renderer=prefersLive2d()?'live2d':'image';
+      floating.classList.toggle('is-floating',active&&!useLive2d());
+    }catch{body.dataset.renderer='image';}
+  }
 
   function reset() {
     revision++;
@@ -21,17 +44,21 @@ export function bindCompanion({floating, body, image, button, enabled = true}) {
       image.alt = originalAlt;
     }
     reacting = false;
+    live2d?.reset();
   }
 
   function setEnabled(value) {
     reset();
     active = value;
     button.hidden = !value;
-    floating.classList.toggle('is-floating', value);
+    live2d?.setEnabled(value&&prefersLive2d());
+    floating.classList.toggle('is-floating', value&&!useLive2d());
+    if(value)void enhance();
   }
 
   button.addEventListener('click', async event => {
     if (!active) return;
+    if(useLive2d()){live2d.poke(event.detail>0);return;}
     // Keep the original story portrait, even when a second poke interrupts the first.
     if (!reacting) {
       originalSrc = image.getAttribute('src');
@@ -58,6 +85,7 @@ export function bindCompanion({floating, body, image, button, enabled = true}) {
   reduce.addEventListener('change', () => {
     if (reduce.matches) body.classList.remove('pointer-reaction');
   });
+  window.addEventListener('spirit-preference',()=>{setEnabled(active);body.dataset.renderer=useLive2d()?'live2d':'image';});
   setEnabled(enabled);
   return {reset, setEnabled};
 }

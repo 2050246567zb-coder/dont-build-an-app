@@ -6,6 +6,8 @@
 
 完整范围见 [开发规格](docs/galgame-development-spec.md)，证据见 [同步记录](docs/reports/2026-09-16-sync-validation.md) 与 [本版交付记录](docs/reports/2026-09-16-galgame-alpha2.md)。纯 Skill 仍可按 [INSTALL.md](INSTALL.md) 安装。
 
+系统精灵新增 [Live2D 本地试验](experiments/live2d/README.md)：实际模型支持眨眼、视线跟随和点击表情。SDK 尚未打入公开安装包；未准备 SDK 时继续使用原 PNG 动效。[实测记录](docs/reports/2026-09-17-live2d-trial.md) 区分了已验证项与发布边界。
+
 ## 发给 Agent 安装
 
 ```text

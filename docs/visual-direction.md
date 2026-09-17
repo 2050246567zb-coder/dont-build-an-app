@@ -47,7 +47,7 @@
 
 鼠标和触屏可以点击；键盘 Enter/空格可换表情。减少动态效果偏好下取消位移和漂浮，保留表情反馈。页面隐藏时暂停浮动。
 
-本版使用 PNG 素材和浏览器 transform 动效，没有引入 Live2D SDK。检查时项目没有 `.moc3`/`.model3.json` 模型；[Live2D 官方导出说明](https://docs.live2d.com/en/cubism-editor-manual/export-moc3-motion3-files/)说明这些运行文件由 Cubism 导出，现有 CLI 的模板不能代替绑定完成的模型。
+公开安装默认使用上述 PNG 动效。本地新增了真正的 Cubism 模型试验：分层素材由生图产生，使用官方 Core 和 Framework 在 WebGL 中渲染，支持视线、眨眼和独立嘴部变化。模型不可用时保留原 PNG 动效，设置中可以切换。素材、制作方法和发布边界见 [Live2D 试验说明](../experiments/live2d/README.md)，实测见 [试验记录](reports/2026-09-17-live2d-trial.md)。
 
 ## 预览
 

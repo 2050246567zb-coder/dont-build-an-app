@@ -11,6 +11,7 @@ import { evidence } from './evidence.ts';
 import { visibleCodexUserText } from './adapters/codex-text.ts';
 import { Game } from './game.ts';
 import { portrait, artFiles } from './portraits.ts';
+import {live2dAsset,live2dAvailable} from './live2d.ts';
 import {registerSave,listSaves} from './catalog.ts';
 
 const webRoot = fileURLToPath(new URL('../web/',import.meta.url));
@@ -49,6 +50,8 @@ export async function startServer(options: ServerOptions) {
     }catch(error){adapter.close();throw error;}
   })();
   const token = randomBytes(32).toString('hex');
+  const live2dRoot=join(webRoot,'vendor','live2d');
+  const hasLive2d=await live2dAvailable(live2dRoot);
   let connected = true, hostStatus = host.thread.status, lastError: string | null = null;
   let hostPoll = false, submitting = false,closing=false;
   let activePoll:Promise<void>|undefined;
@@ -82,6 +85,12 @@ export async function startServer(options: ServerOptions) {
       if (url.pathname === '/' || url.pathname === '/verifier') {
         response.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"});
         return response.end(await readFile(join(webRoot,url.pathname==='/verifier'?'verifier.html':'game.html')));
+      }
+      if(url.pathname==='/live2d/status')return json(response,200,{available:hasLive2d});
+      if(url.pathname.startsWith('/live2d/')){
+        const asset=await live2dAsset(live2dRoot,url.pathname.slice('/live2d/'.length));
+        if(!asset)return json(response,404,{error:'Unknown Live2D asset'});
+        response.writeHead(200,{'Content-Type':asset.mime,'Cache-Control':'no-store'});return response.end(asset.bytes);
       }
       if (['/verifier.js','/verifier.css','/game.js','/game.css','/markdown.js','/companion.js'].includes(url.pathname)) {
         response.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8','Cache-Control':'no-store'});

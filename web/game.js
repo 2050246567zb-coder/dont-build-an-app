@@ -1,5 +1,5 @@
 import {renderMarkdown} from './markdown.js';
-import {bindCompanion} from './companion.js';
+import {bindCompanion,prefersLive2d,setLive2dPreference} from './companion.js';
 const $=id=>document.getElementById(id);
 const menuCompanion=bindCompanion({floating:$('menu-companion-float'),body:$('menu-companion-body'),image:$('menu-companion-image'),button:$('menu-companion')});
 const stageCompanion=bindCompanion({floating:$('portrait-float'),body:$('portrait-body'),image:$('portrait'),button:$('stage-companion'),enabled:false});
@@ -34,7 +34,7 @@ async function poll(){
   }catch(e){$('connection').textContent='连接暂时中断';if(state){state.connected=false;banner();updateSend();}else toast('请从原 Agent 提供的启动链接进入。');}
   finally{polling=false;}
 }
-function applyPreferences(){if(!state)return;$('speed').value=state.prefs.speed;$('speed-value').textContent=state.prefs.speed?`${state.prefs.speed} 字 / 秒`:'直接显示';document.querySelector(`input[name=images][value=${state.prefs.imageMode}]`).checked=true;}
+function applyPreferences(){$('spirit-motion').checked=prefersLive2d();if(!state)return;$('speed').value=state.prefs.speed;$('speed-value').textContent=state.prefs.speed?`${state.prefs.speed} 字 / 秒`:'直接显示';document.querySelector(`input[name=images][value=${state.prefs.imageMode}]`).checked=true;}
 function setPortrait(speaker,emotion='neutral',segment){
   const request=++assetRequest;
   if(speaker==='user')return;
@@ -113,7 +113,7 @@ $('home').onclick=goHome;$('start').onclick=safe(async()=>{if(state?.deleted)thr
 $('settings-open').onclick=()=>{applyPreferences();$('settings').showModal();};$('speed').oninput=()=>{$('speed-value').textContent=+$('speed').value?`${$('speed').value} 字 / 秒`:'直接显示';};
 $('menu-settings').onclick=$('stage-settings').onclick=()=>$('settings-open').click();
 $('stage-saves').onclick=safe(showSaves);
-$('settings-save').onclick=safe(async()=>{state.prefs=await api('/api/game/settings','PUT',{speed:+$('speed').value,imageMode:document.querySelector('input[name=images]:checked').value});$('settings').close();toast('已保存。下一轮会使用新的配图设置。');});
+$('settings-save').onclick=safe(async()=>{state.prefs=await api('/api/game/settings','PUT',{speed:+$('speed').value,imageMode:document.querySelector('input[name=images]:checked').value});setLive2dPreference($('spirit-motion').checked);$('settings').close();toast('已保存。下一轮会使用新的配图设置。');});
 async function showSaves(){
   await poll();$('save-list').replaceChildren();
   let saves=[];try{saves=(await api('/api/saves')).saves;}catch{if(state.save)saves=[{...state.save,current:true,connected:state.connected}];}

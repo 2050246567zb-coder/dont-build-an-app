@@ -80,6 +80,9 @@ header {
 .companion-body .companion-hit:hover, .companion-body .companion-hit:active { filter: none; transform: none; }
 .companion-float.motion-paused, [hidden] .companion-float { animation-play-state: paused; }
 .cover-system, #portrait { user-select: none; }
+.live2d-canvas { display: none; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.live2d-ready .live2d-canvas { display: block; }
+.live2d-ready > img { visibility: hidden; }
 @keyframes companion-float { from { transform: translateY(4px); } to { transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) {
   .companion-float.is-floating { animation: none; }
