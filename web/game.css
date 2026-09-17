@@ -99,7 +99,6 @@ header {
 .stage[data-speaker="system"] .character-area { inset: 30px 20% 255px; }
 .stage[data-artwork="generated"] .character-area { inset: 50px 12% 250px; }
 .emotion { display: none; }
-.stage[data-speaker="system"]:has(#reply-panel:not([hidden]), #delivery:not([hidden])) .character-area { left: 0; right: 56%; top: 25px; bottom: 300px; }
 .dialogue {
   position: absolute; z-index: 4; bottom: 56px; left: 3.5vw; right: 3.5vw;
   height: clamp(212px, 27vh, 285px); padding: 37px 4vw 22px;

@@ -1,0 +1,140 @@
+/* Generated scene/skin PNGs supply every decorative surface. CSS handles layout and motion. */
+:root {
+  --scene-floor: calc(clamp(212px, 27vh, 285px) + 82px);
+  --ink: #eef2f4; --secondary: #d1dce7; --accent: #e2d2ac;
+  --input-fill: #0b1928; --input-ink: #edf2f6; --placeholder: #a6b6c6;
+  --heading: #f0e3ca; --reader-ink: #d8e1e9; --code-fill: #0a1727;
+  --table-fill: #11243a; --table-heading: #1c324a; --focus: #f4dda6;
+  --scroll-thumb: #7b8795; --scroll-track: #14243a; --backdrop: #050d1bc2;
+  --panel-slice: 145 140; --motion: cubic-bezier(.16,1,.3,1);
+}
+:root[data-theme="jobs"] {
+  color-scheme: light; --ink: #242426; --secondary: #454549; --muted: #606068;
+  --accent: #35353a; --gold: #35353a; --heading: #1d1d1f;
+  --input-fill: #e9e9ed; --input-ink: #242426; --placeholder: #606068;
+  --reader-ink: #343439; --code-fill: #e8e8ec; --table-fill: #eeeef1; --table-heading: #dddde3;
+  --focus: #0066cc; --scroll-thumb: #898990; --scroll-track: #ebebee; --backdrop: #d3d3d58c;
+  --frame: url('/art/jobs-panel.png'); --button: var(--frame); --panel-slice: 100;
+  --serif: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--serif); background: #ececea;
+}
+:root[data-theme="xiaohei"] {
+  color-scheme: dark; --ink: #f2f2f2; --secondary: #dedee1; --muted: #b8b8bf;
+  --accent: #f4f4f6; --gold: #f4f4f6; --heading: #fff;
+  --input-fill: #303035; --input-ink: #f2f2f4; --placeholder: #b8b8bf;
+  --reader-ink: #e1e1e5; --code-fill: #303035; --table-fill: #303035; --table-heading: #414147;
+  --focus: #fff; --scroll-thumb: #909099; --scroll-track: #27272b; --backdrop: #0c0c10c9;
+  --frame: url('/art/xiaohei-panel.png'); --button: var(--frame); --panel-slice: 145 130;
+  --serif: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  background: #202024;
+}
+body { color: var(--ink); }
+#app { isolation: isolate; background: #101b2b url('/art/background.png') center / cover no-repeat fixed; }
+.scene-backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.scene-backdrop img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 650ms var(--motion); }
+.scene-backdrop img.active.ready { opacity: 1; }
+/* One set of tokens reaches header, controls and native dialog top layers. */
+#connection, .stage-top h2, .quick-menu button { color: var(--secondary); }
+.primary, #speaker, dialog h2, .choice strong, .save-card h3 { color: var(--heading); }
+.dialogue-caption, .hint, #speed-value, #draft-status, .quick-menu span { color: var(--muted); }
+#status-banner, #toast { color: var(--accent); }
+dialog { color: var(--ink); }
+dialog::backdrop { background: var(--backdrop); }
+#reader-body { color: var(--reader-ink); }
+#reader-body.markdown :is(h1,h2,h3) { color: var(--heading); }
+#reader-body.markdown pre { background: var(--code-fill); }
+#reader-body.markdown :is(th,td) { background: var(--table-fill); }
+#reader-body.markdown th { background: var(--table-heading); }
+#reader-body a { color: var(--accent); text-underline-offset: 3px; }
+#reply, .save-toolbar select { background: var(--input-fill); color: var(--input-ink); }
+#reply::placeholder { color: var(--placeholder); }
+#speed, .choice input { accent-color: var(--focus); }
+:is(button,textarea,input,select,a):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+#dialogue-text, dialog, #reply-panel, #delivery { scrollbar-color: var(--scroll-thumb) var(--scroll-track); scrollbar-width: thin; }
+:root:not([data-theme="system"]) .wordmark, :root:not([data-theme="system"]) #connection { text-shadow: none; }
+:root:not([data-theme="system"]) header {
+  border: 10px solid transparent; border-image: var(--frame) var(--panel-slice) fill / 10px / 0 stretch;
+  padding-inline: 3vw;
+}
+:root:not([data-theme="system"]) :is(button:not(.wordmark):not(.companion-hit),#speaker) {
+  background: none; border: 9px solid transparent;
+  border-image: var(--button) var(--panel-slice) fill / 9px / 0 stretch;
+  padding: 3px 14px;
+}
+:root:not([data-theme="system"]) :is(.reply-panel,.delivery,dialog,#status-banner,#toast,.dialogue) {
+  background: none; border: 20px solid transparent;
+  border-image: var(--frame) var(--panel-slice) fill / 20px / 0 stretch;
+}
+:root:not([data-theme="system"]) .dialogue { padding: 22px 3vw 14px; }
+:root:not([data-theme="system"]) #speaker { top: -36px; min-width: 126px; font-size: 16px; font-weight: 600; letter-spacing: .02em; padding: 8px 22px; }
+:root:not([data-theme="system"]) .dialogue-caption { letter-spacing: .14em; }
+:root:not([data-theme="system"]) dialog .close { min-height: 34px; padding: 0 9px; }
+:root:not([data-theme="system"]) #dialogue-text { letter-spacing: .01em; line-height: 1.8; }
+:root[data-theme="jobs"] :is(.reply-heading,.delivery h3,dialog h2,.save-card h3) { font-weight: 600; letter-spacing: -.025em; }
+:root[data-theme="jobs"] button:hover:not(:disabled) { filter: brightness(.96); }
+:root[data-theme="xiaohei"] #speaker { letter-spacing: .12em; }
+button { transition: filter 180ms ease-out, transform 320ms var(--motion); }
+button:hover:not(:disabled):not(.wordmark):not(.companion-hit) { transform: translateY(-2px); }
+button:active:not(:disabled):not(.wordmark):not(.companion-hit) { transform: scale(.97); transition-duration: 90ms; }
+button:disabled { transform: none; }
+textarea, select, .choice, input { transition: background-color 200ms ease-out, color 200ms ease-out, outline-offset 200ms var(--motion), transform 220ms var(--motion); }
+textarea:focus-visible, select:focus-visible { outline-offset: 1px; }
+.choice:hover { transform: translateX(3px); }
+.choice input:active { transform: scale(.9); }
+.save-card { animation: ui-arrive 360ms var(--motion) both; }
+.save-card:nth-child(2) { animation-delay: 35ms; }
+.save-card:nth-child(3) { animation-delay: 70ms; }
+.save-card:nth-child(n+4) { animation-delay: 100ms; }
+#menu:not([hidden]) .menu-copy, #stage:not([hidden]) .stage-top { animation: ui-arrive 420ms var(--motion) both; }
+#menu:not([hidden]) .menu-actions button { animation: ui-arrive 420ms var(--motion) both; }
+#menu:not([hidden]) .menu-actions button:nth-child(2) { animation-delay: 45ms; }
+#menu:not([hidden]) .menu-actions button:nth-child(3) { animation-delay: 90ms; }
+#stage:not([hidden]) .dialogue, #stage:not([hidden]) .quick-menu { animation: ui-arrive 420ms var(--motion) both; }
+@keyframes ui-arrive { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+/* Modern hosts retain the outgoing surface for its short exit without delaying state changes. */
+@supports (transition-behavior: allow-discrete) {
+  dialog, #reply-panel, #delivery, #reply-reopen, #status-banner, #toast {
+    opacity: 1; translate: 0 0;
+    transition: opacity 220ms ease-out, translate 320ms var(--motion), display 320ms allow-discrete, overlay 320ms allow-discrete;
+  }
+  dialog:not([open]), :is(#reply-panel,#delivery,#reply-reopen,#status-banner,#toast)[hidden] { opacity: 0; translate: 0 12px; pointer-events: none; }
+  dialog::backdrop { transition: opacity 220ms ease-out, display 320ms allow-discrete, overlay 320ms allow-discrete; opacity: 1; }
+  dialog:not([open])::backdrop { opacity: 0; }
+  @starting-style {
+    dialog[open], #reply-panel:not([hidden]), #delivery:not([hidden]), #reply-reopen:not([hidden]), #status-banner:not([hidden]), #toast:not([hidden]) { opacity: 0; translate: 0 12px; }
+    dialog[open]::backdrop { opacity: 0; }
+  }
+}
+
+/* Every portrait yields the same safe region. Input is beside it, never over its face. */
+.character-area { transition: left 480ms var(--motion), right 480ms var(--motion), top 480ms var(--motion), bottom 480ms var(--motion); }
+.stage:has(#reply-panel:not([hidden]),#delivery:not([hidden])) .character-area {
+  left: 2%; right: 58%; top: 94px; bottom: var(--scene-floor);
+}
+.stage:has(#reply-panel:not([hidden]),#delivery:not([hidden])) #portrait { object-position: center center; }
+.reply-panel, .delivery {
+  left: auto; right: 3%; top: 100px; transform: none;
+  width: min(560px,54%); max-height: calc(100% - var(--scene-floor) - 112px); overflow: auto;
+}
+.reply-panel { padding-inline: 10px; }
+#reply { min-height: 88px; max-height: min(18vh,180px); }
+@media (max-width:900px) {
+  :root { --scene-floor: 332px; }
+  .reply-panel, .delivery { right: 2%; width: 55%; top: 110px; }
+  .reply-heading { font-size: 15px; }
+  .reply-footer { flex-wrap: wrap; gap: 6px; }
+  #draft-status { flex: 1 1 100%; }
+  .reply-footer button { padding-inline: 18px; }
+}
+@media (max-width:550px) {
+  /* Tiny split panes stack portrait above input instead of hiding it behind a panel. */
+  .stage { min-height: 940px; }
+  .stage:has(#reply-panel:not([hidden]),#delivery:not([hidden])) .character-area {
+    top: 72px; bottom: auto; height: 170px; left: 12%; right: 12%;
+  }
+  .reply-panel, .delivery { top: 256px; left: 3%; right: 3%; width: auto; max-height: calc(100% - var(--scene-floor) - 268px); }
+  :root:not([data-theme="system"]) .quick-menu button { padding-inline: 7px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

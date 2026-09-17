@@ -1,5 +1,6 @@
 import {renderMarkdown} from './markdown.js';
 import {bindCompanion,prefersLive2d,setLive2dPreference,changePortrait} from './companion.js';
+import {setSceneTheme} from './themes.js';
 const $=id=>document.getElementById(id);
 const menuCompanion=bindCompanion({floating:$('menu-companion-float'),body:$('menu-companion-body'),image:$('menu-companion-image'),button:$('menu-companion')});
 const stageCompanion=bindCompanion({floating:$('portrait-float'),body:$('portrait-body'),image:$('portrait'),button:$('stage-companion'),enabled:false});
@@ -42,6 +43,7 @@ function applyPreferences(){$('spirit-motion').checked=prefersLive2d();if(!state
 function setPortrait(speaker,emotion='neutral',segment){
   const request=++assetRequest;
   if(speaker==='user')return;
+  setSceneTheme(speaker);
   stageCompanion.reset(false);$('stage-companion').hidden=true;
   const apply=async(src,generated=false)=>{
     if(request!==assetRequest){if(generated)URL.revokeObjectURL(src);return;}
@@ -111,7 +113,7 @@ async function enter(){
   menuCompanion.reset();inGame=true;$('menu').hidden=true;$('stage').hidden=false;$('save-title').textContent=state.save.title;
   const saved=state.timeline.findIndex(s=>s.id===state.save.position);show(saved>=0?saved:0);banner();
 }
-function goHome(){stopType();clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');stageCompanion.reset();inGame=false;$('stage').hidden=true;$('menu').hidden=false;}
+function goHome(){stopType();clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');assetRequest++;stageCompanion.reset();setSceneTheme('system');inGame=false;$('stage').hidden=true;$('menu').hidden=false;}
 async function saveDraft(revision){if(!owned)return;const text=$('reply').value,saveId=state.save?.id;try{await api('/api/draft','PUT',{text,baseMessageId:base,viewerId:viewer,gameSessionId:saveId});if(revision===draftRevision){$('draft-status').textContent='已保存';localStorage.removeItem(`draft:${saveId}`);}}catch{if(revision===draftRevision)$('draft-status').textContent='连接中断，已暂存在此浏览器';}}
 $('reply').addEventListener('input',()=>{draftRevision++;$('draft-status').textContent='保存中…';try{localStorage.setItem(`draft:${state?.save?.id}`,JSON.stringify({text:$('reply').value,at:Date.now()}));}catch{$('draft-status').textContent='本地缓存失败，请复制文字';}clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDraft(draftRevision),250);updateSend();});
 $('reply').addEventListener('blur',()=>{clearTimeout(saveTimer);void saveDraft(draftRevision);});
