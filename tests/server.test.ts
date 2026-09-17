@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {startServer} from '../src/server.ts';
 import type {HostAdapter} from '../src/adapters/types.ts';
+import {artFiles} from '../src/portraits.ts';
 
 const thread='11111111-1111-1111-1111-111111111111';
 test('startup identity mismatch closes adapter and never opens a web binding',async()=>{
@@ -31,6 +32,18 @@ test('auth, origin restrictions, unknown endpoint, private export',async t=>{
   assert.equal((await f.request('/api/state','GET',undefined,{Origin:'https://evil.example'})).status,403);
   assert.equal((await f.request('/api/unknown')).status,404);
   assert.equal((await f.request('/api/evidence')).status,200);
+});
+test('all shipped raster artwork is served as PNG; arbitrary files are never public',async t=>{
+  const f=await fixture(t);
+  for(const file of artFiles){
+    const response=await fetch(f.url.origin+'/art/'+file);
+    assert.equal(response.status,200,file);assert.equal(response.headers.get('content-type'),'image/png');
+    const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a',file);
+  }
+  assert.equal((await fetch(f.url.origin+'/builtin/jobs/thinking')).headers.get('content-type'),'image/png');
+  assert.equal((await fetch(f.url.origin+'/art/prompts.json')).status,404);
+  assert.equal((await fetch(f.url.origin+'/art/%2e%2e%2fpackage.json')).status,404);
+  assert.equal((await fetch(f.url.origin+'/builtin/unknown/neutral')).status,404);
 });
 test('duplicate client IDs acknowledge once; altered contents and stale context reject',async t=>{
   const f=await fixture(t),payload={id:'client-0001',text:'hello',baseMessageId:null};

@@ -10,7 +10,7 @@ import type { HostAdapter } from './adapters/types.ts';
 import { evidence } from './evidence.ts';
 import { visibleCodexUserText } from './adapters/codex-text.ts';
 import { Game } from './game.ts';
-import { portrait } from './portraits.ts';
+import { portrait, artFiles } from './portraits.ts';
 import {registerSave,listSaves} from './catalog.ts';
 
 const webRoot = fileURLToPath(new URL('../web/',import.meta.url));
@@ -87,7 +87,18 @@ export async function startServer(options: ServerOptions) {
         response.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8','Cache-Control':'no-store'});
         return response.end(await readFile(join(webRoot,url.pathname.slice(1))));
       }
-      if(url.pathname.startsWith('/builtin/')){const [, ,role,emotion]=url.pathname.split('/');response.writeHead(200,{'Content-Type':'image/svg+xml'});return response.end(portrait(role,emotion));}
+      if(url.pathname.startsWith('/builtin/') || url.pathname.startsWith('/art/')){
+        let file:string;
+        if(url.pathname.startsWith('/builtin/')){
+          const parts=url.pathname.split('/');
+          if(parts.length!==4 || !['system','jobs','xiaohei'].includes(parts[2]))return json(response,404,{error:'Unknown artwork'});
+          file=portrait(parts[2],parts[3]);
+        }else file=url.pathname.slice('/art/'.length);
+        if(!artFiles.has(file))return json(response,404,{error:'Unknown artwork'});
+        const bytes=await readFile(join(webRoot,'assets','midnight',file));
+        response.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=3600'});
+        return response.end(bytes);
+      }
       if (!authorized(request,token)) return json(response,401,{error:'需要从原 Agent 提供的启动链接进入'});
       if(url.pathname==='/api/health'&&request.method==='GET')return json(response,200,{connected,deleted:game.get()?.deleted??false});
       if(url.pathname==='/api/saves'&&request.method==='GET')return json(response,200,await listSaves(options.registryDir,threadId,game.get(),connected));

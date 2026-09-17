@@ -35,11 +35,13 @@ function applyPreferences(){if(!state)return;$('speed').value=state.prefs.speed;
 function setPortrait(speaker,emotion='neutral',segment){
   const request=++assetRequest;
   if(speaker==='user')return;
+  $('stage').dataset.speaker=speaker;
+  $('stage').dataset.artwork='builtin';
   if(portraitBlob){URL.revokeObjectURL(portraitBlob);portraitBlob=null;}
-  $('portrait').onerror=()=>{if(request!==assetRequest||!portraitBlob)return;URL.revokeObjectURL(portraitBlob);portraitBlob=null;$('portrait').src=`/builtin/${speaker}/${emotion}`;toast('这张配图无法显示，已使用内置立绘。');};
+  $('portrait').onerror=()=>{if(request!==assetRequest||!portraitBlob)return;URL.revokeObjectURL(portraitBlob);portraitBlob=null;$('stage').dataset.artwork='builtin';$('portrait').src=`/builtin/${speaker}/${emotion}`;toast('这张配图无法显示，已使用内置立绘。');};
   $('portrait').src=`/builtin/${speaker}/${emotion}`;$('portrait').alt=`${names[speaker]} · ${emotionNames[emotion]||'平静'}`;$('emotion').textContent=emotionNames[emotion]||'';
   if(segment?.asset_id&&state.prefs.imageMode==='generated'){
-    fetch(`/api/game/resource/image/${segment.turnId}/${segment.asset_id}`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw Error();return r.blob();}).then(blob=>{if(request!==assetRequest)return;portraitBlob=URL.createObjectURL(blob);$('portrait').src=portraitBlob;}).catch(()=>{if(request===assetRequest)toast('这张配图暂不可用，已使用内置立绘。');});
+    fetch(`/api/game/resource/image/${segment.turnId}/${segment.asset_id}`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw Error();return r.blob();}).then(blob=>{if(request!==assetRequest)return;portraitBlob=URL.createObjectURL(blob);$('stage').dataset.artwork='generated';$('portrait').src=portraitBlob;}).catch(()=>{if(request===assetRequest)toast('这张配图暂不可用，已使用内置立绘。');});
   }
 }
 function stopType(){clearTimeout(typeTimer);typing=false;}
@@ -105,6 +107,8 @@ $('review').onclick=()=>{const last=state.timeline.at(-1);if(last&&last.id!==cur
 $('status-banner').onclick=safe(async()=>{if(!owned&&state.connected){owned=(await api('/api/game/lease','POST',{clientId:viewer,force:true})).owned;banner();updateSend();}});
 $('home').onclick=goHome;$('start').onclick=safe(async()=>{if(state?.deleted)throw Error('此存档已删除，请从原任务重新启动网页模式');if(state?.save)return showSaves();await enter();});
 $('settings-open').onclick=()=>{applyPreferences();$('settings').showModal();};$('speed').oninput=()=>{$('speed-value').textContent=+$('speed').value?`${$('speed').value} 字 / 秒`:'直接显示';};
+$('menu-settings').onclick=$('stage-settings').onclick=()=>$('settings-open').click();
+$('stage-saves').onclick=safe(showSaves);
 $('settings-save').onclick=safe(async()=>{state.prefs=await api('/api/game/settings','PUT',{speed:+$('speed').value,imageMode:document.querySelector('input[name=images]:checked').value});$('settings').close();toast('已保存。下一轮会使用新的配图设置。');});
 async function showSaves(){
   await poll();$('save-list').replaceChildren();

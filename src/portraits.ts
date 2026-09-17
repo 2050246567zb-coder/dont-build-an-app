@@ -1,13 +1,15 @@
 import {emotions} from './story.ts';
-/** Original vector fallback artwork, shipped with the application. No remote fonts or assets. */
-export function portrait(role:string,emotion:string):string{
-  if(!['system','jobs','xiaohei'].includes(role))throw Error('Unknown character');
-  if(!emotions.includes(emotion as any))emotion='neutral';
-  const angry=emotion==='angry',happy=emotion==='approval',wide=emotion==='surprised',think=emotion==='thinking',skeptical=emotion==='skeptical';
-  const mouth=wide?'M246 341 Q270 316 294 341 Q291 383 270 384 Q246 379 246 341':happy?'M239 349 Q270 376 304 344':angry?'M241 357 Q269 327 302 353':'M249 355 Q271 362 293 350';
-  const eyes=wide?17:angry?7:11,tilt=skeptical?-8:think?5:0;
-  const header=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 760" role="img"><title>${role==='jobs'?'乔布斯':role==='xiaohei'?'小黑':'AI'} · ${emotion}</title><defs><linearGradient id="coat" x2="1" y2="1"><stop stop-color="#292c38"/><stop offset="1" stop-color="#080910"/></linearGradient><linearGradient id="skin" x2="1" y2="1"><stop stop-color="#edcbb5"/><stop offset="1" stop-color="#b9907f"/></linearGradient><radialGradient id="orb"><stop stop-color="#ddf5e9"/><stop offset=".5" stop-color="#96b8ac"/><stop offset="1" stop-color="#436264"/></radialGradient></defs>`;
-  if(role==='system')return header+`<g transform="translate(270 326)"><ellipse cy="245" rx="133" ry="14" fill="#000" opacity=".1"/><circle r="112" fill="url(#orb)"/><ellipse rx="162" ry="46" fill="none" stroke="#ddc7a6" stroke-width="3" transform="rotate(-28)"/><ellipse rx="148" ry="44" fill="none" stroke="#d3e7dd" opacity=".65" transform="rotate(35)"/><path d="M-38 -4h16M22 -4h16" stroke="#19313a" stroke-width="8" stroke-linecap="round"/><path d="M-13 23q13 11 26 0" stroke="#19313a" stroke-width="3" fill="none"/><path d="M0 -170v18M-9 -161h18M150 60v18M141 69h18" stroke="#e8d0a6" stroke-width="2"/></g></svg>`;
-  const black=role==='xiaohei';
-  return header+`<ellipse cx="270" cy="739" rx="167" ry="18" fill="#000" opacity=".2"/><path d="M85 760L107 524Q114 471 218 438L229 403H314L325 437Q415 461 432 521L465 760" fill="url(#coat)" stroke="${black?'#666b9f':'#4d4b4c'}" stroke-width="3"/><path d="M210 433Q269 475 328 433L314 410H226Z" fill="${black?'#141625':'#20212b'}"/><g transform="rotate(${tilt} 270 300)"><path d="M169 286Q141 283 154 325L178 342M365 281Q388 278 378 326L356 342" fill="${black?'#111321':'url(#skin)'}" stroke="#5c5364" stroke-width="3"/><path d="M167 240Q160 164 218 141Q289 104 347 159Q384 196 366 288L352 351Q335 406 276 429Q207 411 184 352Z" fill="${black?'#10111a':'url(#skin)'}" stroke="${black?'#68739c':'#9b7b72'}" stroke-width="4"/>${!black?'<path d="M174 220Q160 170 200 151M341 151Q378 178 365 222" fill="none" stroke="#797475" stroke-width="9"/><path d="M201 377Q270 427 339 374Q314 423 276 429Q228 416 201 377" fill="#d9cebc" opacity=".65"/>':''}<path d="M189 ${angry?260:255}L238 ${angry?275:251}M300 ${angry?275:251}L348 ${angry?259:255}" stroke="${black?'#858aaa':'#796859'}" stroke-width="6" stroke-linecap="round"/><ellipse cx="214" cy="292" rx="${wide?22:18}" ry="${eyes}" fill="${black?'#fff8e8':'#433a38'}"/><ellipse cx="324" cy="292" rx="${wide?22:18}" ry="${eyes}" fill="${black?'#fff8e8':'#433a38'}"/>${black?'<circle cx="219" cy="291" r="5" fill="#141621"/><circle cx="319" cy="291" r="5" fill="#141621"/>':'<g fill="none" stroke="#a7acaa" stroke-width="3"><ellipse cx="214" cy="290" rx="43" ry="32"/><ellipse cx="323" cy="290" rx="43" ry="32"/><path d="M258 286q13 -12 22 0M170 280l-12 -2M366 281l13 -6"/></g>'}<path d="M275 286L264 328L280 332" fill="none" stroke="${black?'#646482':'#a17969'}" stroke-width="3"/><path d="${mouth}" fill="${wide?'#483338':'none'}" stroke="${black?'#f3ebe0':'#6e504a'}" stroke-width="4" stroke-linecap="round"/></g><path d="M152 550L173 685M397 547L370 685" fill="none" stroke="#3e4057" stroke-width="3"/>${think?`<path d="M370 710Q339 530 302 371" fill="none" stroke="${black?'#25273a':'#d1ad98'}" stroke-width="29" stroke-linecap="round"/><path d="M305 383l-20 -37" stroke="${black?'#8186a2':'#d1ad98'}" stroke-width="14" stroke-linecap="round"/>`:angry||skeptical?`<path d="M156 657Q81 559 114 490" fill="none" stroke="${black?'#24283c':'#cba48b'}" stroke-width="29" stroke-linecap="round"/><path d="M114 490L86 448M112 485l5 -47M115 490l24 -40" stroke="${black?'#6f749b':'#cba48b'}" stroke-width="10" stroke-linecap="round"/>`:'<path d="M162 665Q270 724 381 660" fill="none" stroke="#404257" stroke-width="25" stroke-linecap="round"/>'}</svg>`;
+
+/** Only generated, bundled PNG artwork. Never interpolate a caller's path. */
+export const artFiles = new Set([
+  'background.png', 'dialogue-frame.png', 'button.png',
+  ...['jobs', 'xiaohei'].flatMap(role => emotions.map(emotion => `${role}-${emotion}.png`)),
+  'system-neutral.png', 'system-thinking.png',
+]);
+
+export function portrait(role:string, emotion:string):string {
+  if (!['system','jobs','xiaohei'].includes(role)) throw Error('Unknown character');
+  if (!emotions.includes(emotion as any)) emotion = 'neutral';
+  if (role === 'system' && emotion !== 'thinking') emotion = 'neutral';
+  return `${role}-${emotion}.png`;
 }

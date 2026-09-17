@@ -36,7 +36,8 @@ test('complete requires a system speaker, real document and closed design or exp
 test('assets cannot cross characters; fallback rejects executable formats and invalid image bytes',()=>{
   const input=scene();input.segments[0].asset_id='img';input.assets=[{id:'img',speaker:'xiaohei',mime:'image/png',data_base64:'AAAA'}];assert.throws(()=>sceneSchema.parse(input));
   input.assets[0].speaker='jobs';const f=fixture();try{assert.throws(()=>f.game.stage(input),/内置/);f.game.preferences({speed:30,imageMode:'generated'});assert.throws(()=>f.game.stage(input),/图片/);}finally{f.close();}
-  assert.ok(portrait('jobs','approval').includes('<svg'));assert.notEqual(portrait('xiaohei','angry'),portrait('xiaohei','approval'));assert.throws(()=>portrait('../secret','neutral'));
+  assert.equal(portrait('jobs','approval'),'jobs-approval.png');assert.notEqual(portrait('xiaohei','angry'),portrait('xiaohei','approval'));assert.throws(()=>portrait('../secret','neutral'));
+  assert.equal(portrait('jobs','../../secret'),'jobs-neutral.png');assert.equal(portrait('system','approval'),'system-neutral.png');
 });
 test('document bytes match both saved file and returned markdown; deletion never touches host mirror and cannot resurrect',()=>{
   const f=fixture();try{const input=scene([{...segment('system','complete'),document_id:'doc'}]);input.stage='delivery';input.design_closed=true;input.documents=[{id:'doc',title:'方案',markdown:'# 产品方案\n'+ '这是已确定的实现内容。'.repeat(30)}];
