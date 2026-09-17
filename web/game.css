@@ -118,7 +118,7 @@ header {
   white-space: pre-wrap; margin: 14px 0; height: calc(100% - 64px);
   overflow: auto; scrollbar-width: thin; scrollbar-color: #7b8795 #14243a;
 }
-.dialogue-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 28px; }
+.dialogue-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; min-height: 28px; }
 #play-state { font-size: 10px; color: var(--muted); }
 .thinking-dots { display: inline-block; width: 1.4em; white-space: nowrap; }
 .thinking-dots span { animation: thinking-dot 1.5s steps(1, end) infinite; }

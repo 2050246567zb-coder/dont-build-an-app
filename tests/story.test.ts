@@ -56,3 +56,39 @@ test('play position and preferences survive reopen; a second tab cannot submit o
     assert.throws(()=>reopened.canSend({viewerId:'viewer_222',gameSessionId:reopened.get()?.id,replyTo:'old'}),/问题/);
   }finally{f.close();}
 });
+
+test('plain replies preserve original content and allow explicit recovery only at the latest leased entry',()=>{
+  const f=fixture();try{
+    final(f.store,'这是打断之后的普通回复。');f.game.reconcile();
+    const entry=f.game.timeline().at(-1)!;assert.equal(entry.raw,'这是打断之后的普通回复。');
+    f.game.lease('viewer_111');const input={viewerId:'viewer_111',gameSessionId:f.game.get()!.id,replyTo:entry.id,recover:true};
+    assert.doesNotThrow(()=>f.game.canSend(input));
+    assert.throws(()=>f.game.canSend({...input,recover:false}),/问题/);
+    assert.throws(()=>f.game.canSend({...input,viewerId:'viewer_222'}),/标签页/);
+    final(f.store,'原窗口又补了一句。','next',3);
+    assert.throws(()=>f.game.canSend(input),/问题/);
+  }finally{f.close();}
+});
+
+test('a user interruption retires unpublished scenes and a later matching final cannot revive them',()=>{
+  const f=fixture();try{
+    const previous=f.game.stage(scene());
+    f.store.addMessage(thread,{id:'interrupt',role:'user',text:'等一下，我改主意了。',ordinal:1,timestamp:new Date().toISOString(),phase:'',kind:'native'});
+    final(f.store,previous.finalText,'late',2);f.game.reconcile();
+    assert.equal(f.game.get()!.turns[0].status,'interrupted');
+    assert.equal(f.game.timeline().at(-1)!.advance,'error');assert.deepEqual(f.game.state().pending,[]);
+    const next=f.game.stage({...scene(),turn_id:'after_interruption'});final(f.store,next.finalText,'new',3);f.game.reconcile();
+    assert.equal(f.game.timeline().at(-1)!.speaker,'jobs');assert.deepEqual(f.game.state().pending,[]);
+  }finally{f.close();}
+});
+
+test('mismatch stops warning after a new valid turn; a final before interruption remains committed',()=>{
+  const f=fixture();try{
+    f.game.stage(scene());final(f.store,'普通回复。','plain',1);f.game.reconcile();assert.equal(f.game.state().pending[0].status,'mismatch');
+    f.store.addMessage(thread,{id:'user_resume',role:'user',text:'继续。',ordinal:2,timestamp:new Date().toISOString(),phase:'',kind:'native'});
+    const next=f.game.stage({...scene(),turn_id:'resumed'});final(f.store,next.finalText,'resumed_final',3);
+    f.store.addMessage(thread,{id:'user_after',role:'user',text:'说到这里我想补充。',ordinal:4,timestamp:new Date().toISOString(),phase:'',kind:'native'});f.game.reconcile();
+    assert.equal(f.game.get()!.turns[1].status,'committed');assert.deepEqual(f.game.state().pending,[]);
+    assert.equal(f.game.timeline().find(s=>s.hostId==='plain')!.raw,'普通回复。');
+  }finally{f.close();}
+});

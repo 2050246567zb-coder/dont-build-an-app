@@ -42,6 +42,7 @@ async function main(){
     const game=await (await fetch(existing.origin+'/api/game',{headers:{Authorization:`Bearer ${existing.token}`}})).json();
     await registerSave(registryDir,{adapter:context.adapter,threadId:context.threadId,hostLabel:game.hostLabel},existing.runtime.url,game.save?{...game.save,deleted:game.deleted}:null);
     if(!existing.state.catalogVersion)console.error('当前仍运行旧版服务：统一存档已登记；请从此原任务停止并重启服务后使用同页切换。');
+    if(!game.recoverySupported)console.error('当前服务尚不支持中断后续聊：请在此原任务执行 npm run stop，再按宿主方式重新启动。数据目录和存档保持不变。');
     console.log(process.argv[2]==='info'?JSON.stringify({...existing.runtime,runtimePath,mcpCommand:process.execPath,mcpArgs:[join(root,'dist/mcp.js'),runtimePath]},null,2):existing.runtime.url);return;
   }
   if(context.host==='workbuddy'){

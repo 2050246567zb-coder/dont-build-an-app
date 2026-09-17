@@ -35,7 +35,7 @@ npm run launch
 
 安装器把整个 Skill 安装到当前 CODEX_HOME/skills/dont-build-an-app；WorkBuddy 用 `npm run install:skill -- --host workbuddy` 安装到 `~/.workbuddy/skills/dont-build-an-app`。二者都备份旧版并记录本机工程路径，不改模型或全局 MCP 配置。搬迁工程后重新安装 Skill。
 
-让 Agent 打开 launch 输出的本机链接，然后说“使用不要再做 App 了，进入 GalGame 网页模式”。同一任务重复启动复用服务，不创建模型会话。Agent 必须读取 [网页输出约定](skills/dont-build-an-app/references/galgame-mode.md)；普通未结构化回复保留原文并提示处理，不猜测角色。
+让 Agent 打开 launch 输出的本机链接，然后说“使用不要再做 App 了，进入 GalGame 网页模式”。同一任务重复启动复用服务，不创建模型会话。Agent 必须读取 [网页输出约定](skills/dont-build-an-app/references/galgame-mode.md)；普通未结构化回复保留原文并允许续聊，不猜测角色。
 
 ## 使用
 
@@ -43,6 +43,7 @@ npm run launch
 - 名字、情绪立绘和台词按顺序播放。立即显示只跳过当前逐字动画；点击继续进入下一段；最后的问题才开放输入。
 - 设置可调整文字速度，选择内置立绘或原 Agent 实时生成的图片。默认使用随包提供的生成立绘，运行时不消耗生图额度；实时图片使用原 Agent 的能力和额度，失败回退。
 - 自动保存草稿，刷新后从主菜单读档。等待过久、连接失败会提醒检查原 Agent，不自动重发未知结果的消息。
+- 在原窗口打断并收到普通回复后，可在网页「查看原回复」、直接填写回答，或点击「恢复角色对话」。本次发送会附带格式提醒，仍只使用原会话的一次回复；没有后台自动修复循环。被打断的未发布剧情不会锁住后续，旧内容继续保留。旧服务需要从对应原任务停止并重启一次，保留存档后生效。
 - 小黑告别后由 AI 交付实际 Markdown，可阅读、下载。主动选择“返回原 Agent 开始开发”并确认，才发送执行指令并切回原任务。
 - 删除网页存档移除剧情、草稿和专属缓存，保留原 Agent 历史及已交付的共享文件。重建须从对应原任务重新启动；当前不会恢复已删的旧剧情。
 
@@ -69,7 +70,7 @@ node dist/publish.js "/actual/runtime.json" "/actual/scene.json"
 
 第二条返回 finalText。Agent 必须把它原样作为**当前原任务的最终回复**，全部角色图文都在正式正文中。网页观察到一致正文后才播放；工具输出、思考记录不能代替正式回复。
 
-协议见 [galgame-mode.md](skills/dont-build-an-app/references/galgame-mode.md)：系统/乔布斯/小黑、六种情绪、片段顺序、图片归属、文档关联及闭合/草案状态。模型不遵守格式会明确报错，不静默漏掉角色。
+协议见 [galgame-mode.md](skills/dont-build-an-app/references/galgame-mode.md)：系统/乔布斯/小黑、六种情绪、片段顺序、图片归属、文档关联及闭合/草案状态。未匹配回复保留原文并提供恢复入口，不静默漏掉角色，也不阻断用户续聊。详见 [中断恢复记录](docs/reports/2026-09-17-interruption-recovery.md)。
 
 ## 数据与停止
 

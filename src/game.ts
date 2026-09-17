@@ -4,8 +4,9 @@ import {join,resolve,sep} from 'node:path';
 import type {Store} from './store.ts';
 import {sceneSchema,renderScene,normalizeFinal,sha,type Scene} from './story.ts';
 import {visibleCodexUserText} from './adapters/codex-text.ts';
+import type {RecoverySubmission} from './recovery.ts';
 
-type Staged={scene:Scene;canonical:string;hash:string;baseOrdinal:number;status:'staged'|'committed'|'mismatch';hostId?:string;assetPaths:Record<string,string>;docPaths:Record<string,string>;publishedDocPaths?:Record<string,string>};
+type Staged={scene:Scene;canonical:string;hash:string;baseOrdinal:number;status:'staged'|'committed'|'mismatch'|'interrupted';hostId?:string;assetPaths:Record<string,string>;docPaths:Record<string,string>;publishedDocPaths?:Record<string,string>};
 type Save={id:string;title:string;createdAt:string;updatedAt:string;anchor:number;started:boolean;deleted:boolean;position:string|null;turns:Staged[]};
 type Entry={id:string;hostId:string;speaker:string;text:string;emotion:string;advance:string;stage:string|null;raw?:string;turnId?:string;segment_id?:string;asset_id?:string|null;document_id?:string|null;deliveryKind?:string};
 export class Game {
@@ -19,6 +20,7 @@ export class Game {
   preferences(value:any){if(!Number.isFinite(value.speed)||value.speed<0||value.speed>120||!['builtin','generated'].includes(value.imageMode))throw Error('设置无效');this.store.put('game-preferences',{speed:value.speed,imageMode:value.imageMode});return this.prefs();}
   private folder(save:Save){const root=resolve(this.dataDir,'games'),path=resolve(root,save.id);if(!/^[a-f0-9-]{36}$/.test(save.id)||!path.startsWith(root+sep))throw Error('Invalid owned game path');return path;}
   stage(raw:unknown){
+    this.reconcile();
     const scene=sceneSchema.parse(raw),save=this.start();
     const same=save.turns.find(t=>t.scene.turn_id===scene.turn_id);
     if(same){if(JSON.stringify(same.scene)!==JSON.stringify(scene))throw Error('同一回合 ID 的内容不得改变；修正须使用新 ID');return {turnId:scene.turn_id,status:same.status,finalText:same.canonical};}
@@ -46,23 +48,33 @@ export class Game {
     const save=this.get();if(!save||save.deleted)return;
     let changed=false;
     for(const turn of save.turns.filter(t=>t.status==='staged')){
-      const finals=this.store.messages(this.threadId).filter(m=>m.role==='assistant'&&m.ordinal>turn.baseOrdinal);
+      const following=this.store.messages(this.threadId).filter(m=>m.ordinal>turn.baseOrdinal);
+      const interrupted=following.find(m=>m.role==='user');
+      // A later user turn is a boundary: an old scene cannot claim a later matching reply.
+      const finals=following.filter(m=>m.role==='assistant'&&(!interrupted||m.ordinal<interrupted.ordinal));
       const match=finals.find(m=>normalizeFinal(m.text)===normalizeFinal(turn.canonical));
       if(match){turn.status='committed';turn.hostId=match.id;changed=true;}
-      else if(finals.length){turn.status='mismatch';changed=true;}
+      else if(finals.length){turn.status='mismatch';turn.hostId=finals.at(-1)!.id;changed=true;}
+      else if(interrupted){turn.status='interrupted';changed=true;}
     }
     if(changed)this.put(save);
   }
   timeline():Entry[]{
     const save=this.get();if(!save||save.deleted)return [];
+    const submissions=new Map(this.store.submissions(this.threadId).filter(s=>s.status==='confirmed').map(s=>[s.host_id,s]));
     return this.store.messages(this.threadId).filter(m=>m.ordinal>save.anchor).flatMap<Entry>(m=>{
-      if(m.role==='user')return [{id:m.id,hostId:m.id,speaker:'user',text:m.kind==='native'?this.displayUserText(m.text):m.text,emotion:'neutral',advance:'click',stage:null}];
+      if(m.role==='user'){
+        const submission=submissions.get(m.id);
+        const recovery=submission?this.store.get<RecoverySubmission|null>(`recovery:${submission.id}`,null):null;
+        const text=recovery&&recovery.wireText===submission.text?recovery.text:m.kind==='native'?this.displayUserText(m.text):m.text;
+        return [{id:m.id,hostId:m.id,speaker:'user',text,emotion:'neutral',advance:'click',stage:null}];
+      }
       const turn=save.turns.find(t=>t.hostId===m.id&&t.status==='committed');
       if(turn)return turn.scene.segments.map(s=>({...s,id:`${turn.scene.turn_id}:${s.segment_id}`,hostId:m.id,turnId:turn.scene.turn_id,stage:turn.scene.stage,deliveryKind:turn.scene.delivery_kind}));
-      return [{id:m.id,hostId:m.id,speaker:'system',text:'这条原任务回复尚未匹配剧情格式。请查看原文，或返回原 Agent 让它按网页模式整理；已有对话不会丢失。',raw:m.text,emotion:'neutral',advance:'error',stage:null}];
+      return [{id:m.id,hostId:m.id,speaker:'system',text:'刚才在原窗口聊的内容，我留在这里了。点「查看原回复」就能看到。你可以直接接着回答，也可以点「恢复角色对话」，从刚才的进度继续。',raw:m.text,emotion:'neutral',advance:'error',stage:null}];
     });
   }
-  state(){const save=this.get();return {save:save&&!save.deleted?{id:save.id,title:save.title,createdAt:save.createdAt,updatedAt:save.updatedAt,position:save.position}:null,deleted:save?.deleted??false,prefs:this.prefs(),timeline:this.timeline(),pending:save?.turns.filter(t=>t.status!=='committed').map(t=>({turnId:t.scene.turn_id,status:t.status}))??[],lease:this.store.get(`lease:${this.threadId}`,null)};}
+  state(){const save=this.get(),timeline=this.timeline(),last=timeline.at(-1);return {save:save&&!save.deleted?{id:save.id,title:save.title,createdAt:save.createdAt,updatedAt:save.updatedAt,position:save.position}:null,deleted:save?.deleted??false,prefs:this.prefs(),timeline,recoverySupported:true,pending:save?.turns.filter(t=>t.status==='staged'||t.status==='mismatch'&&t.hostId===last?.hostId).map(t=>({turnId:t.scene.turn_id,status:t.status}))??[],lease:this.store.get(`lease:${this.threadId}`,null)};}
   position(id:string|null){const save=this.get();if(!save||save.deleted)throw Error('存档不存在');if(id!==null&&!this.timeline().some((s:any)=>s.id===id))throw Error('播放位置不属于本存档');save.position=id;this.put(save);}
   lease(clientId:string,force=false){
     if(!/^[a-zA-Z0-9_-]{8,100}$/.test(clientId))throw Error('Invalid viewer');
@@ -70,7 +82,7 @@ export class Game {
     if(current&&current.clientId!==clientId&&Date.now()-current.at<15000&&!force)return {owned:false};
     this.store.put(key,{clientId,at:Date.now()});return {owned:true};
   }
-  canSend(input:any){const save=this.get(),lease=this.store.get<any>(`lease:${this.threadId}`,null);if(!save||save.deleted||input.gameSessionId!==save.id)throw Error('网页存档已失效');if(lease?.clientId!==input.viewerId||Date.now()-lease.at>=15000)throw Error('另一个标签页正在操作；请先接管此会话');const last:any=this.timeline().at(-1);if(last&&(!['reply','complete'].includes(last.advance)||last.id!==input.replyTo))throw Error('当前问题已改变，请阅读最新对话');if(!last&&input.replyTo!==null)throw Error('问题标识无效');}
+  canSend(input:any){const save=this.get(),lease=this.store.get<any>(`lease:${this.threadId}`,null);if(!save||save.deleted||input.gameSessionId!==save.id)throw Error('网页存档已失效');if(lease?.clientId!==input.viewerId||Date.now()-lease.at>=15000)throw Error('另一个标签页正在操作；请先接管此会话');const last:any=this.timeline().at(-1);if(last&&(!['reply','complete'].includes(last.advance)&&!(last.advance==='error'&&input.recover===true)||last.id!==input.replyTo))throw Error('当前问题已改变，请阅读最新对话');if(input.recover===true&&last?.advance!=='error')throw Error('当前对话不需要格式恢复，请读取最新进度');if(!last&&input.replyTo!==null)throw Error('问题标识无效');}
   resource(turnId:string,id:string,kind:'image'|'document'){
     const save=this.get();const turn=save&&!save.deleted?save.turns.find(t=>t.scene.turn_id===turnId&&t.status==='committed'):undefined;
     if(!turn)throw Error('资源尚未由原会话确认或存档已删除');

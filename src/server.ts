@@ -13,6 +13,7 @@ import { Game } from './game.ts';
 import { portrait, artFiles } from './portraits.ts';
 import {live2dAsset,live2dAvailable} from './live2d.ts';
 import {registerSave,listSaves,catalogId,resolveSave,allowedSessionRequest} from './catalog.ts';
+import {recoveryMessage,type RecoverySubmission} from './recovery.ts';
 
 const webRoot = fileURLToPath(new URL('../web/',import.meta.url));
 type ServerOptions = { dataDir:string;port:number; registryDir?:string;hostLabel?:string;adapter?:HostAdapter;rolloutPath?:string;quiet?:boolean;pollMs?:number;heartbeatMs?:number };
@@ -135,7 +136,7 @@ export async function startServer(options: ServerOptions) {
       if(url.pathname==='/api/game'&&request.method==='GET'){await poll();return json(response,200,{...game.state(),connected,hostLabel:options.hostLabel??adapter.label??'Codex 原任务',hostStatus,lastError,latestMessageId:store.messages(threadId).at(-1)?.id??null,draft:store.get(`draft:${threadId}`,''),draftBaseMessageId:store.get(`draft-base:${threadId}`,null),submissions:store.submissions(threadId).map(s=>({id:s.id,status:s.status,host_id:s.host_id})),serverTime:new Date().toISOString()});}
       if(url.pathname==='/api/game/start'&&request.method==='POST'){game.start();await syncCatalog();return json(response,200,game.state());}
       if(url.pathname==='/api/game/reactivate'&&request.method==='POST'){const result=game.reactivate();await syncCatalog();return json(response,200,result);}
-      if(url.pathname==='/api/game/stage'&&request.method==='POST'){const staged=game.stage(await body(request,20_000_000));await syncCatalog();return json(response,200,staged);}
+      if(url.pathname==='/api/game/stage'&&request.method==='POST'){const input=await body(request,20_000_000);await poll();const staged=game.stage(input);await syncCatalog();return json(response,200,staged);}
       if(url.pathname==='/api/game/settings'&&request.method==='PUT')return json(response,200,game.preferences(await body(request)));
       if(url.pathname==='/api/game/lease'&&request.method==='POST'){const input=await body(request);return json(response,200,game.lease(input.clientId,input.force===true));}
       if(url.pathname==='/api/game/position'&&request.method==='PUT'){const input=await body(request);if(!game.lease(input.clientId).owned)return json(response,409,{error:'另一标签页正在使用'});game.position(input.position);await syncCatalog();return json(response,200,{saved:true});}
@@ -160,17 +161,24 @@ export async function startServer(options: ServerOptions) {
       if (request.method === 'POST' && url.pathname === '/api/messages') {
         const input = await body(request);
         if (typeof input.id !== 'string' || !/^[\w-]{8,100}$/.test(input.id) || typeof input.text !== 'string' || !input.text.trim() || input.text.length > 20_000) return json(response,400,{error:'消息格式无效或过长'});
+        if(input.recover!==undefined&&typeof input.recover!=='boolean'||input.recover===true&&!input.gameSessionId)return json(response,400,{error:'格式恢复必须来自当前网页存档'});
         const existing = store.submission(input.id);
-        if (existing) return existing.text === input.text && existing.thread_id === threadId ? json(response,200,existing) : json(response,409,{error:'同一消息标识不能用于不同内容'});
+        if (existing){
+          const recovery=store.get<RecoverySubmission|null>(`recovery:${input.id}`,null);
+          const same=recovery?input.recover===true&&recovery.text===input.text&&recovery.gameSessionId===input.gameSessionId&&recovery.replyTo===input.replyTo:!input.recover&&existing.text===input.text;
+          return same&&existing.thread_id===threadId?json(response,200,existing):json(response,409,{error:'同一消息标识不能用于不同内容'});
+        }
         await poll();
         if(input.gameSessionId){try{game.canSend(input);}catch(error:any){return json(response,409,{error:error.message});}}
         if(input.baseMessageId !== (store.messages(threadId).at(-1)?.id ?? null)) return json(response,409,{error:'原会话已有新消息，请先阅读最新消息再发送草稿'});
         if (submitting || store.submissions(threadId).some(s=>['submitting','accepted','unknown'].includes(s.status))) return json(response,409,{error:'上一条消息尚在确认，请先核对原会话'});
         if (!connected) return json(response,409,{error:'当前与原 Agent 断开，草稿仍保留'});
+        const wireText=input.recover===true?recoveryMessage(input.text,{runtime:join(options.dataDir,'runtime.json'),reference:fileURLToPath(new URL('../skills/dont-build-an-app/references/galgame-mode.md',import.meta.url)),publisher:fileURLToPath(new URL('../dist/publish.js',import.meta.url))}):input.text;
         submitting = true;
-        store.beginSubmission(input.id,threadId,input.text);
+        store.beginSubmission(input.id,threadId,wireText);
+        if(input.recover===true)store.put(`recovery:${input.id}`,{text:input.text,gameSessionId:input.gameSessionId,replyTo:input.replyTo,wireText} satisfies RecoverySubmission);
         try {
-          const result = await adapter.send(input.text,input.id);
+          const result = await adapter.send(wireText,input.id);
           if(result.threadId !== threadId) throw new Error('Host acknowledgement has a different conversation identity');
           store.hostResult(input.id,result);
           if(store.submission(input.id)?.status!=='confirmed')store.setSubmission(input.id,'accepted');
