@@ -10,6 +10,8 @@
   --frame: url("/art/dialogue-frame.png");
   --button: url("/art/button.png");
   --serif: "Songti SC", "STSong", "SimSun", Georgia, serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
@@ -64,6 +66,25 @@ header {
 .menu-actions small { font: 8px Georgia, serif; letter-spacing: .12em; color: #b9c9d5; }
 .cover { position: absolute; top: 10%; bottom: 12%; right: 3%; width: 53%; z-index: 1; pointer-events: none; }
 .cover img { display: block; height: 100%; width: 100%; object-fit: contain; object-position: center; }
+.companion-float, .companion-body { position: relative; width: 100%; height: 100%; }
+.companion-float.is-floating { animation: companion-float 3s var(--ease-in-out) infinite alternate; }
+.companion-body { transition: transform 220ms var(--ease-out); transform-origin: 55% 50%; }
+.companion-float:not(.is-floating) .companion-body { transition: none; }
+.companion-body.pointer-reaction[data-reaction="approval"] { transform: translateY(-12px) rotate(-4deg) scale(1.035); }
+.companion-body.pointer-reaction[data-reaction="surprised"] { transform: translateY(-8px) rotate(4deg) scale(.98); }
+.companion-hit {
+  position: absolute; left: 28%; top: 25%; width: 48%; height: 50%;
+  min-height: 0; padding: 0; background: none; border-radius: 50%;
+  pointer-events: auto; touch-action: manipulation;
+}
+.companion-body .companion-hit:hover, .companion-body .companion-hit:active { filter: none; transform: none; }
+.companion-float.motion-paused, [hidden] .companion-float { animation-play-state: paused; }
+.cover-system, #portrait { user-select: none; }
+@keyframes companion-float { from { transform: translateY(4px); } to { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .companion-float.is-floating { animation: none; }
+  .companion-body.pointer-reaction[data-reaction] { transform: none; }
+}
 .stage { position: relative; height: calc(100svh - 62px); min-height: 600px; overflow: hidden; }
 .stage-top {
   position: relative; z-index: 2; padding: 10px 4vw;

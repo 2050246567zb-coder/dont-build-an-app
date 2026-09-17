@@ -83,7 +83,7 @@ export async function startServer(options: ServerOptions) {
         response.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"});
         return response.end(await readFile(join(webRoot,url.pathname==='/verifier'?'verifier.html':'game.html')));
       }
-      if (['/verifier.js','/verifier.css','/game.js','/game.css','/markdown.js'].includes(url.pathname)) {
+      if (['/verifier.js','/verifier.css','/game.js','/game.css','/markdown.js','/companion.js'].includes(url.pathname)) {
         response.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8','Cache-Control':'no-store'});
         return response.end(await readFile(join(webRoot,url.pathname.slice(1))));
       }

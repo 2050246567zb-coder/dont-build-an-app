@@ -105,6 +105,18 @@
       "file": "system-thinking.png",
       "source": "exec-a50d7ef7-c7ad-4d42-af8f-7c346ff1d228.png",
       "prompt": "Use case: identity-preserve. Edit the supplied friendly moon-white pearl glass AI orb visual-novel sprite. Preserve its exact sphere, champagne-silver orbital ring, blue and warm reflected moonlit studio illumination, scale, framing, and delicate painted anime aesthetic. Change only the facial expression: tiny eyes look thoughtfully upward, a subtle small contemplative curved mouth, as if quietly considering the user's idea. No extra objects, no punctuation, no text or backdrop. Keep genuine transparent alpha and same square canvas dimensions."
+    },
+    {
+      "key": "system-approval",
+      "file": "system-approval.png",
+      "source": "exec-379e4055-4c85-4f06-b6f4-80ca52653dab.png",
+      "prompt": "Use case: identity-preserve. Edit the supplied Midnight Atelier AI orb PNG game sprite. Preserve the EXACT pearl glass sphere shape, complete champagne-silver orbital ring, moon motif, blue reflections, ivory/amber lighting, texture, viewpoint, scale and position within the square canvas. Keep the SAME canvas dimensions and all existing transparent margins. Genuine transparent alpha, no black/white/checkerboard background. Change ONLY its two eyes and its little mouth to make a clearly readable facial expression. No new limbs, symbols, particles, captions, accessories or backdrop. Preserve overall identity and all non-face pixels as closely as possible. This must swap seamlessly with the neutral sprite in a web visual novel. Expression: delighted at being gently poked by the user. Both eyes close into happy curved crescents, a small visibly open joyful smile. Warm playful contentment, still elegant rather than exaggerated cartoon. Face parts remain at precisely the same positions as original."
+    },
+    {
+      "key": "system-surprised",
+      "file": "system-surprised.png",
+      "source": "exec-b1fbdf8a-eac0-49ff-b802-ac8cdb92d798.png",
+      "prompt": "Use case: identity-preserve. Edit the supplied Midnight Atelier AI orb PNG game sprite. Preserve the EXACT pearl glass sphere shape, complete champagne-silver orbital ring, moon motif, blue reflections, ivory/amber lighting, texture, viewpoint, scale and position within the square canvas. Keep the SAME canvas dimensions and all existing transparent margins. Genuine transparent alpha, no black/white/checkerboard background. Change ONLY its two eyes and its little mouth to make a clearly readable facial expression. No new limbs, symbols, particles, captions, accessories or backdrop. Preserve overall identity and all non-face pixels as closely as possible. This must swap seamlessly with the neutral sprite in a web visual novel. Expression: a gentle comical startle from a second friendly poke. Both eyes noticeably wide and round with tiny highlights, little mouth forms a small round O. Mild adorable surprise, no fear or distress. Face parts remain at precisely the same positions as original."
     }
   ]
 }

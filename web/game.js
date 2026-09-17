@@ -1,5 +1,8 @@
 import {renderMarkdown} from './markdown.js';
+import {bindCompanion} from './companion.js';
 const $=id=>document.getElementById(id);
+const menuCompanion=bindCompanion({floating:$('menu-companion-float'),body:$('menu-companion-body'),image:$('menu-companion-image'),button:$('menu-companion')});
+const stageCompanion=bindCompanion({floating:$('portrait-float'),body:$('portrait-body'),image:$('portrait'),button:$('stage-companion'),enabled:false});
 const query=new URLSearchParams(location.hash.slice(1));
 const token=query.get('token')||sessionStorage.getItem('galgame-token');
 if(token){sessionStorage.setItem('galgame-token',token);history.replaceState(null,'',location.pathname);}
@@ -35,13 +38,14 @@ function applyPreferences(){if(!state)return;$('speed').value=state.prefs.speed;
 function setPortrait(speaker,emotion='neutral',segment){
   const request=++assetRequest;
   if(speaker==='user')return;
+  stageCompanion.setEnabled(speaker==='system');
   $('stage').dataset.speaker=speaker;
   $('stage').dataset.artwork='builtin';
   if(portraitBlob){URL.revokeObjectURL(portraitBlob);portraitBlob=null;}
-  $('portrait').onerror=()=>{if(request!==assetRequest||!portraitBlob)return;URL.revokeObjectURL(portraitBlob);portraitBlob=null;$('stage').dataset.artwork='builtin';$('portrait').src=`/builtin/${speaker}/${emotion}`;toast('这张配图无法显示，已使用内置立绘。');};
+  $('portrait').onerror=()=>{if(request!==assetRequest||!portraitBlob)return;URL.revokeObjectURL(portraitBlob);portraitBlob=null;stageCompanion.setEnabled(speaker==='system');$('stage').dataset.artwork='builtin';$('portrait').src=`/builtin/${speaker}/${emotion}`;toast('这张配图无法显示，已使用内置立绘。');};
   $('portrait').src=`/builtin/${speaker}/${emotion}`;$('portrait').alt=`${names[speaker]} · ${emotionNames[emotion]||'平静'}`;$('emotion').textContent=emotionNames[emotion]||'';
   if(segment?.asset_id&&state.prefs.imageMode==='generated'){
-    fetch(`/api/game/resource/image/${segment.turnId}/${segment.asset_id}`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw Error();return r.blob();}).then(blob=>{if(request!==assetRequest)return;portraitBlob=URL.createObjectURL(blob);$('stage').dataset.artwork='generated';$('portrait').src=portraitBlob;}).catch(()=>{if(request===assetRequest)toast('这张配图暂不可用，已使用内置立绘。');});
+    fetch(`/api/game/resource/image/${segment.turnId}/${segment.asset_id}`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw Error();return r.blob();}).then(blob=>{if(request!==assetRequest)return;stageCompanion.setEnabled(false);portraitBlob=URL.createObjectURL(blob);$('stage').dataset.artwork='generated';$('portrait').src=portraitBlob;}).catch(()=>{if(request===assetRequest)toast('这张配图暂不可用，已使用内置立绘。');});
   }
 }
 function stopType(){clearTimeout(typeTimer);typing=false;}
@@ -83,10 +87,10 @@ function onboarding(){
 async function enter(){
   if(!state.save)await api('/api/game/start','POST');await poll();
   if(!state.save)throw Error('请回原任务重新启动网页模式');owned=(await api('/api/game/lease','POST',{clientId:viewer})).owned;
-  inGame=true;$('menu').hidden=true;$('stage').hidden=false;$('save-title').textContent=state.save.title;
+  menuCompanion.reset();inGame=true;$('menu').hidden=true;$('stage').hidden=false;$('save-title').textContent=state.save.title;
   const saved=state.timeline.findIndex(s=>s.id===state.save.position);show(saved>=0?saved:0);banner();
 }
-function goHome(){stopType();clearInterval(waitTimer);inGame=false;$('stage').hidden=true;$('menu').hidden=false;}
+function goHome(){stopType();clearInterval(waitTimer);stageCompanion.reset();inGame=false;$('stage').hidden=true;$('menu').hidden=false;}
 async function saveDraft(revision){if(!owned)return;const text=$('reply').value;try{await api('/api/draft','PUT',{text,baseMessageId:base,viewerId:viewer,gameSessionId:state.save?.id});if(revision===draftRevision){$('draft-status').textContent='已保存';localStorage.removeItem(`draft:${state.save?.id}`);}}catch{if(revision===draftRevision)$('draft-status').textContent='连接中断，已暂存在此浏览器';}}
 $('reply').addEventListener('input',()=>{draftRevision++;$('draft-status').textContent='保存中…';try{localStorage.setItem(`draft:${state?.save?.id}`,JSON.stringify({text:$('reply').value,at:Date.now()}));}catch{$('draft-status').textContent='本地缓存失败，请复制文字';}clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDraft(draftRevision),250);updateSend();});
 $('reply').addEventListener('blur',()=>{clearTimeout(saveTimer);void saveDraft(draftRevision);});

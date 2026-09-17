@@ -5,11 +5,11 @@
   <header><button class="wordmark" id="home" aria-label="返回主菜单">不要再做 App 了<span>MIDNIGHT ATELIER</span></button><div class="header-right"><span id="connection" role="status">正在连接原 Agent…</span><button class="quiet" id="settings-open">设置</button></div></header>
   <section id="menu" class="menu">
     <div class="menu-copy"><p class="eyebrow">一场关于创意的视觉小说</p><h1>不要再做<span>App 了。</span></h1><p class="title-en">DON’T BUILD AN APP.</p><div class="menu-actions"><button id="start" class="primary">开始游戏 <small>START</small></button><button id="saves-open" class="quiet">读取存档 <small>CONTINUE</small></button><button id="menu-settings" class="quiet">游戏设置 <small>SETTINGS</small></button></div></div>
-    <div class="cover" aria-hidden="true"><img class="cover-system" src="/builtin/system/neutral" alt=""></div>
+    <div class="cover"><div class="companion-float" id="menu-companion-float"><div class="companion-body" id="menu-companion-body"><img class="cover-system" id="menu-companion-image" src="/builtin/system/neutral" alt="系统精灵" draggable="false"><button type="button" class="companion-hit" id="menu-companion" aria-label="逗一逗系统精灵" title="点我一下"></button></div></div></div>
   </section>
   <section id="stage" class="stage" hidden>
     <div class="stage-top"><div><span class="eyebrow" id="chapter">序章</span><h2 id="save-title">你的下一个想法</h2></div><button class="quiet" id="host-open">回原 Agent</button></div>
-    <div class="character-area"><img id="portrait" src="/builtin/system/neutral" alt="AI"><span id="emotion" class="emotion"></span></div>
+    <div class="character-area"><div class="companion-float" id="portrait-float"><div class="companion-body" id="portrait-body"><img id="portrait" src="/builtin/system/neutral" alt="AI" draggable="false"><button type="button" class="companion-hit" id="stage-companion" aria-label="逗一逗系统精灵" title="点我一下" hidden></button></div></div><span id="emotion" class="emotion"></span></div>
     <div id="status-banner" role="status" hidden></div>
     <div class="dialogue" id="dialogue"><div class="dialogue-head"><span id="speaker">AI</span><span class="dialogue-caption" aria-hidden="true">MIDNIGHT CONVERSATIONS</span></div><p id="dialogue-text" aria-live="off"></p><div class="dialogue-foot"><span id="play-state">把你的想法带进来。</span><button class="quiet next" id="next" hidden>点击继续 ▷</button><button class="quiet" id="raw-open" hidden>查看原文</button></div></div>
     <nav class="quick-menu" aria-label="对话操作"><button class="quiet" id="history-open">回看</button><button class="quiet" id="stage-saves">存档</button><button class="quiet" id="stage-settings">设置</button><button class="quiet" id="accelerate">加速</button><button class="quiet" id="skip">立即显示</button><span>SPACE / 点击对话框继续</span></nav>
