@@ -12,7 +12,7 @@ import { visibleCodexUserText } from './adapters/codex-text.ts';
 import { Game } from './game.ts';
 import { portrait, artFiles } from './portraits.ts';
 import {live2dAsset,live2dAvailable} from './live2d.ts';
-import {registerSave,listSaves} from './catalog.ts';
+import {registerSave,listSaves,catalogId,resolveSave,allowedSessionRequest} from './catalog.ts';
 
 const webRoot = fileURLToPath(new URL('../web/',import.meta.url));
 type ServerOptions = { dataDir:string;port:number; registryDir?:string;hostLabel?:string;adapter?:HostAdapter;rolloutPath?:string;quiet?:boolean;pollMs?:number;heartbeatMs?:number };
@@ -57,15 +57,24 @@ export async function startServer(options: ServerOptions) {
   let activePoll:Promise<void>|undefined;
   const displayUserText=adapter.name==='workbuddy-desktop-cdp'?(text:string)=>text:visibleCodexUserText;
   const game=new Game(store,threadId,options.dataDir,host.thread.title||'新的创意',displayUserText);
+  const owner={adapter:adapter.name??'codex-desktop-app-tools',threadId,hostLabel:options.hostLabel??adapter.label??'Codex 原任务'};
+  let bridgeUrl='',catalogStamp='',catalogWrite=Promise.resolve();
+  const syncCatalog=()=>{
+    const save=game.get(),stamp=JSON.stringify([save?.id,save?.updatedAt,save?.deleted,bridgeUrl]);
+    if(!bridgeUrl||stamp===catalogStamp)return catalogWrite;
+    catalogStamp=stamp;
+    catalogWrite=catalogWrite.catch(()=>{}).then(()=>registerSave(options.registryDir,owner,bridgeUrl,save)).catch(error=>{catalogStamp='';throw error;});
+    return catalogWrite;
+  };
   const poll = async () => {
     if(closing)return;
     if(activePoll)return activePoll;
-    activePoll=(async()=>{await reader.poll(message => store.addMessage(threadId,message));store.reconcile(threadId);game.reconcile();})().finally(()=>{activePoll=undefined;});
+    activePoll=(async()=>{await reader.poll(message => store.addMessage(threadId,message));store.reconcile(threadId);game.reconcile();await syncCatalog();})().finally(()=>{activePoll=undefined;});
     return activePoll;
   };
   try{await poll();}catch(error){adapter.close();store.close();throw error;}
   const state = (after = 0) => ({
-    adapter:adapter.name??'codex-desktop-app-tools', compatibility:'experimental', thread:{id:threadId,title:host.thread.title},
+    adapter:owner.adapter, catalogVersion:2, compatibility:'experimental', thread:{id:threadId,title:host.thread.title},
     connected, hostStatus, lastError, messages:store.messages(threadId,after).map(message => ({
       ...message,
       displayText:message.role==='user' && message.kind==='native' ? displayUserText(message.text) : message.text,
@@ -110,16 +119,27 @@ export async function startServer(options: ServerOptions) {
         return response.end(bytes);
       }
       if (!authorized(request,token)) return json(response,401,{error:'需要从原 Agent 提供的启动链接进入'});
-      if(url.pathname==='/api/health'&&request.method==='GET')return json(response,200,{connected,deleted:game.get()?.deleted??false});
-      if(url.pathname==='/api/saves'&&request.method==='GET')return json(response,200,await listSaves(options.registryDir,threadId,game.get(),connected));
+      if(url.pathname.startsWith('/api/sessions/')){
+        const match=/^\/api\/sessions\/([a-f0-9]{64})(\/api\/.*)$/.exec(url.pathname);
+        if(!match||!allowedSessionRequest(request.method??'',match[2]+url.search))return json(response,404,{error:'不支持的存档操作'});
+        try{
+          const target=await resolveSave(options.registryDir,match[1]);
+          const payload=['POST','PUT','DELETE'].includes(request.method??'')?JSON.stringify(await body(request)):undefined;
+          const forwarded=await fetch(target.origin+match[2]+url.search,{method:request.method,headers:{Authorization:`Bearer ${target.token}`,'Content-Type':'application/json'},body:payload,redirect:'error',signal:AbortSignal.timeout(30000)});
+          response.writeHead(forwarded.status,{'Content-Type':forwarded.headers.get('content-type')??'application/json','Cache-Control':'no-store'});
+          return response.end(Buffer.from(await forwarded.arrayBuffer()));
+        }catch{return json(response,502,{error:'这个存档的连接暂不可用。请回对应 Agent 的原任务重新启动网页，再刷新存档列表；已提交的消息不要重复发送。'});}
+      }
+      if(url.pathname==='/api/health'&&request.method==='GET'){const save=game.get();return json(response,200,{...owner,catalogId:catalogId(owner),connected,deleted:save?.deleted??false,save:save?{id:save.id,title:save.title,updatedAt:save.updatedAt}:null});}
+      if(url.pathname==='/api/saves'&&request.method==='GET')return json(response,200,await listSaves(options.registryDir,owner,game.get(),connected));
       if(url.pathname==='/api/game'&&request.method==='GET'){await poll();return json(response,200,{...game.state(),connected,hostLabel:options.hostLabel??adapter.label??'Codex 原任务',hostStatus,lastError,latestMessageId:store.messages(threadId).at(-1)?.id??null,draft:store.get(`draft:${threadId}`,''),draftBaseMessageId:store.get(`draft-base:${threadId}`,null),submissions:store.submissions(threadId).map(s=>({id:s.id,status:s.status,host_id:s.host_id})),serverTime:new Date().toISOString()});}
-      if(url.pathname==='/api/game/start'&&request.method==='POST'){game.start();await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,game.state());}
-      if(url.pathname==='/api/game/reactivate'&&request.method==='POST')return json(response,200,game.reactivate());
-      if(url.pathname==='/api/game/stage'&&request.method==='POST'){const staged=game.stage(await body(request,20_000_000));await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,staged);}
+      if(url.pathname==='/api/game/start'&&request.method==='POST'){game.start();await syncCatalog();return json(response,200,game.state());}
+      if(url.pathname==='/api/game/reactivate'&&request.method==='POST'){const result=game.reactivate();await syncCatalog();return json(response,200,result);}
+      if(url.pathname==='/api/game/stage'&&request.method==='POST'){const staged=game.stage(await body(request,20_000_000));await syncCatalog();return json(response,200,staged);}
       if(url.pathname==='/api/game/settings'&&request.method==='PUT')return json(response,200,game.preferences(await body(request)));
       if(url.pathname==='/api/game/lease'&&request.method==='POST'){const input=await body(request);return json(response,200,game.lease(input.clientId,input.force===true));}
-      if(url.pathname==='/api/game/position'&&request.method==='PUT'){const input=await body(request);if(!game.lease(input.clientId).owned)return json(response,409,{error:'另一标签页正在使用'});game.position(input.position);return json(response,200,{saved:true});}
-      if(url.pathname==='/api/game/save'&&request.method==='DELETE'){const result=game.delete();await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,result);}
+      if(url.pathname==='/api/game/position'&&request.method==='PUT'){const input=await body(request);if(!game.lease(input.clientId).owned)return json(response,409,{error:'另一标签页正在使用'});game.position(input.position);await syncCatalog();return json(response,200,{saved:true});}
+      if(url.pathname==='/api/game/save'&&request.method==='DELETE'){const result=game.delete();await syncCatalog();return json(response,200,result);}
       if(url.pathname==='/api/open-host'&&request.method==='POST'){if(!adapter.openOriginal)return json(response,409,{error:'请手动返回启动此网页的原 Agent 任务'});return json(response,200,{result:await adapter.openOriginal()});}
       if(url.pathname.startsWith('/api/game/resource/')&&request.method==='GET'){
         const parts=url.pathname.split('/'),kind=parts[4];if(kind!=='image'&&kind!=='document')return json(response,404,{error:'Not found'});
@@ -190,7 +210,7 @@ export async function startServer(options: ServerOptions) {
   catch(error){adapter.close();store.close();throw error;}
   const address = server.address() as {port:number};
   const url = `http://127.0.0.1:${address.port}/#token=${token}`;
-  await registerSave(options.registryDir,threadId,url,game.get());
+  bridgeUrl=url;await syncCatalog();
   try{
     await mkdir(options.dataDir,{recursive:true});
     await writeFile(join(options.dataDir,'runtime.json'),JSON.stringify({url,threadId,adapter:adapter.name??'codex-desktop-app-tools',pid:process.pid,port:address.port},null,2),{mode:0o600});

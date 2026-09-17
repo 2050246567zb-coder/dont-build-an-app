@@ -204,6 +204,11 @@ fieldset { border: 0; padding: 20px 0 5px; margin: 0; }
 .save-card p { font-size: 11px; color: var(--muted); }
 .save-card > div { display: flex; gap: 9px; flex-wrap: wrap; }
 .save-card button { font-size: 12px; padding: 9px 25px; }
+.save-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.save-toolbar label { font-size: 13px; color: var(--muted); }
+.save-toolbar select { max-width: 230px; background: #151c2c; color: #e5d7ba; padding: 6px; font: inherit; }
+.save-toolbar button { font-size: 12px; padding: 8px 18px; }
+.save-card[data-active="true"] h3::after { content: ' · 正在阅读'; font-size: 12px; color: var(--muted); }
 #toast { position: fixed; z-index: 20; bottom: 20px; left: 50%; transform: translateX(-50%); max-width: 85vw; width: max-content; color: #eee0bc; font-size: 12px; line-height: 1.8; padding: 0 10px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 @media (max-height: 790px) and (min-width: 901px) {

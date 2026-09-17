@@ -46,7 +46,11 @@ npm run launch
 - 小黑告别后由 AI 交付实际 Markdown，可阅读、下载。主动选择“返回原 Agent 开始开发”并确认，才发送执行指令并切回原任务。
 - 删除网页存档移除剧情、草稿和专属缓存，保留原 Agent 历史及已交付的共享文件。重建须从对应原任务重新启动；当前不会恢复已删的旧剧情。
 
-只列出通过本产品显式连接过的任务，不扫描全部私人聊天。每个任务独立服务、端口和数据目录。多个页面打开同一存档时只允许一个发送，可显式接管。
+「读取存档」汇总**这台电脑、同一个系统账号**下所有通过本产品连接并开始游戏的任务，显示所属 Agent、名称、更新时间和连接状态，支持按 Agent 筛选。可以在同一网页地址切换 Codex / WorkBuddy 存档；消息、草稿、配图、文档仍由对应的原任务负责。多份工程安装默认使用同一目录，不需要额外模型或云端同步。
+
+只安装 Skill 不会自动导入全部私人聊天，也不会让未适配的应用变成兼容。每个原任务需启动过一次网页并开始游戏（或发布首段剧情）。服务离线后存档仍列出；回原 Agent 对应对话重新启动，再点「刷新存档」。所有本机服务都停止时，先从任一已适配原任务打开网页入口。入口服务停止会让该页面暂不可用，可从另一个仍在线的原任务打开入口。
+
+每个任务仍有独立桥接服务与数据目录。统一入口只在本机转发到经身份核对的已有任务，不合并会话记忆，不把 A 的聊天送给 B 的模型。多个页面打开同一存档时只允许一个发送，可显式接管。完整实现与验证范围见 [统一存档记录](docs/reports/2026-09-17-shared-catalog.md)。
 
 ## MCP 与命令行桥接
 
@@ -74,7 +78,7 @@ node dist/publish.js "/actual/runtime.json" "/actual/scene.json"
 当前原任务只读日志 → 已确认消息 → 匹配暂存剧情 → 网页播放
 ```
 
-新任务数据默认位于 Windows 的 %LOCALAPPDATA%/DontBuildAnApp 或 macOS 的 ~/Library/Application Support/DontBuildAnApp。macOS 路径实现不代表宿主已实测。工程以前的 .galgame 数据继续复用。可用 GALGAME_HOME、GALGAME_DATA_DIR、GALGAME_PORT 覆盖。
+新任务数据默认位于 Windows 的 %LOCALAPPDATA%/DontBuildAnApp 或 macOS 的 ~/Library/Application Support/DontBuildAnApp，其中 catalog/ 是各安装共用的本地存档索引。macOS 路径实现不代表宿主已实测。工程以前的 .galgame 数据继续复用并登记到共享索引。可用 GALGAME_HOME、GALGAME_DATA_DIR、GALGAME_PORT 覆盖；只有明确需要隔离时才为不同安装设置不同的 GALGAME_HOME 或 GALGAME_REGISTRY_DIR。
 
 只监听 127.0.0.1，校验来源和凭证。不要分享含 token 的链接。数据目录包含私有消息镜像、草稿和凭证，禁止整目录上传。published/ 是已链接到原 Agent 的共享交付文件，不随网页存档删除。
 
@@ -82,7 +86,7 @@ node dist/publish.js "/actual/runtime.json" "/actual/scene.json"
 npm run stop
 ```
 
-只停止当前服务，保留原 Agent 和数据。更新：停止后 git pull、npm ci、npm run build、npm run install:skill，再启动。卸载：先停止，再按需移除工程与安装的 Skill；保留文档请先备份 published。没有系统服务、独立模型服务、浏览器 API Key 或额外付费依赖；聊天和生图仍使用原有额度。
+只停止当前服务，保留原 Agent 和数据。更新：停止后 git pull、npm ci、npm run build、npm run install:skill，再启动。WorkBuddy 安装时加 --host workbuddy，并由宿主后台工具重新运行 serve。已有存档和剧情保留；旧服务必须重启后才能作为新版统一入口，不能只刷新旧服务就声称已升级。卸载：先停止，再按需移除工程与安装的 Skill；保留文档请先备份 published。没有系统服务、独立模型服务、浏览器 API Key 或额外付费依赖；聊天和生图仍使用原有额度。
 
 ## 开发检查
 
@@ -93,7 +97,7 @@ npm run build
 node --import tsx scripts/ui-fixture.ts
 ```
 
-最后一条启动标有“离线界面测试（无模型）”的确定性夹具，默认端口 4318，用于检查界面，**不能作为真实同步证明**。当前 41 项自动检查涵盖正式正文核对、数据边界、角色顺序、文档、MCP stdio、宿主区分、重连、幂等和生成素材路由。
+最后一条启动标有“离线界面测试（无模型）”的确定性夹具，默认端口 4318，用于检查界面，**不能作为真实同步证明**。统一存档界面另可运行 `node --import tsx scripts/catalog-fixture.ts`，创建两个无模型演示存档与一个断线条目，不写进真实存档目录。自动检查涵盖正式正文核对、数据边界、角色顺序、文档、MCP stdio、宿主区分、重连、幂等、跨存档路由和生成素材路由。
 
 2026-09-17 的「夜间创作室」视觉更新包括 19 张生成素材、经典 GalGame 排版和桌面分栏适配，见 [美术说明与预览](docs/visual-direction.md)。系统精灵会微微浮动，点击切换开心/惊讶反应；交互完全在本地完成。角色、背景及装饰边框不再使用代码绘制的占位图。
 

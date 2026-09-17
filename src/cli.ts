@@ -1,5 +1,6 @@
 import { startServer } from './server.ts';
-import { resolve } from 'node:path';
+import { resolve,join } from 'node:path';
+import {sharedHome} from './paths.ts';
 import {probe} from './probe.ts';
 import {hostContext} from './host-context.ts';
 import {WorkBuddyAdapter} from './adapters/workbuddy.ts';
@@ -15,7 +16,7 @@ async function main() {
       catch(error){adapter.close();throw error;}
       if(!loaded){adapter.close();throw Error('WorkBuddy 原任务历史未加载完成');}
     }
-    const app = await startServer({dataDir:resolve(process.env.GALGAME_DATA_DIR || '.galgame'),port:Number(process.env.GALGAME_PORT || 4317),registryDir:process.env.GALGAME_REGISTRY_DIR,adapter});
+    const app = await startServer({dataDir:resolve(process.env.GALGAME_DATA_DIR || '.galgame'),port:Number(process.env.GALGAME_PORT || 4317),registryDir:process.env.GALGAME_REGISTRY_DIR||join(sharedHome(),'catalog'),adapter});
     process.once('SIGINT',()=>{void app.close().then(()=>process.exit(0));});
     process.once('SIGTERM',()=>{void app.close().then(()=>process.exit(0));});
     return;

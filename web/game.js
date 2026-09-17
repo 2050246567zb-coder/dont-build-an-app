@@ -8,7 +8,10 @@ const token=query.get('token')||sessionStorage.getItem('galgame-token');
 if(token){sessionStorage.setItem('galgame-token',token);history.replaceState(null,'',location.pathname);}
 const viewer=crypto.randomUUID(),names={system:'AI',jobs:'乔布斯',xiaohei:'小黑',user:'你说'},chapters={screening:'第一章 · 这个想法值得做吗',design:'第二章 · 把核心想清楚',experience:'第三章 · 真的好用吗',delivery:'终章 · 让想法开始发生'};
 const emotionNames={neutral:'',thinking:'思考中',skeptical:'有点怀疑',angry:'不太满意',approval:'这次，说通了',surprised:'出乎意料'};
-const api=async(path,method='GET',body)=>{const r=await fetch(path,{method,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const value=await r.json();if(!r.ok)throw Object.assign(Error(value.error||'连接暂时不可用'),{status:r.status});return value;};
+let selectedSave=sessionStorage.getItem('galgame-selected-save')||'',switching=false;
+const sessionPath=path=>selectedSave?`/api/sessions/${selectedSave}${path}`:path;
+const rootApi=async(path,method='GET',body)=>{const r=await fetch(path,{method,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const value=await r.json();if(!r.ok)throw Object.assign(Error(value.error||'连接暂时不可用'),{status:r.status});return value;};
+const api=(path,method,body)=>rootApi(sessionPath(path),method,body);
 let state=null,inGame=false,index=-1,current=null,typing=false,chars=[],shown=0,typeTimer,speedUp=false,owned=false,sending=false,base=null,initialized=false,polling=false,saveTimer,draftRevision=0,closedReply=false,waitTimer,lastProgressAt=Date.now(),signature='',doc=null,portraitBlob=null,assetRequest=0,toastTimer,saveToDelete=null,pendingSubmit=null;
 const toast=text=>{$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{$('toast').hidden=true;},6500);};
 const safe=fn=>(...args)=>Promise.resolve(fn(...args)).catch(e=>toast(e.message));
@@ -21,7 +24,7 @@ function banner(){
 }
 function updateSend(){const latest=state?.timeline.at(-1);const contextValid=!latest||latest.id===current?.id&&latest.advance==='reply';const pending=state?.submissions.some(s=>['submitting','accepted','unknown'].includes(s.status));$('reply').readOnly=!owned;$('send').disabled=!state?.connected||!owned||sending||pending||base!==state?.latestMessageId||!contextValid||!$('reply').value.trim();$('review').hidden=base===state?.latestMessageId;}
 async function poll(){
-  if(polling)return;polling=true;
+  if(polling||switching)return;polling=true;
   try{
     const next=await api('/api/game');const sig=next.timeline.map(s=>s.id).join('|');
     if(sig!==signature){signature=sig;lastProgressAt=Date.now();}
@@ -31,7 +34,7 @@ async function poll(){
     if(inGame){owned=(await api('/api/game/lease','POST',{clientId:viewer})).owned;if(state.deleted){goHome();toast('此网页存档已删除。请从原任务重新启动。');}else if(current?.speaker==='user'&&index<state.timeline.length-1&&!typing){show(index+1);}else if(!current&&state.timeline.length){show(0);}}
     if(pendingSubmit){const confirmed=state.submissions.find(s=>s.id===pendingSubmit.id&&s.status==='confirmed');if(confirmed){if($('reply').value===pendingSubmit.text&&owned){$('reply').value='';base=state.latestMessageId;await saveDraft(++draftRevision);}localStorage.removeItem(`pending:${state.save?.id}`);pendingSubmit=null;const next=state.timeline.findIndex(s=>s.hostId===confirmed.host_id);if(inGame&&next>=0)show(next);}}
     banner();updateSend();
-  }catch(e){$('connection').textContent='连接暂时中断';if(state){state.connected=false;banner();updateSend();}else toast('请从原 Agent 提供的启动链接进入。');}
+  }catch(e){$('connection').textContent='连接暂时中断';if(state){state.connected=false;banner();updateSend();}else toast(selectedSave?'此存档暂未连接，可以在「读取存档」里选择其他对话。':'请从原 Agent 提供的启动链接进入。');}
   finally{polling=false;}
 }
 function applyPreferences(){$('spirit-motion').checked=prefersLive2d();if(!state)return;$('speed').value=state.prefs.speed;$('speed-value').textContent=state.prefs.speed?`${state.prefs.speed} 字 / 秒`:'直接显示';document.querySelector(`input[name=images][value=${state.prefs.imageMode}]`).checked=true;}
@@ -52,7 +55,7 @@ function setPortrait(speaker,emotion='neutral',segment){
   };
   const fallback=()=>apply(`/builtin/${speaker}/${emotion}`).catch(()=>{if(request===assetRequest)toast('立绘暂时加载不了，文字对话可以继续。');});
   if(segment?.asset_id&&state.prefs.imageMode==='generated'){
-    fetch(`/api/game/resource/image/${segment.turnId}/${segment.asset_id}`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw Error();return r.blob();}).then(blob=>{if(request!==assetRequest)return;return apply(URL.createObjectURL(blob),true);}).catch(()=>{if(request===assetRequest){toast('这张配图暂不可用，已使用内置立绘。');void fallback();}});
+    fetch(sessionPath(`/api/game/resource/image/${segment.turnId}/${segment.asset_id}`),{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw Error();return r.blob();}).then(blob=>{if(request!==assetRequest)return;return apply(URL.createObjectURL(blob),true);}).catch(()=>{if(request===assetRequest){toast('这张配图暂不可用，已使用内置立绘。');void fallback();}});
   }else void fallback();
 }
 function stopType(){clearTimeout(typeTimer);typing=false;}
@@ -101,7 +104,7 @@ async function enter(){
   const saved=state.timeline.findIndex(s=>s.id===state.save.position);show(saved>=0?saved:0);banner();
 }
 function goHome(){stopType();clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');stageCompanion.reset();inGame=false;$('stage').hidden=true;$('menu').hidden=false;}
-async function saveDraft(revision){if(!owned)return;const text=$('reply').value;try{await api('/api/draft','PUT',{text,baseMessageId:base,viewerId:viewer,gameSessionId:state.save?.id});if(revision===draftRevision){$('draft-status').textContent='已保存';localStorage.removeItem(`draft:${state.save?.id}`);}}catch{if(revision===draftRevision)$('draft-status').textContent='连接中断，已暂存在此浏览器';}}
+async function saveDraft(revision){if(!owned)return;const text=$('reply').value,saveId=state.save?.id;try{await api('/api/draft','PUT',{text,baseMessageId:base,viewerId:viewer,gameSessionId:saveId});if(revision===draftRevision){$('draft-status').textContent='已保存';localStorage.removeItem(`draft:${saveId}`);}}catch{if(revision===draftRevision)$('draft-status').textContent='连接中断，已暂存在此浏览器';}}
 $('reply').addEventListener('input',()=>{draftRevision++;$('draft-status').textContent='保存中…';try{localStorage.setItem(`draft:${state?.save?.id}`,JSON.stringify({text:$('reply').value,at:Date.now()}));}catch{$('draft-status').textContent='本地缓存失败，请复制文字';}clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDraft(draftRevision),250);updateSend();});
 $('reply').addEventListener('blur',()=>{clearTimeout(saveTimer);void saveDraft(draftRevision);});
 async function sendText(text){
@@ -124,18 +127,53 @@ $('settings-open').onclick=()=>{applyPreferences();$('settings').showModal();};$
 $('menu-settings').onclick=$('stage-settings').onclick=()=>$('settings-open').click();
 $('stage-saves').onclick=safe(showSaves);
 $('settings-save').onclick=safe(async()=>{state.prefs=await api('/api/game/settings','PUT',{speed:+$('speed').value,imageMode:document.querySelector('input[name=images]:checked').value});setLive2dPreference($('spirit-motion').checked);$('settings').close();toast('已保存。下一轮会使用新的配图设置。');});
-async function showSaves(){
-  await poll();$('save-list').replaceChildren();
-  let saves=[];try{saves=(await api('/api/saves')).saves;}catch{if(state.save)saves=[{...state.save,current:true,connected:state.connected}];}
-  if(!saves.length){const p=document.createElement('p');p.textContent=state.deleted?'这个网页存档已删除。请回原任务重新启动。':'还没有存档。开始一段新的对话吧。';$('save-list').append(p);}
-  for(const s of saves){const card=document.createElement('article');card.className='save-card';const title=document.createElement('h3'),meta=document.createElement('p'),actions=document.createElement('div'),load=document.createElement('button');title.textContent=s.title;meta.textContent=`${s.current?state.hostLabel:'原 Agent'} · ${s.connected?'已连接':'需从原任务重新连接'} · ${new Date(s.updatedAt).toLocaleString()}`;load.textContent='继续对话';load.className='primary';load.disabled=!s.connected&&!s.current;load.onclick=safe(async()=>{$('saves').close();if(s.current)await enter();else location.assign(s.url);});actions.append(load);if(s.current){const del=document.createElement('button');del.textContent='删除网页存档';del.className='quiet';del.onclick=()=>{saveToDelete=s.id;$('delete-confirm').showModal();};actions.append(del);}card.append(title,meta,actions);$('save-list').append(card);}
-  if(!$('saves').open)$('saves').showModal();
+async function selectSave(s){
+  if(switching)return;
+  if(sending)throw Error('这条消息正在提交，等确认后再切换存档。');
+  switching=true;
+  try{
+    while(polling)await new Promise(resolve=>setTimeout(resolve,25));
+    clearTimeout(saveTimer);await saveDraft(draftRevision);
+    const nextId=s.current?'':s.id;
+    // Verify the target before discarding any UI state. Each bridge still owns exactly one task.
+    await rootApi(nextId?`/api/sessions/${nextId}/api/game`:'/api/game');
+    goHome();selectedSave=nextId;sessionStorage.setItem('galgame-selected-save',selectedSave);
+    assetRequest++;draftRevision++;state=null;initialized=false;owned=false;current=null;index=-1;signature='';doc=null;pendingSubmit=null;$('reply').value='';
+    switching=false;await poll();if(!state)throw Error('连接中断，请刷新存档列表重试。');
+    $('saves').close();await enter();
+  }finally{switching=false;}
 }
-$('saves-open').onclick=safe(showSaves);$('delete-cancel').onclick=()=>$('delete-confirm').close();$('delete-save').onclick=safe(async()=>{if(saveToDelete!==state.save?.id)throw Error('存档已改变');await api('/api/game/save','DELETE');localStorage.removeItem(`draft:${saveToDelete}`);localStorage.removeItem(`pending:${saveToDelete}`);pendingSubmit=null;$('reply').value='';$('delete-confirm').close();$('saves').close();goHome();await poll();toast('网页存档已删除，原 Agent 对话保留。');});
+async function showSaves(){
+  const catalog=await rootApi('/api/saves'),saves=catalog.saves;$('save-list').replaceChildren();
+  const legacy=catalog.scope!=='local-user';
+  if(legacy)for(const s of saves){s.available=s.connected;s.hostLabel=s.hostLabel||(s.current?state?.hostLabel:'原 Agent（旧版）');s.adapter=s.adapter||s.hostLabel;}
+  const filter=$('save-host'),previous=filter.value;filter.replaceChildren(new Option('全部 Agent',''));
+  for(const [id,label] of new Map(saves.map(s=>[s.adapter,s.hostLabel])))filter.add(new Option(label,id));
+  if([...filter.options].some(o=>o.value===previous))filter.value=previous;
+  function render(){
+    $('save-list').replaceChildren();const visible=saves.filter(s=>!filter.value||s.adapter===filter.value);
+    if(!visible.length){const p=document.createElement('p');p.textContent='这里还没有存档。在对应 Agent 的原对话里启动一次网页模式并开始游戏，就会自动出现在这里。';$('save-list').append(p);}
+    for(const s of visible){
+      const active=selectedSave?s.id===selectedSave||s.saveId===state?.save?.id:s.current;
+      const card=document.createElement('article');card.className='save-card';card.dataset.active=String(active);
+      const title=document.createElement('h3'),meta=document.createElement('p'),actions=document.createElement('div'),load=document.createElement('button');
+      title.textContent=s.title;meta.textContent=`${s.hostLabel} · ${s.connected?'已连接':s.available?'可回看 · Agent 未连接':'需从原任务重新连接'}${s.updatedAt?' · '+new Date(s.updatedAt).toLocaleString():''}${active?' · 当前存档':''}`;
+      load.textContent=s.connected?'继续对话':s.available?'回看对话':'如何重新连接';load.className='primary';
+      load.onclick=safe(async()=>{if(legacy&&s.available&&!s.current){toast('此入口服务仍是旧版，将打开原存档；重启入口服务后可在同一页面切换。');location.assign(s.url);}else if(s.available)await selectSave(s);else reader('重新连接这个存档',`回到 ${s.hostLabel}，打开「${s.title}」原对话，然后发送：\n\n请读取更新后的「不要再做 App 了」Skill，从这条原对话重新启动 GalGame 网页模式，保留已有存档。\n\n启动后回到本页点「刷新存档」。仅安装 Skill 不会导入其他聊天。`);});
+      actions.append(load);
+      if(active&&state?.save){const del=document.createElement('button');del.textContent='删除网页存档';del.className='quiet';del.onclick=()=>{saveToDelete=state.save.id;$('delete-confirm').showModal();};actions.append(del);}
+      card.append(title,meta,actions);$('save-list').append(card);
+    }
+  }
+  filter.onchange=render;render();if(!$('saves').open)$('saves').showModal();
+}
+$('saves-refresh').onclick=safe(showSaves);
+$('original-entry').onclick=safe(()=>selectSave({current:true}));
+$('saves-open').onclick=safe(showSaves);$('delete-cancel').onclick=()=>$('delete-confirm').close();$('delete-save').onclick=safe(async()=>{if(saveToDelete!==state.save?.id)throw Error('存档已改变');if(sending||switching)throw Error('请等当前操作完成再删除。');switching=true;try{while(polling)await new Promise(resolve=>setTimeout(resolve,25));clearTimeout(saveTimer);await api('/api/game/save','DELETE');localStorage.removeItem(`draft:${saveToDelete}`);localStorage.removeItem(`pending:${saveToDelete}`);pendingSubmit=null;$('reply').value='';$('delete-confirm').close();$('saves').close();goHome();assetRequest++;draftRevision++;selectedSave='';sessionStorage.removeItem('galgame-selected-save');state=null;initialized=false;owned=false;current=null;signature='';}finally{switching=false;}await poll();toast('网页存档已删除，原 Agent 对话保留。');});
 function reader(title,text,markdown=false){$('reader-title').textContent=title;$('reader-body').classList.toggle('markdown',markdown);if(markdown)renderMarkdown($('reader-body'),text);else $('reader-body').textContent=text;if(!$('reader').open)$('reader').showModal();}
 $('reader-close').onclick=()=>$('reader').close();$('raw-open').onclick=()=>reader('原任务中的正式回复',current?.raw||'');$('history-open').onclick=()=>{reader('这段对话',state.timeline.map(s=>`${names[s.speaker]}：${s.raw||s.text}`).join('\n\n'));};
 $('host-open').onclick=safe(async()=>{await api('/api/open-host','POST');});
-async function prepareDocument(){const key=current.id;try{const result=await api(`/api/game/document?turn=${current.turnId}&id=${current.document_id}`);if(current.id!==key)return;doc=result;$('document-title').textContent=doc.title;$('delivery-caption').textContent=current.deliveryKind==='draft'?'这是按要求提前整理的草案，尚未完成全部审查。':'已整理成完整文档。阅读、下载，或交回原 Agent 开始开发。';$('delivery').hidden=false;}catch(e){toast(e.message);}}
+async function prepareDocument(){const key=current.id,selection=selectedSave;try{const result=await api(`/api/game/document?turn=${current.turnId}&id=${current.document_id}`);if(current?.id!==key||selection!==selectedSave)return;doc=result;$('document-title').textContent=doc.title;$('delivery-caption').textContent=current.deliveryKind==='draft'?'这是按要求提前整理的草案，尚未完成全部审查。':'已整理成完整文档。阅读、下载，或交回原 Agent 开始开发。';$('delivery').hidden=false;}catch(e){toast(e.message);}}
 $('document-open').onclick=()=>{if(doc)reader(doc.title,doc.markdown,true);};$('document-download').onclick=()=>{if(!doc)return;const url=URL.createObjectURL(new Blob([doc.markdown],{type:'text/markdown;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=doc.title.replace(/[<>:"/\\|?*]/g,'_')+'.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 $('develop').onclick=()=>{if(doc)$('develop-confirm').showModal();};$('develop-cancel').onclick=()=>$('develop-confirm').close();$('develop-confirmed').onclick=safe(async()=>{if(!doc)throw Error('文档尚未就绪');const text=`请按这份产品设计方案开始开发：${doc.path}\n文档 SHA-256：${doc.hash}\n沿用已确认的范围，常规实现自行决定；遇到改变核心体验、数据流向或费用的新冲突再与我确认。`;base=state.latestMessageId;$('develop-confirm').close();await sendText(text);await api('/api/open-host','POST');});
 await poll();setInterval(poll,1500);
