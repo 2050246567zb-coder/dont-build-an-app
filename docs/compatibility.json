@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-16",
+  "updatedAt": "2026-09-17",
   "certified": [],
   "candidates": [
     {
@@ -19,6 +19,14 @@
       "reason": "No executable found and no existing Claude Code conversation available. No sync adapter implemented."
     },
     {
+      "application": "WorkBuddy",
+      "applicationVersion": "5.5.6",
+      "os": "Windows",
+      "status": "experimental-partial-validation",
+      "reason": "Original host task launch, native prompt visibility confirmation, browser/native round trips, persisted-ID reconnect deduplication and structured final publication observed. Requires explicit loopback CDP opt-in and the host background command facility. Ten-round and failure-matrix certification incomplete.",
+      "report": "reports/2026-09-17-workbuddy-feasibility.md"
+    },
+    {
       "application": "Codex Desktop / Claude Code",
       "applicationVersion": null,
       "os": "macOS",
@@ -27,6 +35,6 @@
     }
   ],
   "productVersion": "0.1.0-alpha.2",
-  "manualValidation": "Stopped at user request; incomplete checks remain unverified.",
+  "manualValidation": "Codex repeated manual checks stopped at user request. WorkBuddy has a separate short live run; uncompleted checks remain unverified for each host.",
   "implementationReport": "reports/2026-09-16-galgame-alpha2.md"
 }

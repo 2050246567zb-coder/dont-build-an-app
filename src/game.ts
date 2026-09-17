@@ -10,7 +10,7 @@ type Save={id:string;title:string;createdAt:string;updatedAt:string;anchor:numbe
 type Entry={id:string;hostId:string;speaker:string;text:string;emotion:string;advance:string;stage:string|null;raw?:string;turnId?:string;segment_id?:string;asset_id?:string|null;document_id?:string|null;deliveryKind?:string};
 export class Game {
   private key:string;
-  constructor(readonly store:Store,readonly threadId:string,readonly dataDir:string,readonly title:string){this.key=`game:${threadId}`;}
+  constructor(readonly store:Store,readonly threadId:string,readonly dataDir:string,readonly title:string,private displayUserText:(text:string)=>string=visibleCodexUserText){this.key=`game:${threadId}`;}
   get():Save|null{return this.store.get(this.key,null);}
   private put(save:Save){save.updatedAt=new Date().toISOString();this.store.put(this.key,save);}
   start(){let save=this.get();if(save?.deleted)throw Error('存档已删除，请回原任务重新启动网页模式');if(!save){save={id:randomUUID(),title:this.title,createdAt:new Date().toISOString(),updatedAt:'',anchor:this.store.messages(this.threadId).at(-1)?.ordinal??0,started:true,deleted:false,position:null,turns:[]};this.put(save);}return save;}
@@ -56,7 +56,7 @@ export class Game {
   timeline():Entry[]{
     const save=this.get();if(!save||save.deleted)return [];
     return this.store.messages(this.threadId).filter(m=>m.ordinal>save.anchor).flatMap<Entry>(m=>{
-      if(m.role==='user')return [{id:m.id,hostId:m.id,speaker:'user',text:m.kind==='native'?visibleCodexUserText(m.text):m.text,emotion:'neutral',advance:'click',stage:null}];
+      if(m.role==='user')return [{id:m.id,hostId:m.id,speaker:'user',text:m.kind==='native'?this.displayUserText(m.text):m.text,emotion:'neutral',advance:'click',stage:null}];
       const turn=save.turns.find(t=>t.hostId===m.id&&t.status==='committed');
       if(turn)return turn.scene.segments.map(s=>({...s,id:`${turn.scene.turn_id}:${s.segment_id}`,hostId:m.id,turnId:turn.scene.turn_id,stage:turn.scene.stage,deliveryKind:turn.scene.delivery_kind}));
       return [{id:m.id,hostId:m.id,speaker:'system',text:'这条原任务回复尚未匹配剧情格式。请查看原文，或返回原 Agent 让它按网页模式整理；已有对话不会丢失。',raw:m.text,emotion:'neutral',advance:'error',stage:null}];

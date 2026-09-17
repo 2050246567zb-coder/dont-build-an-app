@@ -38,14 +38,14 @@ export async function startServer(options: ServerOptions) {
   const pipePath = process.env.CODEX_APP_TOOLS_PIPE_PATH;
   const codexHome = process.env.CODEX_HOME;
   if (!threadId || (!options.adapter && (!pipePath || !codexHome))) throw new Error('必须从现有 Codex 桌面会话启动；不会创建新会话。');
-  const adapter = options.adapter ?? new CodexPipe(pipePath!,threadId);
+  const adapter:HostAdapter = options.adapter ?? new CodexPipe(pipePath!,threadId);
   const {host,reader,store}=await (async()=>{
     try{
       const capabilities = await adapter.capabilities();
       if (!capabilities.some(t=>t.name==='send_message_to_thread')) throw new Error('当前宿主缺少原会话发送能力');
       const host = await adapter.readThread();
       if (host.thread?.id !== threadId) throw new Error('原会话身份校验失败');
-      const reader = new RolloutReader(options.rolloutPath ?? await findRollout(codexHome!,threadId));
+      const reader = adapter.reader ?? new RolloutReader(options.rolloutPath ?? await findRollout(codexHome!,threadId));
       return {host,reader,store:new Store(join(options.dataDir,'state.sqlite'))};
     }catch(error){adapter.close();throw error;}
   })();
@@ -55,7 +55,8 @@ export async function startServer(options: ServerOptions) {
   let connected = true, hostStatus = host.thread.status, lastError: string | null = null;
   let hostPoll = false, submitting = false,closing=false;
   let activePoll:Promise<void>|undefined;
-  const game=new Game(store,threadId,options.dataDir,host.thread.title||'新的创意');
+  const displayUserText=adapter.name==='workbuddy-desktop-cdp'?(text:string)=>text:visibleCodexUserText;
+  const game=new Game(store,threadId,options.dataDir,host.thread.title||'新的创意',displayUserText);
   const poll = async () => {
     if(closing)return;
     if(activePoll)return activePoll;
@@ -64,10 +65,10 @@ export async function startServer(options: ServerOptions) {
   };
   try{await poll();}catch(error){adapter.close();store.close();throw error;}
   const state = (after = 0) => ({
-    adapter:'codex-desktop-app-tools', compatibility:'experimental', thread:{id:threadId,title:host.thread.title},
+    adapter:adapter.name??'codex-desktop-app-tools', compatibility:'experimental', thread:{id:threadId,title:host.thread.title},
     connected, hostStatus, lastError, messages:store.messages(threadId,after).map(message => ({
       ...message,
-      displayText:message.role==='user' && message.kind==='native' ? visibleCodexUserText(message.text) : message.text,
+      displayText:message.role==='user' && message.kind==='native' ? displayUserText(message.text) : message.text,
     })), submissions:store.submissions(threadId),
     draft:store.get(`draft:${threadId}`,''), serverTime:new Date().toISOString(),
     latestMessageId:store.messages(threadId).at(-1)?.id ?? null,
@@ -111,7 +112,7 @@ export async function startServer(options: ServerOptions) {
       if (!authorized(request,token)) return json(response,401,{error:'需要从原 Agent 提供的启动链接进入'});
       if(url.pathname==='/api/health'&&request.method==='GET')return json(response,200,{connected,deleted:game.get()?.deleted??false});
       if(url.pathname==='/api/saves'&&request.method==='GET')return json(response,200,await listSaves(options.registryDir,threadId,game.get(),connected));
-      if(url.pathname==='/api/game'&&request.method==='GET'){await poll();return json(response,200,{...game.state(),connected,hostLabel:options.hostLabel??'Codex 原任务',hostStatus,lastError,latestMessageId:store.messages(threadId).at(-1)?.id??null,draft:store.get(`draft:${threadId}`,''),draftBaseMessageId:store.get(`draft-base:${threadId}`,null),submissions:store.submissions(threadId).map(s=>({id:s.id,status:s.status,host_id:s.host_id})),serverTime:new Date().toISOString()});}
+      if(url.pathname==='/api/game'&&request.method==='GET'){await poll();return json(response,200,{...game.state(),connected,hostLabel:options.hostLabel??adapter.label??'Codex 原任务',hostStatus,lastError,latestMessageId:store.messages(threadId).at(-1)?.id??null,draft:store.get(`draft:${threadId}`,''),draftBaseMessageId:store.get(`draft-base:${threadId}`,null),submissions:store.submissions(threadId).map(s=>({id:s.id,status:s.status,host_id:s.host_id})),serverTime:new Date().toISOString()});}
       if(url.pathname==='/api/game/start'&&request.method==='POST'){game.start();await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,game.state());}
       if(url.pathname==='/api/game/reactivate'&&request.method==='POST')return json(response,200,game.reactivate());
       if(url.pathname==='/api/game/stage'&&request.method==='POST'){const staged=game.stage(await body(request,20_000_000));await registerSave(options.registryDir,threadId,`${origin}/#token=${token}`,game.get());return json(response,200,staged);}
@@ -149,13 +150,15 @@ export async function startServer(options: ServerOptions) {
         submitting = true;
         store.beginSubmission(input.id,threadId,input.text);
         try {
-          const result = await adapter.send(input.text);
+          const result = await adapter.send(input.text,input.id);
           if(result.threadId !== threadId) throw new Error('Host acknowledgement has a different conversation identity');
           store.hostResult(input.id,result);
-          store.setSubmission(input.id,'accepted');
+          if(store.submission(input.id)?.status!=='confirmed')store.setSubmission(input.id,'accepted');
           await poll();
           return json(response,202,{submission:store.submission(input.id),hostResult:result});
         } catch(error: any) {
+          if(error.notSent===true){store.setSubmission(input.id,'rejected',error.message);return json(response,409,{error:error.message,id:input.id});}
+          if(store.submission(input.id)?.status==='confirmed')return json(response,202,{submission:store.submission(input.id)});
           store.setSubmission(input.id,'unknown',error.message);
           return json(response,502,{error:'发送结果待核对，不会自动重发',id:input.id});
         } finally { submitting = false; }
@@ -190,7 +193,7 @@ export async function startServer(options: ServerOptions) {
   await registerSave(options.registryDir,threadId,url,game.get());
   try{
     await mkdir(options.dataDir,{recursive:true});
-    await writeFile(join(options.dataDir,'runtime.json'),JSON.stringify({url,threadId,pid:process.pid,port:address.port},null,2),{mode:0o600});
+    await writeFile(join(options.dataDir,'runtime.json'),JSON.stringify({url,threadId,adapter:adapter.name??'codex-desktop-app-tools',pid:process.pid,port:address.port},null,2),{mode:0o600});
   }catch(error){server.close();adapter.close();store.close();throw error;}
   const interval = setInterval(()=>{ void poll().catch(error=>{lastError=error.message;}); },options.pollMs ?? 1000);
   const heartbeat = setInterval(async()=>{

@@ -5,7 +5,7 @@
 ## 启动与读取上下文
 
 1. 完整工程的安装说明是仓库 `GALGAME.md`。经工程安装器安装的本 Skill 带有 `runtime-location.json`，记录本机工程与 Node 路径；先读取它。若仅装了纯文本 Skill，没有工程，按 GitHub 仓库 GALGAME.md 的说明安装完整开发分支，不猜作者电脑路径。
-2. 在工程目录由**当前 Codex 桌面原任务**执行 `npm run launch`，打开实际返回的本地链接。`npm run runtime` 返回此任务的运行信息与 MCP 配置参数。普通 CLI、Claude Code 和其他应用尚未验证原任务同步，不宣称支持。
+2. 在工程目录由**当前原任务**启动：Codex 桌面执行 `npm run launch`；WorkBuddy Windows 实验模式先读取工程 `docs/workbuddy.md`，按已同意的本机调试配置，用宿主命令工具 `run_in_background=true` 运行 `npm run launch -- serve`，随后 `npm run runtime` 核对服务仍存活，再打开实际返回的本地链接。后者需要宿主提供 `CODEBUDDY_SESSION_ID`，不得手填、猜测任务 ID 或继承另一应用的 ID。`npm run runtime` 返回当前任务的运行信息与 MCP 配置参数。普通 CLI、Claude Code 和其他应用尚未验证原任务同步，不宣称支持。运行环境不支持后台工具时报告具体限制，不把瞬间启动当作可用。
 3. 调用 `galgame_context`，或执行 `node dist/publish.js <runtime.json的实际路径> --context`，读取图片设置与存档状态。使用内置立绘时不生成图片；实时生成时使用当前宿主已有生图能力，失败就让 `asset_id=null` 并使用内置对应情绪。首阶段结论图仍按原 Skill 的单独规则处理；用户明确选择全程内置模式时使用文字/内置替代，不额外生图。
 4. 首次开场由系统出场。若网页已显示输入框，可简短说明已打开，等待用户说出创意；不要自动拿当前开发任务当新创意审查。无需反复让用户做同步测试。
 
@@ -44,6 +44,7 @@ node dist/publish.js /absolute/path/runtime.json /absolute/path/scene.json
 - `speaker`：`system / jobs / xiaohei`。用户消息由桥接自动取得，模型不代写用户答案。
 - `emotion`：`neutral / thinking / skeptical / angry / approval / surprised`。依据用户真实回答选择情绪，别为凑状态强行发怒。
 - 文本不包含姓名前缀，工具会为原任务添加“乔布斯：”“小黑：”；网页单独显示姓名。
+- 台词遵循 conversation-style 的口语规则。一个片段表达一个连贯意思，通常 1–3 句；自然停顿处再拆段，不逐句拆到用户需要不停点击。系统精灵负责开场和交付，乔布斯追产品取舍，小黑讲眼前的使用麻烦。不要把后台分析、检查项或文档表格塞进人物台词，也不要靠额外模型请求逐轮润色，直接在当前回复里写好。
 - 长话按自然段分片段，保持原意。前面的片段都是 `click`，只有最后一段能是 `reply` 或 `complete`。一次 1—3 个相互关联的问题放在最后的提问片段，不替用户答题。
 - 每个回合、片段、图片、文档的 ID 只用字母数字、下划线和短横线。同一回合重试保留 ID；不能把同一 ID 改成另一份内容。
 - 图片：`assets` 中放 `{"id":"jobs_img_1","speaker":"jobs","mime":"image/png","file_path":"图片绝对路径"}`，片段的 `asset_id` 对应该 ID。MCP/CLI 在本机读取并上传受控副本，不在对话中塞 base64。支持 PNG/JPEG/WebP，每张不超过 5 MB。图不可用则不声明该资源存在。

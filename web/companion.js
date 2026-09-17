@@ -1,4 +1,27 @@
 // Local character feedback only: no chat submissions or runtime image generation.
+// Decode first, then fade the complete character surface (PNG or Live2D).
+const portraitStates=new WeakMap();
+export async function changePortrait(surface,image,src,alt,beforeSwap=()=>{},isCurrent=()=>true){
+  let state=portraitStates.get(surface);
+  if(!state){state={revision:0,animation:null};portraitStates.set(surface,state);}
+  const revision=++state.revision,next=new Image();next.src=src;
+  try{await next.decode();}catch(error){if(revision===state.revision){state.animation?.cancel();surface.style.opacity='1';}throw error;}
+  if(revision!==state.revision||!isCurrent())return false;
+  const opacity=getComputedStyle(surface).opacity;state.animation?.cancel();
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,same=image.src===next.src;
+  const ease=getComputedStyle(document.documentElement).getPropertyValue('--ease-out').trim()||'cubic-bezier(0.23, 1, 0.32, 1)';
+  const animate=async(from,to,duration)=>{
+    surface.style.opacity=to;
+    const animation=surface.animate([{opacity:from},{opacity:to}],{duration,easing:ease});state.animation=animation;
+    try{await animation.finished;}catch{}
+    if(state.animation===animation)state.animation=null;
+  };
+  if(!reduced&&!same)await animate(opacity,'0',120);
+  if(revision!==state.revision||!isCurrent()){if(!state.animation)surface.style.opacity='1';return false;}
+  beforeSwap();image.src=next.src;image.alt=alt;
+  if(!reduced&&!same)await animate('0','1',160);else surface.style.opacity='1';
+  return true;
+}
 const faces = new Map(['approval', 'surprised'].map(emotion => {
   const image = new Image();
   image.src = `/art/system-${emotion}.png`;
@@ -34,15 +57,12 @@ export function bindCompanion({floating, body, image, button, enabled = true}) {
     }catch{body.dataset.renderer='image';}
   }
 
-  function reset() {
+  function reset(restoreImage=true) {
     revision++;
     clearTimeout(restoreTimer);
     delete body.dataset.reaction;
     body.classList.remove('pointer-reaction');
-    if (reacting) {
-      image.src = originalSrc;
-      image.alt = originalAlt;
-    }
+    if (reacting && restoreImage)void changePortrait(body,image,originalSrc,originalAlt).catch(()=>{});
     reacting = false;
     live2d?.reset();
   }
@@ -74,8 +94,7 @@ export function bindCompanion({floating, body, image, button, enabled = true}) {
     const src = await faces.get(emotion);
     // A slow image must never overwrite a newer poke or the next speaking character.
     if (!src || request !== revision || !active) return;
-    image.src = src;
-    image.alt = emotion === 'approval' ? '系统精灵开心地眯起眼睛' : '系统精灵惊讶地张开小嘴';
+    void changePortrait(body,image,src,emotion === 'approval' ? '系统精灵开心地眯起眼睛' : '系统精灵惊讶地张开小嘴').catch(()=>{});
   });
 
   document.addEventListener('visibilitychange', () => {

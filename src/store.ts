@@ -21,7 +21,12 @@ export class Store {
   }
   addMessage(threadId: string, message: HostMessage): boolean {
     if(message.kind === 'delegated' && (message.sourceThreadId !== threadId || !this.submissions(threadId).some(s=>s.text.trim()===message.text.trim() && message.ordinal>s.base_ordinal && Date.parse(message.timestamp)>=Date.parse(s.created_at)-2000))) return false;
-    return Number(this.db.prepare('INSERT OR IGNORE INTO messages(thread_id,host_id,role,text,timestamp,kind,ordinal) VALUES(?,?,?,?,?,?,?)').run(threadId,message.id,message.role,message.text,message.timestamp,message.kind,message.ordinal).changes) > 0;
+    const inserted=Number(this.db.prepare('INSERT OR IGNORE INTO messages(thread_id,host_id,role,text,timestamp,kind,ordinal) VALUES(?,?,?,?,?,?,?)').run(threadId,message.id,message.role,message.text,message.timestamp,message.kind,message.ordinal).changes)>0;
+    if(message.role==='user' && message.kind==='native' && message.submissionId){
+      const submission=this.submission(message.submissionId);
+      if(submission?.thread_id===threadId && submission.text===message.text && message.ordinal>submission.base_ordinal && Date.parse(message.timestamp)>=Date.parse(submission.created_at)-2000 && !this.db.prepare('SELECT 1 FROM submissions WHERE host_id=? AND id<>?').get(message.id,submission.id))this.db.prepare('UPDATE submissions SET status=?,host_id=?,error=NULL WHERE id=?').run('confirmed',message.id,submission.id);
+    }
+    return inserted;
   }
   messages(threadId: string, after = 0): any[] {
     return this.db.prepare('SELECT seq, host_id AS id, role, text, timestamp,kind,ordinal FROM messages WHERE thread_id=? AND seq>? ORDER BY ordinal,seq').all(threadId,after);

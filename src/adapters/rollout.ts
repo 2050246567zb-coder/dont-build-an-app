@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { StringDecoder } from 'node:string_decoder';
 
-export type HostMessage = { id: string; role: 'user' | 'assistant'; text: string; timestamp: string; phase: string; ordinal: number; kind: 'native' | 'delegated'; sourceThreadId?: string };
+export type HostMessage = { id: string; role: 'user' | 'assistant'; text: string; timestamp: string; phase: string; ordinal: number; kind: 'native' | 'delegated'; sourceThreadId?: string; submissionId?:string };
 
 export async function findRollout(home: string, threadId: string): Promise<string> {
   if (!/^[a-f0-9-]{36}$/i.test(threadId)) throw new Error('Invalid bound thread ID');

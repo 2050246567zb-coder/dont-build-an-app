@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "tsx src/cli.ts",
     "probe": "tsx src/cli.ts probe",
+    "probe:workbuddy": "node scripts/probe-workbuddy.mjs",
     "build": "tsc",
     "check": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",

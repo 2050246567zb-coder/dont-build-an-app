@@ -10,7 +10,7 @@ const api = async (path, options = {}) => {
 };
 const messages = new Map();
 let cursor=0,initialized=false,polling=false,draftTimer,pendingId=null,baseMessageId=null,latestMessageId=null,sending=false,connected=false,unconfirmed=false,draftRevision=0;
-const labels={submitting:'提交中',accepted:'宿主已接收，等待原记录确认',confirmed:'已在原会话确认',unknown:'结果待核对，不自动重发'};
+const labels={submitting:'提交中',accepted:'宿主已接收，等待原记录确认',confirmed:'已在原会话确认',unknown:'结果待核对，不自动重发',rejected:'原任务忙碌，本次未发送'};
 const updateSend=()=>{$('send').disabled=!connected||sending||unconfirmed||baseMessageId!==latestMessageId;};
 async function poll(){
   if(polling)return;polling=true;

@@ -4,6 +4,8 @@
 
 当前是 **Windows Codex Desktop 的实验适配**，依赖本地桌面管道和只读日志格式。真实原任务双向消息已经跑通；用户于 2026-09-16 结束继续人工编号测试。未完成的兼容验收仍保留，**正式认证列表为空**。Claude Code 未实现适配；macOS 没有真实宿主测试。
 
+新增 **WorkBuddy 5.5.6 / Windows 实验适配**：原任务启动、双向消息、重连去重和正式剧情已做实测。它需要经用户同意开启本机调试，并由 WorkBuddy 后台命令运行服务。按 [WorkBuddy 专用安装说明](docs/workbuddy.md) 操作；完整兼容验收尚未完成，见 [实际记录](docs/reports/2026-09-17-workbuddy-feasibility.md)。
+
 完整范围见 [开发规格](docs/galgame-development-spec.md)，证据见 [同步记录](docs/reports/2026-09-16-sync-validation.md) 与 [本版交付记录](docs/reports/2026-09-16-galgame-alpha2.md)。纯 Skill 仍可按 [INSTALL.md](INSTALL.md) 安装。
 
 系统精灵新增 [Live2D 本地试验](experiments/live2d/README.md)：实际模型支持眨眼、视线跟随和点击表情。SDK 尚未打入公开安装包；未准备 SDK 时继续使用原 PNG 动效。[实测记录](docs/reports/2026-09-17-live2d-trial.md) 区分了已验证项与发布边界。
@@ -19,7 +21,7 @@ https://github.com/2050246567zb-coder/dont-build-an-app/tree/codex/galgame-v0.1.
 不要另建模型会话，不添加 API Key。缺少原任务绑定能力时报告限制。
 ```
 
-需要 Node.js 24+、npm、Git，以及 Codex 桌面当前任务提供的 CODEX_THREAD_ID、CODEX_APP_TOOLS_PIPE_PATH、CODEX_HOME。普通终端或独立 CLI 缺少这些条件时明确失败。
+需要 Node.js 24+、npm、Git。下面是 **Codex 桌面**步骤，需要当前任务提供 CODEX_THREAD_ID、CODEX_APP_TOOLS_PIPE_PATH、CODEX_HOME。WorkBuddy 使用自己的 CODEBUDDY_SESSION_ID，按上面的专用说明安装，不能手填 Codex 变量绕过绑定。
 
 ```sh
 git clone --branch codex/galgame-v0.1.0 https://github.com/2050246567zb-coder/dont-build-an-app.git
@@ -31,7 +33,7 @@ npm run probe
 npm run launch
 ```
 
-安装器把整个 Skill 安装到当前 CODEX_HOME/skills/dont-build-an-app，备份旧版，并记录本机工程路径。不改模型或全局 MCP 配置。搬迁工程后重新安装 Skill。
+安装器把整个 Skill 安装到当前 CODEX_HOME/skills/dont-build-an-app；WorkBuddy 用 `npm run install:skill -- --host workbuddy` 安装到 `~/.workbuddy/skills/dont-build-an-app`。二者都备份旧版并记录本机工程路径，不改模型或全局 MCP 配置。搬迁工程后重新安装 Skill。
 
 让 Agent 打开 launch 输出的本机链接，然后说“使用不要再做 App 了，进入 GalGame 网页模式”。同一任务重复启动复用服务，不创建模型会话。Agent 必须读取 [网页输出约定](skills/dont-build-an-app/references/galgame-mode.md)；普通未结构化回复保留原文并提示处理，不猜测角色。
 
@@ -91,8 +93,10 @@ npm run build
 node --import tsx scripts/ui-fixture.ts
 ```
 
-最后一条启动标有“离线界面测试（无模型）”的确定性夹具，默认端口 4318，用于检查界面，**不能作为真实同步证明**。当前 31 项自动检查涵盖正式正文核对、数据边界、角色顺序、文档、MCP stdio、重连、幂等和生成素材路由。
+最后一条启动标有“离线界面测试（无模型）”的确定性夹具，默认端口 4318，用于检查界面，**不能作为真实同步证明**。当前 41 项自动检查涵盖正式正文核对、数据边界、角色顺序、文档、MCP stdio、宿主区分、重连、幂等和生成素材路由。
 
 2026-09-17 的「夜间创作室」视觉更新包括 19 张生成素材、经典 GalGame 排版和桌面分栏适配，见 [美术说明与预览](docs/visual-direction.md)。系统精灵会微微浮动，点击切换开心/惊讶反应；交互完全在本地完成。角色、背景及装饰边框不再使用代码绘制的占位图。
+
+同日补充三个人物的口语台词规则、等待时递增循环的省略号，以及先加载再淡出/淡入的立绘切换。详见 [台词与动效记录](docs/reports/2026-09-17-dialogue-motion.md)。原会话已发出的旧台词不会自动重写，继续时让 Agent 重新读取更新后的 Skill。
 
 真实宿主诊断页保留在 /verifier。不再要求当前用户重复编号测试；其他环境的认证仍须独立完成 [验收记录](docs/sync-run-template.md)。

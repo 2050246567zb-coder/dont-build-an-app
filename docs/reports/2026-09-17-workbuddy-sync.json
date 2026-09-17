@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-17T06:20:16.198Z",
+  "host": "WorkBuddy",
+  "version": "5.5.6",
+  "platform": "Windows",
+  "status": "experimental-partial-validation",
+  "threadFingerprint": "c41ea271a123f7bd",
+  "startedFromOriginalHostTask": true,
+  "hostSuppliedSessionIdentity": true,
+  "backgroundCommandSurvivedReturn": true,
+  "userConfirmedNativePromptVisibility": true,
+  "userSentNativeMessageObservedInWeb": true,
+  "browserSubmissions": 2,
+  "confirmedBrowserSubmissions": 2,
+  "messagesBeforeReconnect": 20,
+  "messagesAfterReconnect": 20,
+  "uniqueHostIds": 20,
+  "reconnectPreservedIds": true,
+  "duplicateSubmissionReturnedExisting": true,
+  "orderMonotonic": true,
+  "structuredFinalMatched": true,
+  "segments": [
+    {
+      "speaker": "system",
+      "advance": "click"
+    },
+    {
+      "speaker": "jobs",
+      "advance": "click"
+    },
+    {
+      "speaker": "jobs",
+      "advance": "click"
+    },
+    {
+      "speaker": "xiaohei",
+      "advance": "reply"
+    }
+  ],
+  "localhostDebugListenerVerified": true,
+  "newModelSessionCreated": false,
+  "additionalModelService": false,
+  "unverified": [
+    "ten-round alternating acceptance",
+    "native UI visibility for every browser submission",
+    "send in flight during desktop shutdown",
+    "two simultaneous real WorkBuddy tasks",
+    "WorkBuddy restart while serving",
+    "macOS",
+    "other WorkBuddy versions",
+    "complete product review and final document delivery on WorkBuddy"
+  ]
+}
