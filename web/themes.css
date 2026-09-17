@@ -112,6 +112,18 @@ textarea:focus-visible, select:focus-visible { outline-offset: 1px; }
   left: 2%; right: 58%; top: 94px; bottom: var(--scene-floor);
 }
 .stage:has(#reply-panel:not([hidden]),#delivery:not([hidden])) #portrait { object-position: center center; }
+/* Built-in human sprites end at the thighs. Keep their full-height canvas behind
+   the dialogue so its opaque surface hides that cut edge; moving the canvas must
+   never resize the character into the available space beside the reply panel. */
+.stage:is([data-speaker="jobs"],[data-speaker="xiaohei"])[data-artwork="builtin"] .character-area {
+  top: 48px; bottom: auto; left: 50%; right: auto;
+  height: calc(100% - 148px); width: auto; aspect-ratio: 2 / 3;
+  transform: translateX(-50%); transition: left 480ms var(--motion);
+}
+.stage:is([data-speaker="jobs"],[data-speaker="xiaohei"])[data-artwork="builtin"]:has(#reply-panel:not([hidden]),#delivery:not([hidden])) .character-area {
+  top: 48px; bottom: auto; left: clamp(145px,24%,420px); right: auto;
+}
+.stage:is([data-speaker="jobs"],[data-speaker="xiaohei"])[data-artwork="builtin"] #portrait { object-position: center bottom; }
 .reply-panel, .delivery {
   left: auto; right: 3%; top: 100px; transform: none;
   width: min(560px,54%); max-height: calc(100% - var(--scene-floor) - 112px); overflow: auto;
@@ -120,7 +132,7 @@ textarea:focus-visible, select:focus-visible { outline-offset: 1px; }
 #reply { min-height: 88px; max-height: min(18vh,180px); }
 @media (max-width:900px) {
   :root { --scene-floor: 332px; }
-  .reply-panel, .delivery { right: 2%; width: 55%; top: 110px; }
+  .reply-panel, .delivery { right: 2%; width: 52%; top: 110px; }
   .reply-heading { font-size: 15px; }
   .reply-footer { flex-wrap: wrap; gap: 6px; }
   #draft-status { flex: 1 1 100%; }
@@ -132,7 +144,15 @@ textarea:focus-visible, select:focus-visible { outline-offset: 1px; }
   .stage:has(#reply-panel:not([hidden]),#delivery:not([hidden])) .character-area {
     top: 72px; bottom: auto; height: 170px; left: 12%; right: 12%;
   }
+  .stage:is([data-speaker="jobs"],[data-speaker="xiaohei"])[data-artwork="builtin"]:has(#reply-panel:not([hidden]),#delivery:not([hidden])) .character-area {
+    top: 48px; bottom: auto; height: calc(100% - 148px); left: 50%; right: auto;
+  }
   .reply-panel, .delivery { top: 256px; left: 3%; right: 3%; width: auto; max-height: calc(100% - var(--scene-floor) - 268px); }
+  .stage:is([data-speaker="jobs"],[data-speaker="xiaohei"])[data-artwork="builtin"] :is(.reply-panel,.delivery) {
+    top: 350px; max-height: calc(100% - var(--scene-floor) - 362px);
+  }
+  .reply-footer { flex-wrap: nowrap; }
+  #draft-status { flex: initial; }
   :root:not([data-theme="system"]) .quick-menu button { padding-inline: 7px; }
 }
 @media (prefers-reduced-motion:reduce) {
