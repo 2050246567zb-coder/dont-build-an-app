@@ -6,7 +6,7 @@ import {readFile} from 'node:fs/promises';
 import {bridgeClient,readSceneFile} from './bridge-client.ts';
 
 const runtime=process.argv[2];if(!runtime)throw Error('必须显式指定当前原任务的 runtime.json');
-const server=new McpServer({name:'dont-build-an-app-galgame',version:'0.1.0-alpha.2'});
+const server=new McpServer({name:'dont-build-an-app-galgame',version:'0.2.1'});
 const run=async(action:()=>Promise<unknown>)=>{try{return {content:[{type:'text' as const,text:JSON.stringify(await action(),null,2)}]};}catch(e:any){return {isError:true,content:[{type:'text' as const,text:e.message}]};}};
 server.registerTool('galgame_context',{description:'读取此 MCP 实例绑定的原任务、网页图片偏好和剧情格式要求。没有独立模型，不发送用户消息。',inputSchema:z.object({})},async()=>run(async()=>{
   const api=await bridgeClient(resolve(runtime));const state=await api('/api/game');

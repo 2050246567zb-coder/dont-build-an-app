@@ -4,7 +4,7 @@
 
 ## Windows x64 完整安装包（推荐）
 
-1. 从 [最新发布](https://github.com/2050246567zb-coder/dont-build-an-app/releases/latest) 下载 `dont-build-an-app-v0.2.0-windows-x64.zip`，完整解压到一个准备长期保留的文件夹。不要直接在压缩包中运行。
+1. 从 [最新发布](https://github.com/2050246567zb-coder/dont-build-an-app/releases/latest) 下载 `dont-build-an-app-v0.2.1-windows-x64.zip`，完整解压到一个准备长期保留的文件夹。不要直接在压缩包中运行。
 2. 双击 `install.cmd`，自动给检测到的 Codex、WorkBuddy、千问办公安装配套 Skill；已有版本先备份。包内含 Node.js 24.19.0、已构建程序、运行依赖、网页、人物和场景素材，安装步骤无需另行下载 npm 依赖。
 3. 回到对应 Agent，刷新 Skill 列表或新建一个正常任务，说：**使用天才设计师系统，打开网页审查我的创意：……**。网页必须由这个原任务启动，双击安装器不会创建模型会话。
 

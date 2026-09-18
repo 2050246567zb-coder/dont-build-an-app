@@ -167,7 +167,7 @@ async function enter(){
   if(!state.save)throw Error('请回原任务重新启动网页模式');owned=(await api('/api/game/lease','POST',{clientId:viewer})).owned;
   menuCompanion.reset();inGame=true;$('menu').hidden=true;$('stage').hidden=false;$('save-title').textContent=state.save.title;
   const saved=state.timeline.findIndex(s=>s.id===state.save.position);show(saved>=0?saved:0);banner();
-  if(owned&&!state.timeline.length&&!state.pending?.length&&!state.submissions.length){await sendText('【天才设计师系统·开场】请读取 Skill 的 galgame-mode 和 story-direction，召唤系统精灵，用简短剧情介绍系统，再问我想做什么。使用 summon 开场和结构化剧情同步本网页；不要把当前维护任务当成待审创意。');}
+  if(owned&&!state.timeline.length&&!state.pending?.length&&!state.submissions.length){await sendText('【天才设计师系统·开场】请读取 Skill 的 galgame-mode 和 story-direction。用 script_id:intro 和 script_id:ask_idea 发布内置固定开场，不要自行改写或生成开场台词；系统精灵称呼我为开发者。不要把当前维护任务当成待审创意。将工具返回的 finalText 原样发到当前原任务。');}
 }
 function goHome(){cancelStoryCue();cueBusy=false;$('settings').close();choiceSelections.clear();choiceMode='custom';frontier=-1;index=-1;current=null;replayControls();$('chapter').textContent='序章：AI';stopType();clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');assetRequest++;stageCompanion.reset();setSceneTheme('system');inGame=false;$('stage').hidden=true;$('menu').hidden=false;summonSpirit();}
 async function saveDraft(revision){if(!owned)return;const text=$('reply').value,saveId=state.save?.id;try{await api('/api/draft','PUT',{text,baseMessageId:base,viewerId:viewer,gameSessionId:saveId});if(revision===draftRevision){$('draft-status').textContent='已保存';localStorage.removeItem(`draft:${saveId}`);}}catch{if(revision===draftRevision)$('draft-status').textContent='连接中断，已暂存在此浏览器';}}

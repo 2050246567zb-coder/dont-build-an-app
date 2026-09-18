@@ -11,7 +11,7 @@
 1. 完整工程的安装说明是仓库 `GALGAME.md`。经工程安装器安装的本 Skill 带有 `runtime-location.json`，记录本机工程与 Node 路径；先读取它。有内置 Node 时使用 runtime-location.json 的 node 绝对路径运行 launcher / publisher，不依赖全局 npm。对应命令是 `<node> <launcher>`、`<node> <launcher> serve`、`<node> <launcher> info` 和 `<node> <launcher> stop`。若仅装了纯文本 Skill，没有工程，按 GitHub 仓库 GALGAME.md 的说明安装 main 中的完整工程，不猜作者电脑路径。
 2. 在工程目录由**当前原任务**启动：Codex 桌面执行 `npm run launch`；WorkBuddy Windows 实验模式先读取工程 `docs/workbuddy.md`，按已同意的本机调试配置，用宿主命令工具 `run_in_background=true` 运行 `npm run launch -- serve`，随后 `npm run runtime` 核对服务仍存活，再打开实际返回的本地链接。WorkBuddy 需要宿主提供 `CODEBUDDY_SESSION_ID`；千问办公按上方专用步骤，使用其自身 `QODERWORK_SOURCE_CHAT_ID`。不得手填、猜测任务 ID 或继承另一应用的 ID。`npm run runtime` 返回当前任务的运行信息与 MCP 配置参数。普通 CLI、Claude Code 和未列出的其他应用尚未验证原任务同步，不宣称支持。运行环境不支持后台工具时报告具体限制，不把瞬间启动当作可用。
 3. 调用 `galgame_context`，或执行 `node dist/publish.js <runtime.json的实际路径> --context`，读取图片设置与存档状态。使用内置立绘时不生成图片；实时生成时使用当前宿主已有生图能力，失败就让 `asset_id=null` 并使用内置对应情绪。首阶段结论图仍按原 Skill 的单独规则处理；用户明确选择全程内置模式时使用文字/内置替代，不额外生图。
-4. 首次开场由系统精灵召唤出场，按 story-direction 用 2–3 段介绍系统并接住用户的创意。空存档在用户点击开始后会自动发出一次开场请求，此请求和后续剧情都在同一原任务可见。已存在剧情时恢复位置，不重复开场；不要自动拿当前开发任务当新创意审查。无需反复让用户做同步测试。
+4. 首次开场按 story-direction 使用固定 intro 桥段和 ask_idea 提问；已知创意时只让 AI 编写对应产品问题，不重复询问。空存档在用户点击开始后会自动发出一次开场请求，此请求和后续剧情都在同一原任务可见。已存在剧情时恢复位置，不重复开场；不要自动拿当前开发任务当新创意审查。无需反复让用户做同步测试。
 
 网页的配图选项就是本模式的选择入口：已选择实时配图视为授权，选择内置则不生图，进入第二阶段不重复询问。网页模式的交付以可打开、可下载的完整文档为准；系统简短说明并关联文件，不把整份文档强塞入逐字对话框。其余产品审查与闭合要求保持不变。
 
@@ -56,6 +56,10 @@ node dist/publish.js /absolute/path/runtime.json /absolute/path/scene.json
 用户在原窗口打断、补充目标或临时问别的事情后，以原会话的最新决定为准。收到附有「GalGame 网页续接说明」的用户消息时，先读本文件与当前原任务的运行状态；接住本次用户回答，从原进度续聊，使用新的 turn_id 暂存下一段剧情并正式发送 finalText。不要重演旧问答、要求重做同步验证、虚构过关或创建替代会话。用户明确要求退出或暂停时仍优先遵从。网页只在用户主动发送或点恢复时附带一次格式提醒，不能后台反复请求模型。
 
 已暂存但未正式发布的剧情，遇到更新的用户发言会标为 interrupted；正文不匹配会标为 mismatch。两者保留为历史，不阻止后续用新 turn_id 继续，也不能把晚到的旧台词错误匹配为更新后的回答。成功续接后不再反复显示旧格式问题。旧版服务没有此能力时，须在该原任务中停止并重启更新后的服务，保留原数据目录；只刷新网页不能升级后台。
+
+## 固定桥段引用
+
+`segments` 支持 `{"segment_id":"opening","script_id":"intro"}` 这类固定桥段引用。可用 intro、ask_idea、to_jobs、to_xiaohei、finale；场景、顺序与触发条件见 story-direction。finale 还需 document_id，并绑定已闭合正式方案。不要给引用传自写台词；程序在校验和生成 finalText 之前展开固定文本，网页与原任务逐字一致。其他片段继续按下方格式由 AI 生成实际产品问答。旧服务不识别 script_id 时从同一原任务停止、重启新版服务，不用另写一份随机开场规避。
 
 ## JSON 合同
 

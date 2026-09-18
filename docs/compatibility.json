@@ -50,7 +50,7 @@
       "report": "reports/2026-09-18-desktop-adapters.md"
     }
   ],
-  "productVersion": "0.2.0",
+  "productVersion": "0.2.1",
   "manualValidation": "Codex repeated manual checks stopped at user request. WorkBuddy has a separate short live run; uncompleted checks remain unverified for each host.",
   "implementationReport": "reports/2026-09-16-galgame-alpha2.md"
 }

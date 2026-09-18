@@ -1,10 +1,11 @@
 import {z} from 'zod';
 import {createHash} from 'node:crypto';
+import {expandStoryScripts} from './story-scripts.ts';
 
 export const speakerNames={system:'AI',jobs:'乔布斯',xiaohei:'小黑',narrator:'旁白',player:'你（剧情）',ensemble:'精灵、乔布斯和小黑',user:'你说'} as const;
 export const emotions=['neutral','thinking','skeptical','angry','approval','surprised'] as const;
 const id=z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/);
-export const sceneSchema=z.object({
+const expandedSceneSchema=z.object({
   schema_version:z.literal('1.0'),turn_id:id,
   stage:z.enum(['screening','design','experience','delivery']),
   design_closed:z.boolean().default(false),
@@ -47,6 +48,9 @@ export const sceneSchema=z.object({
   }
   if(scene.segments.at(-1)?.advance==='click')fail('一轮必须结束于等待用户回答或文档交付');
 });
+export const sceneSchema=z.preprocess((input,ctx)=>{
+  try{return expandStoryScripts(input);}catch(error){ctx.addIssue({code:'custom',message:error instanceof Error?error.message:'固定桥段无法展开'});return z.NEVER;}
+},expandedSceneSchema);
 export type Scene=z.infer<typeof sceneSchema>;
 export const sha=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
 export function normalizeFinal(text:string){return text.replace(/\r\n/g,'\n').replace(/\s*<oai-mem-citation>[\s\S]*?<\/oai-mem-citation>\s*$/,'').trim();}

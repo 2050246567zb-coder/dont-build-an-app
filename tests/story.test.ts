@@ -128,3 +128,45 @@ test('story cues mirror fictional dialogue without turning it into a user reply'
    const draft=structuredClone(storyFixtureScenes[3]);draft.design_closed=false;draft.delivery_kind='draft';assert.throws(()=>sceneSchema.parse(draft));
  }finally{f.close();}
 });
+
+test('fixed opening is expanded once for both native final and persisted webpage; product text stays dynamic',()=>{
+  const f=fixture();try{
+    const question={...segment('system','reply','real_question'),text:'你说给夜班护士用，交班时最容易漏掉哪件事？'};
+    const input={...scene(),stage:'screening',segments:[{segment_id:'welcome',script_id:'intro'},question]};
+    const result=f.game.stage(input);
+    assert.match(result.finalText,/开发者，听得见吗/);
+    assert.ok(result.finalText.includes(question.text));
+    assert.equal(f.game.timeline().length,0);
+    assert.equal(f.game.stage(input).finalText,result.finalText);
+    final(f.store,result.finalText);f.game.reconcile();
+    const timeline=f.game.timeline();assert.equal(timeline.length,3);
+    assert.equal(timeline.at(-1)?.text,question.text);
+    const restored=new Game(f.store,thread,f.dir,'恢复');
+    assert.deepEqual(restored.timeline(),timeline);
+    assert.ok(timeline.every(s=>result.finalText.includes(s.text)));
+  }finally{f.close();}
+});
+
+test('fixed bridges reject rewritten roles/text, wrong chapters and repeated scripts',()=>{
+  const opening={...scene(),stage:'screening',segments:[{segment_id:'intro',script_id:'intro'},{segment_id:'ask',script_id:'ask_idea'}]};
+  assert.equal(sceneSchema.parse(opening).segments.at(-1)?.advance,'reply');
+  for(const altered of [
+    {...opening,stage:'design'},
+    {...opening,segments:[{...opening.segments[0],text:'AI 自行改写'},opening.segments[1]]},
+    {...opening,segments:[{...opening.segments[0],speaker:'jobs'},opening.segments[1]]},
+    {...opening,segments:[opening.segments[0],{...opening.segments[0],segment_id:'again'},opening.segments[1]]},
+    {...opening,segments:[{segment_id:'unknown',script_id:'not_a_script'},opening.segments[1]]},
+  ])assert.throws(()=>sceneSchema.parse(altered));
+});
+
+test('meadow congratulations are product-independent, while the answer and delivered document remain specific',()=>{
+  function ending(title:string,answer:string){return {...scene(),stage:'delivery',design_closed:true,delivery_kind:'ready',segments:[{...segment('xiaohei','click','last_answer'),text:answer},{segment_id:'celebration',script_id:'finale',document_id:'doc'}],documents:[{id:'doc',title,markdown:'# 方案\n'+answer.repeat(35)}]};}
+  const a=sceneSchema.parse(ending('护士交班助手','交班时能找回漏项，那我放心了。'));
+  const b=sceneSchema.parse(ending('离线菜谱','没网也能找菜谱，那我放心了。'));
+  assert.notEqual(a.segments[0].text,b.segments[0].text);
+  assert.deepEqual(a.segments.slice(1,-1),b.segments.slice(1,-1));
+  assert.ok(a.segments.at(-1)?.text.includes('护士交班助手'));
+  assert.ok(b.segments.at(-1)?.text.includes('离线菜谱'));
+  assert.equal(a.segments.at(-1)?.document_id,'doc');
+  for(const patch of [{design_closed:false},{delivery_kind:'draft'},{documents:[]}])assert.throws(()=>sceneSchema.parse({...ending('方案','回答'),...patch}));
+});
