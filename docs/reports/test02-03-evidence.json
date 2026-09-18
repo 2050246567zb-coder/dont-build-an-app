@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:06:15.181Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "sameOriginalThread": true,
+  "previousFinalReply": {
+    "ordinal": 3274,
+    "found": true,
+    "browserVisible": true,
+    "role": "assistant"
+  },
+  "nativeTest02": {
+    "count": 1,
+    "trailingWhitespacePreserved": true,
+    "browserVisible": true,
+    "kind": "native",
+    "ordinal": 3281
+  },
+  "browserTest03": {
+    "browserVisible": true,
+    "submissionStatus": "confirmed",
+    "kind": "delegated",
+    "receivedByCurrentAgent": true,
+    "count": 1,
+    "ordinal": 3338,
+    "nativeWindowHumanConfirmation": "not-yet-observed-for-test03"
+  },
+  "observedOrderCorrect": true,
+  "reconnect": {
+    "trigger": "browser reconnect button",
+    "beforeMessageCount": 128,
+    "confirmedBrowserSubmissions": 2,
+    "afterMessageCount": 128,
+    "duplicateHostMessages": 0,
+    "orderUnchanged": true
+  },
+  "limitations": [
+    "Test03 was sent while the Test02 response was active; these are not two completed input/final-reply rounds.",
+    "The current final reply is not yet persisted at observation time.",
+    "Ten complete alternating rounds, independent-task isolation, mid-submit disconnect and idle wake-up remain unverified."
+  ]
+}

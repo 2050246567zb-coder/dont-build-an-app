@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:25:27.649Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "sameOriginalThread": true,
+  "test06FinalReply": {
+    "browserVisible": true,
+    "role": "assistant",
+    "ordinal": 3596,
+    "found": true
+  },
+  "browserTest07": {
+    "submissionBaseline": 3596,
+    "submissionStatus": "confirmed",
+    "count": 1,
+    "nativeWindowHumanConfirmation": "not-yet-observed-for-test07",
+    "receivedByCurrentAgent": true,
+    "ordinal": 3603,
+    "browserVisible": true
+  },
+  "previousReplyBeforeInput": true,
+  "messageCount": 136,
+  "duplicateHostMessages": 0,
+  "hostOrderMonotonic": true,
+  "limitations": [
+    "Test07 final reply and native-window visual confirmation are pending.",
+    "Ten complete alternating rounds and remaining failure/isolation cases are not yet complete."
+  ]
+}

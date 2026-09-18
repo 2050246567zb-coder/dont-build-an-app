@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T11:24:11.102Z",
+  "compatibility": "not-certified",
+  "threadFingerprint": "dda968b77244900f",
+  "sameOriginalThread": true,
+  "test05NativeWindowConfirmation": {
+    "answer": "看到了",
+    "source": "user reply in original task",
+    "confirmed": true
+  },
+  "test05FinalReply": {
+    "ordinal": 3553,
+    "found": true,
+    "browserVisible": true,
+    "role": "assistant"
+  },
+  "nativeTest06": {
+    "displayTextExact": true,
+    "ordinal": 3560,
+    "ambientContextCollapsed": true,
+    "count": 1,
+    "kind": "native",
+    "rawHostTextRetained": true,
+    "browserVisible": true
+  },
+  "previousReplyBeforeInput": true,
+  "messageCount": 134,
+  "duplicateHostMessages": 0,
+  "hostOrderMonotonic": true,
+  "limitations": [
+    "Test06 final reply is pending at observation time.",
+    "Ten complete alternating rounds and remaining failure/isolation cases are not yet complete."
+  ]
+}

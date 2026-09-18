@@ -1,6 +1,6 @@
 ---
 name: dont-build-an-app
-description: "Help people with a rough product idea decide whether and how to build it through current similarity research, Jobs-style product questioning, simulated user critique, and an AI-readable design document. Use for 产品创意查重、不要再做 App、产品审讯、用户体验挑刺, or resuming an idea review from a progress document."
+description: "天才设计师系统 / 重生之我有天才设计师系统。Help people with a rough product idea decide whether and how to build it through current similarity research, Jobs-style product questioning, simulated user critique, and an AI-readable design document. Use for 产品创意查重、不要再做 App、产品审讯、用户体验挑刺, or resuming an idea review from a progress document."
 ---
 
 # 不要再做 App 了
@@ -8,6 +8,10 @@ description: "Help people with a rough product idea decide whether and how to bu
 帮助只有模糊产品想象的人，在问答中明确目的、目标用户、核心任务和取舍，保护核心功能并改善使用体验，正常完成后交付可直接给 AI 执行的产品设计方案：产品决定已闭合，实现裁量有边界，验证有任务。自用产品也适用。允许有依据地调整、停止或由用户明确选择带着缺口提前交付；不得用鼓励开工代替审查，也不得在过关后把必需产品决定推回开发。
 
 ## 识别本次任务
+
+- 进行创意审查时，若本 Skill 带有 `runtime-location.json` 且其中 `preferredMode` 为 `web`，默认从当前原任务打开 GalGame 网页；用户明确要求纯文字时遵从。安装完整包不代表宿主已兼容，启动失败说明具体原因，不另建会话冒充同步。
+
+- 用户要在 GalGame 网页里审查创意、已经从本 Skill 启动网页模式，或正在回复网页中的问题时，先读 [网页模式](references/galgame-mode.md) 和 [剧情导演](references/story-direction.md)，沿用下述审查流程，并通过受校验的剧情片段交付正式回复。纯聊天模式不启动本地服务。开发和维护网页本身仍属于维护任务，不自动把开发讨论变成角色审查。
 
 - 审查产品创意时执行下述四阶段流程。用户明确要求“拿这个 Skill 的创意试跑”时，把 Skill 本身作为待审产品。
 - 用户要求修改、审计或测试 Skill 文件时，完成该维护任务，不把维护请求当作需要闯关的新产品创意。
@@ -39,6 +43,8 @@ description: "Help people with a rough product idea decide whether and how to bu
 ## 对话与状态
 
 阶段 1–3 默认用两个语义块：有判断的简短回应，再提出推动下一项决定的问题。通常每轮 2–3 个关联或关键问题，复杂问题单独问；不要为凑数拆问题。角色阶段优先让用户说明自己的理由、取舍和实际流程；答不上来时按 conversation-style 区分角色和求助意图，不自动替用户给出设计。
+
+三种声音都按当面聊天写：系统精灵亲切、利落、有好奇心；乔布斯有自己的判断，追问人为什么非要这个产品；小黑用第一人称盯着自己会遇到的麻烦。接住用户刚才那一句就往下聊，不先写会议纪要、过关回执或概念总结。两个语义块是内容职责，不是每轮固定的句式。口语不等于堆“啊、嘛、呢”、网络梗或故意说错话；不因变得亲切就替用户答题。GalGame 台词可以分短段，设计文档仍保持准确完整。具体校准见 conversation-style。
 
 第一阶段的建议句与结论图、后续角色台词与配图都是最终交付内容，必须完整放进用户无需展开思考/过程记录即可阅读的回复正文。在区分 `commentary` 与 `final` 的宿主中，用 `final` 承载完整图文；过程消息仅报告必要进展，不能把乔布斯或小黑的收尾只发在过程消息里。最终消息必须包含本轮完整内容：乔布斯→小黑时有两组角色图文；小黑→助手时有小黑收尾图文和完整设计方案。已在过程中说过的交接内容仍须在最终正文完整呈现。
 
@@ -102,6 +108,8 @@ description: "Help people with a rough product idea decide whether and how to bu
 按 demanding-user-review 质询并检验用户的设计，保留代表性用户的真实任务测试计划。前台用角色台词自然认可；后台及设计文档中的通过仅表示“通过启发式预审”，不声称真实用户体验已验证。
 
 第三阶段准备结束时，先读取最终文档参考，在后台按 decision-closure 检查并组织完整方案；缺少必需产品决定就继续相关质询，不能先告别。准备齐备后再生成已获同意的小黑收尾图，最后在**同一条 final 正文**依次写入“小黑收尾图 → 小黑对最后答案的回应与告别 → 普通助手的完整可执行产品方案”。小黑亲口说“我觉得没啥好问的了，就这样吧。我帮你叫你的 AI 给你总结一下方案。”这段话不能只出现在 commentary、思考摘要或工具区。先准备后统一呈现，不把执行顺序误写成先发一条过程告别再读文档；详见 conversation-style。
+
+网页模式按 story-direction 播放草地祝贺与道具交付，替代上面的普通助手直出桥段；准备文档在先、同一 final 完整呈现和设计闭合要求不变。
 
 ### 4. 整理产品设计文档
 

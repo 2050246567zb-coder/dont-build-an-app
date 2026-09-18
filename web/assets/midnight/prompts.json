@@ -1,0 +1,122 @@
+{
+  "theme": "Midnight Atelier / 夜间创作室",
+  "generatedOn": "2026-09-17",
+  "generator": "OpenAI imagegen",
+  "notes": "Original generated raster assets. No code drawing or image post-processing. PNGs copied verbatim from generator; source files retained. UI text remains accessible DOM text.",
+  "assets": [
+    {
+      "key": "background",
+      "file": "background.png",
+      "source": "exec-937cd6bb-29d6-4041-a8f9-80ff073e89e2.png",
+      "prompt": "Use case: illustration-story. Generate one production background asset for an original desktop Japanese visual novel titled Don't Build an App. Art direction: 'Midnight Atelier', classic polished 2000s Japanese ADV game, delicate clean background painting, refined cinematic anime illustration, sophisticated not cute chibi, palette midnight navy #172942, moonlit ivory #eef2f4, desaturated slate blue, subtle champagne gold, warm small amber practical lights. Wide landscape 16:9, ideally 1920x1080 or larger. Scene: a beautiful quiet creative studio and library at blue hour, expansive tall windows on the right overlook a softly illuminated city and dusky indigo sky; a tasteful desk, sketchbooks and a small brass lamp far right; wooden bookshelves and frosted glass doors on left; comfortable refined seating at the far edges. Composition: eye-level camera, open uncluttered central floor and central wall, no large desk across foreground. Central two thirds provide a calm stage for standing character sprites; upper left contains clean darker negative space for a title that will be added in HTML. Bottom quarter relatively quiet and dark, for a dialogue overlay. Atmospheric hand-painted detail, believable perspective, gentle moonlight, warm rim accents, restrained magical dust motes, quietly inviting. Entire canvas is environment, no characters, no silhouettes, no text, no lettering, no logo, no UI boxes, no watermark. This is the style master for all subsequent assets. Return a finished usable background image, not a design sheet or mockup."
+    },
+    {
+      "key": "dialogue-frame",
+      "file": "dialogue-frame.png",
+      "source": "exec-3e347108-270d-46eb-b1b3-f56819a40aa9.png",
+      "prompt": "Use case: ui-mockup. Art direction: Midnight Atelier, elegant classic Japanese ADV visual novel. Palette midnight navy #172942, moonlit ivory #eef2f4, desaturated slate blue, thin champagne-gold accents. Match the supplied background's restrained moonlit atmosphere. This is a game-ready raster asset, not a screenshot or mockup. No text, letters, logo, watermark, checkerboard pattern or extra objects. Real transparent alpha outside the asset. Generate exactly one wide horizontal empty dialogue-window skin, aspect ratio 3:1. Straight-on orthographic. A thin luxurious double-rule champagne-silver border with small symmetrical geometric corner ornaments, understated tiny diamond details, slightly clipped rectangle corners. Inside a very dark desaturated blue glass panel, almost opaque (92%) to support crisp white Chinese text, subtle brushed-silk texture, uniform quiet center. Important: the frame should occupy nearly the full canvas with only 2% transparent outer padding; center completely empty; no nameplate, no buttons, no icons, no text. Main corners ornamented within 7% of width. Top and bottom edges thin, graceful, not a heavy fantasy HUD. Keep generous undecorated interior for about four lines of text. Output one isolated PNG interface panel with actual transparent exterior."
+    },
+    {
+      "key": "button",
+      "file": "button.png",
+      "source": "exec-7cd46cd6-acc1-4778-8951-2f28a245a41d.png",
+      "prompt": "Use case: ui-mockup. Art direction: Midnight Atelier, elegant classic Japanese ADV visual novel. Palette midnight navy #172942, moonlit ivory #eef2f4, desaturated slate blue, thin champagne-gold accents. Match the supplied background's restrained moonlit atmosphere. This is a game-ready raster asset, not a screenshot or mockup. No text, letters, logo, watermark, checkerboard pattern or extra objects. Real transparent alpha outside the asset. Generate exactly one isolated empty horizontal visual-novel menu button skin, aspect ratio 3:1, crisp straight-on view. A dark midnight-blue glass inset, narrow double champagne-silver outline, small delicate geometric diamond ends, subtly tapered clipped corners, understated soft silvery edge gleam. Not a pill, not a 3D plastic object, no bevel depth. All artwork confined to outer 10% margins, center plain dark blue and completely empty for a future HTML text label. Fill 96% of canvas width and 90% height, little outer padding. No background behind the button, genuine transparent alpha. This same skin must work for name tags and menu actions, harmonious with the dialogue frame."
+    },
+    {
+      "key": "jobs-neutral",
+      "file": "jobs-neutral.png",
+      "source": "exec-8aee3287-d68e-4e36-baa6-3cc49359c7ee.png",
+      "prompt": "Use case: illustration-story. Art direction: Midnight Atelier, elegant classic Japanese ADV visual novel. Palette midnight navy #172942, moonlit ivory #eef2f4, desaturated slate blue, thin champagne-gold accents. Match the supplied background's restrained moonlit atmosphere. This is a game-ready raster asset, not a screenshot or mockup. No text, letters, logo, watermark, checkerboard pattern or extra objects. Real transparent alpha outside the asset. Generate one visual novel character sprite of Steve Jobs as an adult man in his early fifties, recognizable angular narrow face, receding very short grey hair, rimless round spectacles, slight salt-and-pepper beard stubble, iconic plain black turtleneck and faded blue jeans. Classic high-quality Japanese visual novel anime portrait, clean delicate hand-drawn outlines with elegant detailed cel shading and gently painted skin, believable adult anatomy, not a caricature, not chibi, not vector art, not photorealism. Standing three-quarter view turned slightly toward the viewer, calm but demanding attentive expression, direct gaze, one relaxed hand at side and other loosely resting near hip. Framed from whole top of head to mid-thigh, entire shoulders and hands within frame, centered sprite, top of head around 6% down, hips end at 96%. Slim adult proportions. Cool soft key light from upper right and very subtle warm amber rim, match background reference. No environment, floor, contact shadow or props; only the character against real transparent alpha. Keep enough horizontal room for future expressive gesture variants. Portrait 2:3 canvas."
+    },
+    {
+      "key": "xiaohei-neutral",
+      "file": "xiaohei-neutral.png",
+      "source": "exec-eec8e30b-154c-4ed3-ac62-694b8cb3a364.png",
+      "prompt": "Use case: illustration-story. Art direction: Midnight Atelier, elegant classic Japanese ADV visual novel. Palette midnight navy #172942, moonlit ivory #eef2f4, desaturated slate blue, thin champagne-gold accents. Match the supplied background's restrained moonlit atmosphere. This is a game-ready raster asset, not a screenshot or mockup. No text, letters, logo, watermark, checkerboard pattern or extra objects. Real transparent alpha outside the asset. Generate one visual novel character sprite '小黑', the iconic anonymous black suspect silhouette archetype from Detective Conan: entire head, face, neck, torso and limbs are solid inky black, bald rounded head, ONLY expressive bright white eyes with dark pupils and a white mouth line on the face. No human skin patches, no hair, no mask, no hood, no normal clothes, no visible genitals. Nonsexual stylized black humanoid, lean adult body with smooth cel shaded anatomy and subtle navy-blue edge highlights, plain featureless black torso. Polished Japanese visual novel anime rendering, clean line art and soft detailed cel shading harmonizing with the reference, not vector and not chibi. Standing hip to head / mid-thigh portrait 2:3, entire head, both arms and hands visible within image, slight three-quarter turn, one hand at waist, another holding a plain black smartphone lowered near his abdomen. Expression: alert, mildly unconvinced, one eyebrow raised, mouth a small level line, looks straight at viewer. Top of head near 6%, lower body ends near 96%, enough horizontal room for expressive gestures. Cool moonlight rim from upper right, restrained warm reflected highlights. Real transparent alpha background; no environment, floor or cast shadow."
+    },
+    {
+      "key": "jobs-thinking",
+      "file": "jobs-thinking.png",
+      "source": "exec-d426571e-200f-4062-a2af-b5dfb5f9d8bd.png",
+      "prompt": "Use case: identity-preserve. Edit the reference Steve Jobs visual-novel sprite. Preserve EXACT same face identity, receding hair, rimless glasses, stubble, black turtleneck, blue jeans, adult proportions, delicately painted cel shading, same cool blue right rim and faint warm left light, 1024x1536 transparent portrait. Keep top of head and mid-thigh framing identical, same overall character size and anchor position. No scene, no text, no labels, no speech bubble, no floor, no new accessories. Genuine transparent alpha outside the person, don't paint a black or checkerboard backdrop. Change ONLY the expression and the arm/hand gesture as specified. Both hands stay inside canvas. Expression and pose: deeply considering a difficult design tradeoff, eyes glance thoughtfully to the viewer's left, brows gently knitted, mouth closed. One hand touches chin with index finger naturally, other arm lightly supports elbow. Restrained, intelligent, incisive thought. Not smiling."
+    },
+    {
+      "key": "jobs-skeptical",
+      "file": "jobs-skeptical.png",
+      "source": "exec-e461bc36-a913-420c-b69d-81eb5cd41415.png",
+      "prompt": "Use case: identity-preserve. Edit the reference Steve Jobs visual-novel sprite. Preserve EXACT same face identity, receding hair, rimless glasses, stubble, black turtleneck, blue jeans, adult proportions, delicately painted cel shading, same cool blue right rim and faint warm left light, 1024x1536 transparent portrait. Keep top of head and mid-thigh framing identical, same overall character size and anchor position. No scene, no text, no labels, no speech bubble, no floor, no new accessories. Genuine transparent alpha outside the person, don't paint a black or checkerboard backdrop. Change ONLY the expression and the arm/hand gesture as specified. Both hands stay inside canvas. Expression and pose: distinctly skeptical, head tilted slightly, one eyebrow raised, eyes narrowed directly at viewer, mouth slightly tightened. Both arms folded across chest, credible anatomy. Patiently demanding a better answer; personality readable at small size."
+    },
+    {
+      "key": "jobs-approval",
+      "file": "jobs-approval.png",
+      "source": "exec-66657cd8-a474-4584-85d5-f560625d09ca.png",
+      "prompt": "Use case: identity-preserve. Edit the reference Steve Jobs visual-novel sprite. Preserve EXACT same face identity, receding hair, rimless glasses, stubble, black turtleneck, blue jeans, adult proportions, delicately painted cel shading, same cool blue right rim and faint warm left light, 1024x1536 transparent portrait. Keep top of head and mid-thigh framing identical, same overall character size and anchor position. No scene, no text, no labels, no speech bubble, no floor, no new accessories. Genuine transparent alpha outside the person, don't paint a black or checkerboard backdrop. Change ONLY the expression and the arm/hand gesture as specified. Both hands stay inside canvas. Expression and pose: honestly impressed and newly enthusiastic, a clear warm confident half smile, eyebrows relaxed and eyes bright. One hand opens palm up toward the viewer as if recognizing a brilliant essential insight, other hand relaxed. Restrained human enthusiasm, not a thumbs-up advertisement."
+    },
+    {
+      "key": "jobs-angry",
+      "file": "jobs-angry.png",
+      "source": "exec-8a7dacb4-bb8e-45f6-b62a-67db55bf8737.png",
+      "prompt": "Use case: identity-preserve. Edit the reference Steve Jobs visual-novel sprite. Preserve EXACT same face identity, receding hair, rimless glasses, stubble, black turtleneck, blue jeans, adult proportions, delicately painted cel shading, same cool blue right rim and faint warm left light, 1024x1536 transparent portrait. Keep top of head and mid-thigh framing identical, same overall character size and anchor position. No scene, no text, no labels, no speech bubble, no floor, no new accessories. Genuine transparent alpha outside the person, don't paint a black or checkerboard backdrop. Change ONLY the expression and the arm/hand gesture as specified. Both hands stay inside canvas. Expression and pose: frustrated with pointless feature clutter, eyebrows sharply knitted, piercing direct eye contact, mouth slightly open mid-challenge. One hand extends with index finger making a firm precise point, other hand at hip. Strong dramatic gesture, assertive not violent, no weapon."
+    },
+    {
+      "key": "jobs-surprised",
+      "file": "jobs-surprised.png",
+      "source": "exec-5ee5506a-acd8-4bbf-b6a1-b4e2d0d1f0ff.png",
+      "prompt": "Use case: identity-preserve. Edit the reference Steve Jobs visual-novel sprite. Preserve EXACT same face identity, receding hair, rimless glasses, stubble, black turtleneck, blue jeans, adult proportions, delicately painted cel shading, same cool blue right rim and faint warm left light, 1024x1536 transparent portrait. Keep top of head and mid-thigh framing identical, same overall character size and anchor position. No scene, no text, no labels, no speech bubble, no floor, no new accessories. Genuine transparent alpha outside the person, don't paint a black or checkerboard backdrop. Change ONLY the expression and the arm/hand gesture as specified. Both hands stay inside canvas. Expression and pose: visibly caught off guard by a truly original answer, eyebrows lifted, eyes wider, mouth slightly parted, one open hand half raised. Credible and intelligent surprise rather than goofy comedy."
+    },
+    {
+      "key": "xiaohei-thinking",
+      "file": "xiaohei-thinking.png",
+      "source": "exec-2a22881d-694b-41ab-ab04-b9de8edbb213.png",
+      "prompt": "Use case: identity-preserve. Edit the reference black silhouette visual-novel character sprite. Preserve EXACT same bald completely black featureless head, white expressive eyes and white mouth, lean adult proportions, black fitted body, smartphone, blue edge lighting, faint amber left light, polished Japanese anime cel-painted rendering. Same 1024x1536 portrait framing from top of head to mid thigh, same anchor and scale. Genuine transparent alpha outside person, no black or checkerboard backdrop, no scene, text, symbols, labels, floor or extra props. Keep both hands inside canvas. Change only expression and gesture: One hand touches chin as he studies smartphone in his other hand; white eyes narrowed thoughtfully, small pursed white mouth. He is considering whether a real user could understand this product."
+    },
+    {
+      "key": "xiaohei-skeptical",
+      "file": "xiaohei-skeptical.png",
+      "source": "exec-108cd738-fe51-470a-8ceb-8acb92b5dc70.png",
+      "prompt": "Use case: identity-preserve. Edit the reference black silhouette visual-novel character sprite. Preserve EXACT same bald completely black featureless head, white expressive eyes and white mouth, lean adult proportions, black fitted body, smartphone, blue edge lighting, faint amber left light, polished Japanese anime cel-painted rendering. Same 1024x1536 portrait framing from top of head to mid thigh, same anchor and scale. Genuine transparent alpha outside person, no black or checkerboard backdrop, no scene, text, symbols, labels, floor or extra props. Keep both hands inside canvas. Change only expression and gesture: Exaggerated skeptical raised eyebrow eye shape, incredulous small crooked white mouth. One hand holds phone at waist, the other opens palm up toward viewer in an impatient what-do-you-expect-me-to-do gesture. Lean very slightly toward viewer, readable strong personality."
+    },
+    {
+      "key": "xiaohei-angry",
+      "file": "xiaohei-angry.png",
+      "source": "exec-e3d1cd51-0e34-4726-bbc3-9c94af1880a4.png",
+      "prompt": "Use case: identity-preserve. Edit the reference black silhouette visual-novel character sprite. Preserve EXACT same bald completely black featureless head, white expressive eyes and white mouth, lean adult proportions, black fitted body, smartphone, blue edge lighting, faint amber left light, polished Japanese anime cel-painted rendering. Same 1024x1536 portrait framing from top of head to mid thigh, same anchor and scale. Genuine transparent alpha outside person, no black or checkerboard backdrop, no scene, text, symbols, labels, floor or extra props. Keep both hands inside canvas. Change only expression and gesture: Exasperated real user confronted with an annoying product. Sharply angled white eyes, wide open white mouth as if complaining, one hand lifts phone for inspection, the other points emphatically at its screen. Dramatic frustrated gesture but no violence, no red effects or comic symbols."
+    },
+    {
+      "key": "xiaohei-approval",
+      "file": "xiaohei-approval.png",
+      "source": "exec-2de51d84-9202-4201-a5cd-4bdfa372b2ee.png",
+      "prompt": "Use case: identity-preserve. Edit the reference black silhouette visual-novel character sprite. Preserve EXACT same bald completely black featureless head, white expressive eyes and white mouth, lean adult proportions, black fitted body, smartphone, blue edge lighting, faint amber left light, polished Japanese anime cel-painted rendering. Same 1024x1536 portrait framing from top of head to mid thigh, same anchor and scale. Genuine transparent alpha outside person, no black or checkerboard backdrop, no scene, text, symbols, labels, floor or extra props. Keep both hands inside canvas. Change only expression and gesture: Genuinely satisfied after the developer resolved his complaint: relaxed pleased white eyes, a distinct small cheeky white grin, one hand holds smartphone lower, other hand gives a clear thumbs up. Playful and readable, mature lean black silhouette, not chibi."
+    },
+    {
+      "key": "xiaohei-surprised",
+      "file": "xiaohei-surprised.png",
+      "source": "exec-c3ea1c4f-3e4a-4d9d-a28f-a887b1adc1ff.png",
+      "prompt": "Use case: identity-preserve. Edit the reference black silhouette visual-novel character sprite. Preserve EXACT same bald completely black featureless head, white expressive eyes and white mouth, lean adult proportions, black fitted body, smartphone, blue edge lighting, faint amber left light, polished Japanese anime cel-painted rendering. Same 1024x1536 portrait framing from top of head to mid thigh, same anchor and scale. Genuine transparent alpha outside person, no black or checkerboard backdrop, no scene, text, symbols, labels, floor or extra props. Keep both hands inside canvas. Change only expression and gesture: Strong surprised reaction to unexpected behavior: very wide asymmetric white eyes with tiny pupils, a round open white mouth, one hand holding phone away from body, other palm raised with fingers spread, shoulders raised. Funny dramatic disbelief, anatomy credible. No additional floating punctuation."
+    },
+    {
+      "key": "system-neutral",
+      "file": "system-neutral.png",
+      "source": "exec-9c5a09e7-1ab3-4061-b10c-33bdece31831.png",
+      "prompt": "Use case: illustration-story. Create one original friendly AI guide avatar for the Midnight Atelier Japanese visual novel, matching the supplied moonlit studio background. Single levitating pearl-glass sphere with delicate silver-champagne orbital ring, tiny dark blue calm friendly eyes and a subtle smile, sophisticated small celestial companion, translucent moon-white pearl body with soft slate-blue reflections and faint warm amber edge light. Elegant delicately painted anime game asset, not 3D stock icon, not robot human. 1024x1024 square with the complete sphere and ring centered at 65 percent canvas width, generous transparent space all around. NO background or backdrop, no black fill, no text, no labels, no stars or floating particles outside sphere. Genuine alpha transparency. No platform or floor shadow. Same polished classic ADV illustration language as reference."
+    },
+    {
+      "key": "system-thinking",
+      "file": "system-thinking.png",
+      "source": "exec-a50d7ef7-c7ad-4d42-af8f-7c346ff1d228.png",
+      "prompt": "Use case: identity-preserve. Edit the supplied friendly moon-white pearl glass AI orb visual-novel sprite. Preserve its exact sphere, champagne-silver orbital ring, blue and warm reflected moonlit studio illumination, scale, framing, and delicate painted anime aesthetic. Change only the facial expression: tiny eyes look thoughtfully upward, a subtle small contemplative curved mouth, as if quietly considering the user's idea. No extra objects, no punctuation, no text or backdrop. Keep genuine transparent alpha and same square canvas dimensions."
+    },
+    {
+      "key": "system-approval",
+      "file": "system-approval.png",
+      "source": "exec-379e4055-4c85-4f06-b6f4-80ca52653dab.png",
+      "prompt": "Use case: identity-preserve. Edit the supplied Midnight Atelier AI orb PNG game sprite. Preserve the EXACT pearl glass sphere shape, complete champagne-silver orbital ring, moon motif, blue reflections, ivory/amber lighting, texture, viewpoint, scale and position within the square canvas. Keep the SAME canvas dimensions and all existing transparent margins. Genuine transparent alpha, no black/white/checkerboard background. Change ONLY its two eyes and its little mouth to make a clearly readable facial expression. No new limbs, symbols, particles, captions, accessories or backdrop. Preserve overall identity and all non-face pixels as closely as possible. This must swap seamlessly with the neutral sprite in a web visual novel. Expression: delighted at being gently poked by the user. Both eyes close into happy curved crescents, a small visibly open joyful smile. Warm playful contentment, still elegant rather than exaggerated cartoon. Face parts remain at precisely the same positions as original."
+    },
+    {
+      "key": "system-surprised",
+      "file": "system-surprised.png",
+      "source": "exec-b1fbdf8a-eac0-49ff-b802-ac8cdb92d798.png",
+      "prompt": "Use case: identity-preserve. Edit the supplied Midnight Atelier AI orb PNG game sprite. Preserve the EXACT pearl glass sphere shape, complete champagne-silver orbital ring, moon motif, blue reflections, ivory/amber lighting, texture, viewpoint, scale and position within the square canvas. Keep the SAME canvas dimensions and all existing transparent margins. Genuine transparent alpha, no black/white/checkerboard background. Change ONLY its two eyes and its little mouth to make a clearly readable facial expression. No new limbs, symbols, particles, captions, accessories or backdrop. Preserve overall identity and all non-face pixels as closely as possible. This must swap seamlessly with the neutral sprite in a web visual novel. Expression: a gentle comical startle from a second friendly poke. Both eyes noticeably wide and round with tiny highlights, little mouth forms a small round O. Mild adorable surprise, no fear or distress. Face parts remain at precisely the same positions as original."
+    }
+  ]
+}

@@ -12,3 +12,14 @@
 .DS_Store
 Thumbs.db
 __pycache__/
+node_modules/
+dist/
+.galgame/
+coverage/
+/web/vendor/live2d/
+# Retired multi-frame portrait experiments; preserved locally, not shipped.
+/web/assets/midnight/*-loop.png
+/web/assets/midnight/pose-loop-prompts.json
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

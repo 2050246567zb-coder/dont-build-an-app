@@ -1,0 +1,34 @@
+{
+  "name": "dont-build-an-app-galgame",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "probe": "tsx src/cli.ts probe",
+    "probe:workbuddy": "node scripts/probe-workbuddy.mjs",
+    "probe:qwenwork": "node scripts/probe-qwenwork.mjs",
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "start": "node dist/cli.js",
+    "launch": "node scripts/launcher.mjs",
+    "stop": "node scripts/launcher.mjs stop",
+    "runtime": "node scripts/launcher.mjs info",
+    "install:skill": "node scripts/install-skill.mjs",
+    "setup": "node scripts/setup.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "esbuild": "0.28.2",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.6.5"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-17",
+  "tool": "built-in image_gen",
+  "processing": "Original selected PNGs copied without image editing. Initial test-room background discarded after user requested Detective Conan black-silhouette entrance atmosphere.",
+  "assets": [
+    {
+      "file": "jobs-background.png",
+      "source": "exec-35219eb4-2781-473b-b0c2-2a4538e0b7f9.png",
+      "prompt": "Use case: stylized-concept. Asset: full-screen 16:9 visual novel background, no characters or UI. An imagined Apple design office in Cupertino inspired by Apple Park: spectacular but restrained architectural interior, natural pale oak long work table to far right, brushed aluminum objects, floor-to-ceiling glass facing soft California trees, off-white limestone floor and ceiling, a few neat design prototypes on distant shelves. Eye level camera, straight clean perspective, wide empty foreground and center for character portraits, quiet luminous neutral atmosphere, cream-white and pale grey palette, very subtle warm sunlight. Sophisticated premium game background painting with realistic architectural detail, not a photograph, no logos, no text, no lettering, no watermarks, no people. Avoid futuristic neon, clutter, dark dramatic shadows. Landscape 1792x1024 or similar wide aspect."
+    },
+    {
+      "file": "jobs-panel.png",
+      "source": "exec-e9c7eb39-2c2c-441b-bde8-0e59136d8570.png",
+      "prompt": "Use case: ui-mockup. Asset: one reusable raster UI panel skin for nine-slice use, landscape 3:1. Generate exactly ONE completely blank large rounded rectangle, facing straight forward, flat orthographic, fills 96 percent of canvas with a very small outer margin. Actual transparent alpha background outside the rounded rectangle, NOT a checkerboard painting. Interior is almost opaque milk-white frosted glass, quietly luminous off-white #f5f5f7, flat enough for black text readability. Edges subtly translucent with thin polished silver outline and very soft ambient grey shadow. Modern Apple-inspired minimalist interface surface, beautifully restrained, premium material, soft continuous corners of radius about 45 px on a 1536px-wide canvas. No text, symbols, icons, buttons inside, ornamental details, gradients with dark areas, perspective, objects, split panels or surrounding scene. This same clean panel will be stretched into dialog boxes, buttons and nameplates; straight center stretches must be uniform. Only the blank silver-white glass rounded panel with real transparent surroundings."
+    },
+    {
+      "file": "xiaohei-background.png",
+      "source": "exec-6949f215-79f3-44f5-9102-b17f89db9534.png",
+      "prompt": "Use case: stylized-concept. Asset: landscape 16:9 FULL-SCREEN visual novel scene background, no characters no UI no text. Original anime detective suspense atmosphere reminiscent of the ominous black culprit silhouette reveal in Detective Conan: abstract black void with energetic jagged charcoal ink streaks and thin cold blue-violet radiating speed lines coming from off-center upper-middle, turbulent shadows at all edges, mysterious faint slate-blue oval glow in middle behind where a black character portrait will stand. A few sharp white light slits, hand-painted cel anime tension, very dark dramatic but sophisticated and legible. Black and charcoal cover 80%, muted indigo/slate highlight at center, not neon cyberpunk, no room, no desk, no real scenery. Keep central area 30%-70% relatively quiet medium-dark slate so a solid black silhouette will be visible. Wide composition, authored 2D anime background, not a screenshot from existing show. No character, no face, no eyes, no blood, no letters, no symbols, no logos, no UI frame. This is a bespoke game backdrop for a demanding user persona."
+    },
+    {
+      "file": "xiaohei-panel.png",
+      "source": "exec-48168153-5613-45cb-88ee-953addd1ba25.png",
+      "prompt": "Use case: ui-mockup. Asset: one reusable raster UI panel skin for nine-slice use, landscape 3:1. Exactly ONE entirely blank broad rectangular panel, orthographic front view, occupies 96 percent canvas with small outer margin. Actual transparent alpha background outside shape, NOT checkerboard painting. Interior flat almost-black graphite #1b1d20 with extremely subtle fine paper texture, high opacity for white text readability. Crisp off-white very thin single perimeter rule, subtly chamfered corners, one tiny offset double-line detail at top-left and bottom-right. Refined black and white detective visual novel interface, restrained minimalist print-design sensibility. No gold, blue, neon, ornamental swirls. No text, symbols, icons, controls inside, perspective, objects, scene, additional shapes. It must stretch into dialogue boxes, buttons and menus: uniform straight edges and spacious blank center. Sharp quiet premium monochrome design with real transparent surroundings."
+    }
+  ]
+}

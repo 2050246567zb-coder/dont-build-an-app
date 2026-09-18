@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-16T10:52:15.944Z",
+  "os": "win32",
+  "node": "v24.19.0",
+  "codex": {
+    "cli": {
+      "available": true,
+      "version": "codex-cli 0.154.0-alpha.6.2"
+    },
+    "currentConversationBound": true,
+    "compatibility": "not-certified",
+    "tools": [
+      "navigate_to_codex_page",
+      "read_thread",
+      "send_message_to_thread"
+    ],
+    "status": "active",
+    "history": "Read-only rollout adapter; app-tools read_thread returned no message body in the tested active turn."
+  },
+  "claudeCode": {
+    "cli": {
+      "available": false,
+      "reason": "ENOENT"
+    },
+    "currentConversationBound": false,
+    "compatibility": "not-certified",
+    "reason": "Requires a real existing Claude Code conversation and a separately validated adapter; no substitute model session will be started."
+  }
+}

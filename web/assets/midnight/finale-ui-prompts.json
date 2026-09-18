@@ -1,0 +1,12 @@
+[
+  {
+    "file": "meadow-panel.png",
+    "ref": "dialogue-frame.png",
+    "prompt": "Edit the reference game UI frame into its bright celebratory daytime finale counterpart. Keep exactly the wide 3:1 canvas, rectangular frame geometry, fine double border, delicate corner and center celestial ornaments, and a completely empty vast central area for text. Colors: opaque luminous ivory porcelain center with extremely subtle pale sky blue pearlescence, thin champagne gold metallic border and tiny star/planet-orbit embellishments. Elegant celestial spirit fantasy visual novel UI, airy, refined, legible dark text will be overlaid later. Flat straight-on production ready nine-slice UI texture. Full frame fills canvas edge to edge. No text, no characters, no scenery, no drop shadow outside frame, no extra objects. Preserve corner shapes and border placement of reference. Bright panel, NOT midnight blue, NOT gray Apple interface."
+  },
+  {
+    "file": "dialogue-icons-meadow.png",
+    "ref": "dialogue-icons-system.png",
+    "prompt": "Edit this exact five-icon horizontal game UI sprite atlas into a bright celestial daytime finale variant. Preserve exact canvas 3:1 aspect, icon centers, equal horizontal spacing and five equal sprite cells, no shifting or clipping. Icons in original order: settings gear, conversation speech bubbles, archive box, fast forward double triangles, left arrow. Preserve the delicate star and orbital ornament design vocabulary of the reference. Ivory pearl enamel, subtle pale sky blue, champagne gold outlines and darker warm gold inset details, clear visible silhouettes against pale ivory UI. Each icon remains isolated on a fully transparent background, no enclosing atlas frame or tile backgrounds, no words, no labels, no characters. Elegant polished fantasy UI asset, coherent with a bright ivory and gold celestial dialogue frame."
+  }
+]

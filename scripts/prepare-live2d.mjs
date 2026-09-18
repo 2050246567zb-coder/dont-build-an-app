@@ -1,0 +1,22 @@
+// Local development preparation only. Supply an official SDK download and our exported model.
+import {mkdir,copyFile,readdir,writeFile} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {build} from 'esbuild';
+const root=fileURLToPath(new URL('../',import.meta.url));
+const [sdkArg,modelArg]=process.argv.slice(2);
+if(!sdkArg||!modelArg)throw Error('Usage: node scripts/prepare-live2d.mjs <official SDK directory> <spirit export directory>');
+const sdk=resolve(sdkArg),model=resolve(modelArg),out=join(root,'web/vendor/live2d');
+await mkdir(join(out,'shaders'),{recursive:true});
+await copyFile(join(sdk,'Core/live2dcubismcore.min.js'),join(out,'core.js'));
+await copyFile(join(sdk,'Core/LICENSE.md'),join(out,'CORE-LICENSE.md'));
+await copyFile(join(sdk,'Framework/LICENSE.md'),join(out,'FRAMEWORK-LICENSE.md'));
+for(const file of await readdir(join(sdk,'Framework/Shaders/WebGL')))if(/\.(vert|frag)$/.test(file))await copyFile(join(sdk,'Framework/Shaders/WebGL',file),join(out,'shaders',file));
+await copyFile(join(model,'spirit.moc3'),join(out,'spirit.moc3'));
+await copyFile(join(model,'spirit.textures/texture_00.png'),join(out,'texture_00.png'));
+await writeFile(join(out,'spirit.model3.json'),JSON.stringify({Version:3,FileReferences:{Moc:'spirit.moc3',Textures:['texture_00.png']},Groups:[{Target:'Parameter',Name:'EyeBlink',Ids:['ParamEyeLOpen','ParamEyeROpen']}]},null,2));
+await build({entryPoints:[join(root,'web/live2d-entry.js')],outfile:join(out,'runtime.js'),bundle:true,format:'esm',target:'es2022',alias:{'@cubism':join(sdk,'Framework/src')},legalComments:'eof'});
+const files=(await readdir(out)).filter(f=>/\.(js|json|moc3|png)$/.test(f));
+files.push(...(await readdir(join(out,'shaders'))).map(f=>'shaders/'+f));
+await writeFile(join(out,'manifest.json'),JSON.stringify({sdk:'CubismSdkForWeb-5-r.5',files,scope:'local-trial'},null,2));
+console.log('Local Live2D trial prepared. SDK binaries are gitignored and not added to the distribution.');
