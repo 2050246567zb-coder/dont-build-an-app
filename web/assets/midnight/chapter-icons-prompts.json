@@ -1,0 +1,14 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "dialogue-icons.png",
+  "assets": [
+    {
+      "file": "dialogue-icons-system.png",
+      "prompt": "Edit this UI icon sprite atlas. Preserve EXACT canvas size, all five icon positions, each icon bounding box and symbol function: gear, dialogue history, archive box, fast forward, left chevron. Preserve genuinely transparent background; no labels or extra artwork. Replace only their visual style. Midnight atelier fantasy visual novel: deep midnight navy enamel, fine antique gold linework, tiny restrained celestial detailing. Settings is a small ornate astrolabe-like gold gear with no silver rounded square app tile. Other icons gold/navy matching the ornate nighttime study. Keep clean readable small-size icon silhouettes, avoid enlarging into adjacent cells. Deliver one transparent PNG sprite sheet."
+    },
+    {
+      "file": "dialogue-icons-xiaohei.png",
+      "prompt": "Edit this UI icon sprite atlas. Preserve EXACT canvas size, all five icon positions, each icon bounding box and symbol function: gear, dialogue history, archive box, fast forward, left chevron. Preserve genuinely transparent background; no labels or extra artwork. Replace only their visual style. Detective anime suspense visual novel: crisp high contrast white and charcoal ink, sharp hand-inked edges, subtle manga hatch accents. Settings is a plain white cog silhouette, no rounded Apple app tile, no metallic 3D silver styling. The five icons should read as a matching monochrome detective UI set. Keep clean readable small-size icon silhouettes, avoid enlarging into adjacent cells. Deliver one transparent PNG sprite sheet."
+    }
+  ]
+}

@@ -103,7 +103,7 @@ export async function startServer(options: ServerOptions) {
         if(!asset)return json(response,404,{error:'Unknown Live2D asset'});
         response.writeHead(200,{'Content-Type':asset.mime,'Cache-Control':'no-store'});return response.end(asset.bytes);
       }
-      if (['/verifier.js','/verifier.css','/game.js','/game.css','/markdown.js','/companion.js','/themes.js','/themes.css'].includes(url.pathname)) {
+      if (['/verifier.js','/verifier.css','/game.js','/game.css','/markdown.js','/companion.js','/themes.js','/themes.css','/story-effects.js'].includes(url.pathname)) {
         response.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8','Cache-Control':'no-store'});
         return response.end(await readFile(join(webRoot,url.pathname.slice(1))));
       }

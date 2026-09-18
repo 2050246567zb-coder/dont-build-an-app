@@ -1,0 +1,38 @@
+[
+  {
+    "name": "jobs-thumbsup",
+    "refs": [
+      "C:/Users/怪中的/Documents/ChatGPT/不要再做app了/web/assets/midnight/jobs-approval.png"
+    ],
+    "prompt": "Create a transparent PNG character cutout for a visual novel. Same Steve Jobs identity, face, rimless glasses, black turtleneck, blue jeans, detailed semi-realistic painted illustration as input. Change pose: relaxed warm genuine smile, his right hand raised chest high with a clear thumbs-up toward player, left arm relaxed. Head to mid thighs, portrait 2:3, stable centered scale. Keep authentic understated charisma, no caricature. Real alpha transparent background, no background glow rectangle, no scenery, no text.",
+    "source": "D:\\codexdata\\generated_images\\01a06fb6-a79e-7cf0-bdda-13054d1b8f48\\exec-1907580e-d28f-40c5-9099-f00f5c98defd.png"
+  },
+  {
+    "name": "ending-meadow",
+    "refs": [
+      "C:/Users/怪中的/Documents/ChatGPT/不要再做app了/web/assets/midnight/jobs-approval.png",
+      "C:/Users/怪中的/Documents/ChatGPT/不要再做app了/web/assets/midnight/xiaohei-approval.png",
+      "C:/Users/怪中的/Documents/ChatGPT/不要再做app了/web/assets/midnight/system-approval.png"
+    ],
+    "prompt": "Create a widescreen 16:9 visual novel ending illustration, first-person player viewpoint. Bright expansive green grassy hill, blue sky, huge white summer clouds, warm serene celebratory atmosphere inspired by a 1990s Japanese anime final congratulations scene. Three characters in a friendly semicircle around the viewer, looking toward viewer and smiling: Steve Jobs at left in black turtleneck glasses jeans clapping hands, black shadow man from detective anime at right with white expressive eyes and mouth smiling and clapping, a cute round luminous moon-orb with gold orbit ring floating at upper center, two small magical translucent hands near orb clapping. Use input references to lock each identity and rendering details, coherent polished illustrated GalGame art. Figures occupy upper middle 65%, leave bottom 30% grassy and uncluttered for dialogue overlay. Viewer is not drawn. No additional characters, no text, no logos, no watermarks. Full landscape scene.",
+    "source": "D:\\codexdata\\generated_images\\01a06fb6-a79e-7cf0-bdda-13054d1b8f48\\exec-0fa02e27-3cd7-4d38-95b9-6598bcddae94.png"
+  },
+  {
+    "name": "design-document-item",
+    "refs": [
+      "C:/Users/怪中的/Documents/ChatGPT/不要再做app了/web/assets/midnight/system-approval.png"
+    ],
+    "prompt": "Transparent PNG game inventory reward item, high-quality illustrated visual novel rare artifact. A beautiful closed navy blue product design folio, ivory page edges, delicate gold corner ornaments, embossed gold orbit ring and luminous small crystal seal that echoes the reference orb. Slight three-quarter angle, floating upright. On cover elegant clearly readable Chinese title exactly: 设计文档 . Smaller subtitle exactly: 从想法到现实 . Warm restrained magical shine, only a few tiny stars, no huge glow. Centered single item fully visible with generous transparent margins, square canvas, genuine alpha background, no hand, no UI panel, no scenery. This is a real usable document as the final game reward, tasteful and tactile.",
+    "source": "D:\\codexdata\\generated_images\\01a06fb6-a79e-7cf0-bdda-13054d1b8f48\\exec-75a9feff-8701-440d-ad65-a0bc3c9d5c66.png"
+  },
+  {
+    "name": "ending-meadow-clap-open",
+    "source": "D:\\codexdata\\generated_images\\01a06fb6-a79e-7cf0-bdda-13054d1b8f48\\exec-cd2ca8a7-99a9-4712-be4f-0cef8c9df802.png",
+    "prompt": "Edit this exact visual novel ending illustration for one frame of a gentle applause animation. Preserve exact landscape canvas dimensions, framing, grassy meadow, sky, lighting, all character faces, body sizes, positions, clothes, eye gaze and warm smiles. Only change the hand pose: both humans separate their palms by just 6 centimeters mid-clap; orb magical hands separate too. Tiny physically plausible movement in wrists and forearms only; zero camera movement, no other changes, no additional fingers. Full width landscape 16:9. No text or overlays. This must align with the supplied frame for smooth crossfade."
+  },
+  {
+    "name": "ending-meadow-clap-close",
+    "source": "D:\\codexdata\\generated_images\\01a06fb6-a79e-7cf0-bdda-13054d1b8f48\\exec-f44a0d8e-9343-47ae-81d7-c96720715b78.png",
+    "prompt": "Edit this exact visual novel ending illustration for one frame of a gentle applause animation. Preserve exact landscape canvas dimensions, framing, grassy meadow, sky, lighting, all character faces, body sizes, positions, clothes, eye gaze and warm smiles. Only change the hand pose: both humans gently bring palms together in the contact beat of clapping; orb magical hands together too. Tiny physically plausible movement in wrists and forearms only; zero camera movement, no other changes, no additional fingers. Full width landscape 16:9. No text or overlays. This must align with the supplied frame for smooth crossfade."
+  }
+]

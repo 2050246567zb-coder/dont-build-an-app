@@ -1,6 +1,6 @@
 ---
 name: dont-build-an-app
-description: "Help people with a rough product idea decide whether and how to build it through current similarity research, Jobs-style product questioning, simulated user critique, and an AI-readable design document. Use for 产品创意查重、不要再做 App、产品审讯、用户体验挑刺, or resuming an idea review from a progress document."
+description: "天才设计师系统 / 重生之我有天才设计师系统。Help people with a rough product idea decide whether and how to build it through current similarity research, Jobs-style product questioning, simulated user critique, and an AI-readable design document. Use for 产品创意查重、不要再做 App、产品审讯、用户体验挑刺, or resuming an idea review from a progress document."
 ---
 
 # 不要再做 App 了
@@ -9,7 +9,7 @@ description: "Help people with a rough product idea decide whether and how to bu
 
 ## 识别本次任务
 
-- 用户要在 GalGame 网页里审查创意、已经从本 Skill 启动网页模式，或正在回复网页中的问题时，先读 [网页模式](references/galgame-mode.md)，沿用下述审查流程，并通过受校验的剧情片段交付正式回复。纯聊天模式不启动本地服务。开发和维护网页本身仍属于维护任务，不自动把开发讨论变成角色审查。
+- 用户要在 GalGame 网页里审查创意、已经从本 Skill 启动网页模式，或正在回复网页中的问题时，先读 [网页模式](references/galgame-mode.md) 和 [剧情导演](references/story-direction.md)，沿用下述审查流程，并通过受校验的剧情片段交付正式回复。纯聊天模式不启动本地服务。开发和维护网页本身仍属于维护任务，不自动把开发讨论变成角色审查。
 
 - 审查产品创意时执行下述四阶段流程。用户明确要求“拿这个 Skill 的创意试跑”时，把 Skill 本身作为待审产品。
 - 用户要求修改、审计或测试 Skill 文件时，完成该维护任务，不把维护请求当作需要闯关的新产品创意。
@@ -106,6 +106,8 @@ description: "Help people with a rough product idea decide whether and how to bu
 按 demanding-user-review 质询并检验用户的设计，保留代表性用户的真实任务测试计划。前台用角色台词自然认可；后台及设计文档中的通过仅表示“通过启发式预审”，不声称真实用户体验已验证。
 
 第三阶段准备结束时，先读取最终文档参考，在后台按 decision-closure 检查并组织完整方案；缺少必需产品决定就继续相关质询，不能先告别。准备齐备后再生成已获同意的小黑收尾图，最后在**同一条 final 正文**依次写入“小黑收尾图 → 小黑对最后答案的回应与告别 → 普通助手的完整可执行产品方案”。小黑亲口说“我觉得没啥好问的了，就这样吧。我帮你叫你的 AI 给你总结一下方案。”这段话不能只出现在 commentary、思考摘要或工具区。先准备后统一呈现，不把执行顺序误写成先发一条过程告别再读文档；详见 conversation-style。
+
+网页模式按 story-direction 播放草地祝贺与道具交付，替代上面的普通助手直出桥段；准备文档在先、同一 final 完整呈现和设计闭合要求不变。
 
 ### 4. 整理产品设计文档
 

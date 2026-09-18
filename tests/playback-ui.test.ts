@@ -10,7 +10,7 @@ const html=await readFile(new URL('../web/game.html',import.meta.url),'utf8');
 const line=(id:string,speaker='jobs',advance='reply')=>({id,speaker,advance,text:`text ${id}`,emotion:'neutral',stage:'design',hostId:id,turnId:id,document_id:'doc'});
 function fixture(timeline:any[]){
   const nodes=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{
-    hidden:false,value:'',textContent:'',disabled:false,readOnly:false,dataset:{},
+    hidden:false,value:'',textContent:'',disabled:false,readOnly:false,dataset:{},style:{},
     classList:{remove(){},add(){},toggle(){}},setAttribute(){},addEventListener(){},
     replaceChildren(){},append(){},close(){},focus(){},
   }]));
@@ -19,8 +19,8 @@ function fixture(timeline:any[]){
   let documentResponse:Promise<any>|undefined;
   const storage={getItem:()=>null,setItem(){},removeItem(){}};
   const ctx=createContext({console,URL,URLSearchParams,crypto,location:{hash:'',pathname:'/'},history:{replaceState(){}},sessionStorage:storage,localStorage:storage,
-    document:{getElementById:(id:string)=>{assert.ok(nodes.has(id),id);return nodes.get(id);},querySelector:()=>({checked:false}),addEventListener(){},createElement:()=>({classList:{add(){}},append(){},setAttribute(){}})},
-    bindCompanion:()=>({reset(){},setEnabled(){}}),setSceneTheme(){},changePortrait:async()=>{},prefersLive2d:()=>false,setLive2dPreference(){},renderMarkdown(){},
+    document:{getElementById:(id:string)=>{assert.ok(nodes.has(id),id);return nodes.get(id);},querySelector:()=>({checked:false}),addEventListener(){},createElement:()=>({style:{},classList:{add(){}},append(){},setAttribute(){}})},
+    playStoryCue(cue:any,reveal:any){reveal();},cancelStoryCue(){},summonSpirit(){},bindPoseLoop(){},bindCompanion:()=>({reset(){},setEnabled(){}}),setSceneTheme(){},changePortrait:async()=>{},prefersLive2d:()=>false,setLive2dPreference(){},renderMarkdown(){},
     matchMedia:()=>({matches:false}),setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},
     fetch:async(path:string,options:any)=>{const body=options.body?JSON.parse(options.body):null;if(options.method!=='GET')writes.push({path,body});else reads.push(path);
       const result=path==='/api/game'?snapshot:path==='/api/game/lease'?{owned:true}:path.startsWith('/api/game/document')?await (documentResponse??Promise.resolve({title:'doc',markdown:'test'})):{};
@@ -63,4 +63,11 @@ test('a late document response cannot reopen the delivery panel during replay',a
 test('chapter follows speaking character across handoffs and home resets replay',()=>{
   const f=fixture([{...line('jobs'),stage:'experience'},line('black','xiaohei')]);f.run('show(1);show(0,true)');
   assert.equal(f.nodes.get('chapter')!.textContent,'第二章：jobs');f.run('goHome()');assert.equal(f.run('frontier'),-1);assert.equal(f.run('current'),null);
+});
+
+test('chapter progress is isolated and replay never reveals future milestones',()=>{
+ const f=fixture([{...line('first'),progress:{value:35,nodes:[{id:'audience',label:'核心人群',at:35}]}},{...line('second'),progress:{value:80,nodes:[{id:'audience',label:'核心人群',at:35},{id:'core',label:'核心体验',at:80}]}},line('black','xiaohei')]);
+ f.run('show(2)');assert.equal(f.nodes.get('progress-fill')!.style.height,'0%');
+ f.run('show(1,true)');assert.equal(f.nodes.get('progress-fill')!.style.height,'80%');
+ f.run('show(0,true)');assert.equal(f.nodes.get('progress-fill')!.style.height,'35%');
 });

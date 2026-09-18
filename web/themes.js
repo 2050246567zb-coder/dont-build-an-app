@@ -1,8 +1,9 @@
 // Presentation only. Speaker comes from the committed story, never a new model call.
 const root=document.documentElement,reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const themes={
+  meadow:{background:'ending-meadow-clap-open.png',panel:'jobs-panel.png',label:'A NEW BEGINNING',caption:'YOUR IDEA BECOMES REAL'},
   system:{background:'background.png',panel:'dialogue-frame.png',label:'MIDNIGHT ATELIER',caption:'MIDNIGHT CONVERSATIONS'},
-  jobs:{background:'jobs-background.png',panel:'jobs-panel.png',label:'THE DESIGN STUDIO',caption:'FOCUS ON WHAT MATTERS'},
+  jobs:{background:'jobs-background.png',panel:'jobs-studio-surface.png',label:'THE DESIGN STUDIO',caption:'FOCUS ON WHAT MATTERS'},
   xiaohei:{background:'xiaohei-background.png',panel:'xiaohei-panel.png',label:'THE REAL WORLD',caption:'LET ME TRY IT'},
 };
 const backdrop=document.createElement('div');backdrop.className='scene-backdrop';backdrop.setAttribute('aria-hidden','true');
@@ -14,6 +15,7 @@ for(const [role,theme] of Object.entries(themes)){
   image.decode().then(()=>image.classList.add('ready')).catch(()=>{});
   const panel=new Image();panel.src=`/art/${theme.panel}`;
 }
+for(const [i,file] of ['ending-meadow-clap-close.png'].entries()){const frame=new Image();frame.alt='';frame.className=`applause-frame applause-frame-${i}`;frame.src=`/art/${file}`;frame.decoding='async';backdrop.append(frame);frame.decode().then(()=>frame.classList.add('ready')).catch(()=>{});}
 let theme='system';
 const themeMotions=new WeakMap();
 export function setSceneTheme(role){

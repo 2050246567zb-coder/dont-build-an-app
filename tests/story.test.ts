@@ -1,4 +1,5 @@
 import test from 'node:test';
+// Progress is factual chapter metadata and must survive the same publication path.
 import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync,existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -12,6 +13,18 @@ const segment=(speaker='jobs',advance='reply',id='s1')=>({segment_id:id,speaker,
 const scene=(segments=[segment()]):any=>({schema_version:'1.0',turn_id:'turn1',stage:'design',segments,documents:[],assets:[]});
 function fixture(){const dir=mkdtempSync(join(tmpdir(),'galgame-story-')),store=new Store(join(dir,'db')),game=new Game(store,thread,dir,'测试存档');game.start();return {dir,store,game,close:()=>{store.close();rmSync(dir,{recursive:true,force:true});}};}
 function final(store:Store,text:string,id='msg_final',ordinal=2){store.addMessage(thread,{id,text,role:'assistant',timestamp:new Date().toISOString(),phase:'final_answer',kind:'native',ordinal});}
+
+test('two suggested answers are mirrored in the original final and committed timeline; old scenes remain valid',()=>{
+  const f=fixture();try{
+    const input=scene([{...segment(),choices:['温和地提醒我。','直接把我点醒。']} as any]);
+    const result=f.game.stage(input);assert.match(result.finalText,/1\. 温和地提醒我。/);assert.match(result.finalText,/2\. 直接把我点醒。/);
+    final(f.store,result.finalText);f.game.reconcile();assert.deepEqual(f.game.timeline()[0].choices,input.segments[0].choices);
+    assert.doesNotThrow(()=>sceneSchema.parse(scene()));
+    input.segments[0].choices=['相同','相同'];assert.throws(()=>sceneSchema.parse(input));
+    input.segments[0].choices=['只有一项'];assert.throws(()=>sceneSchema.parse(input));
+    assert.throws(()=>sceneSchema.parse(scene([{...segment('jobs','click'),choices:['甲','乙']} as any,segment('xiaohei','reply','s2')])));
+  }finally{f.close();}
+});
 test('a handoff preserves both speakers and waits only after the last segment',()=>{
   const f=fixture();try{const input=scene([segment('jobs','click','j1'),segment('xiaohei','reply','x1')]),result=f.game.stage(input);
     assert.deepEqual(f.game.timeline(),[]);final(f.store,result.finalText);f.game.reconcile();
@@ -91,4 +104,27 @@ test('mismatch stops warning after a new valid turn; a final before interruption
     assert.equal(f.game.get()!.turns[1].status,'committed');assert.deepEqual(f.game.state().pending,[]);
     assert.equal(f.game.timeline().find(s=>s.hostId==='plain')!.raw,'普通回复。');
   }finally{f.close();}
+});
+
+ test('chapter milestones survive publication and reject invalid positions',()=>{
+  const f=fixture();try{
+    const input=scene();input.segments[0].progress={value:35,nodes:[{id:'audience',label:'确定了核心人群',at:35}]};
+    const result=f.game.stage(input);assert.match(result.finalText,/确定了核心人群/);final(f.store,result.finalText);f.game.reconcile();
+    assert.deepEqual(f.game.timeline()[0].progress,input.segments[0].progress);
+    input.segments[0].progress.nodes[0].at=36;assert.throws(()=>sceneSchema.parse(input));
+    input.segments[0].progress={value:101,nodes:[]};assert.throws(()=>sceneSchema.parse(input));
+    input.segments[0].progress={value:50,nodes:[{id:'a',label:'a',at:20},{id:'a',label:'b',at:30}]};assert.throws(()=>sceneSchema.parse(input));
+  }finally{f.close();}
+});
+
+test('story cues mirror fictional dialogue without turning it into a user reply',async()=>{
+ const {storyFixtureScenes}=await import('../scripts/story-fixture-scenes.ts');
+ const f=fixture();try{
+   const handoff=storyFixtureScenes[2];const result=f.game.stage(handoff);assert.match(result.finalText,/你（剧情）：你是谁啊/);final(f.store,result.finalText);f.game.reconcile();
+   assert.equal(f.game.timeline().filter(s=>s.speaker==='user').length,0);assert.equal(f.game.timeline().find(s=>s.cue==='thumbsup')?.speaker,'jobs');
+   assert.equal(f.game.timeline().find(s=>s.cue==='blink')?.speaker,'narrator');
+   const bad=structuredClone(handoff);bad.segments[3].advance='reply';assert.throws(()=>sceneSchema.parse(bad));
+   for(const item of storyFixtureScenes)assert.doesNotThrow(()=>sceneSchema.parse(item));
+   const draft=structuredClone(storyFixtureScenes[3]);draft.design_closed=false;draft.delivery_kind='draft';assert.throws(()=>sceneSchema.parse(draft));
+ }finally{f.close();}
 });

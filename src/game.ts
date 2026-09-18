@@ -8,7 +8,7 @@ import type {RecoverySubmission} from './recovery.ts';
 
 type Staged={scene:Scene;canonical:string;hash:string;baseOrdinal:number;status:'staged'|'committed'|'mismatch'|'interrupted';hostId?:string;assetPaths:Record<string,string>;docPaths:Record<string,string>;publishedDocPaths?:Record<string,string>};
 type Save={id:string;title:string;createdAt:string;updatedAt:string;anchor:number;started:boolean;deleted:boolean;position:string|null;turns:Staged[]};
-type Entry={id:string;hostId:string;speaker:string;text:string;emotion:string;advance:string;stage:string|null;raw?:string;turnId?:string;segment_id?:string;asset_id?:string|null;document_id?:string|null;deliveryKind?:string};
+type Entry={id:string;hostId:string;speaker:string;text:string;emotion:string;advance:string;stage:string|null;raw?:string;turnId?:string;segment_id?:string;asset_id?:string|null;document_id?:string|null;deliveryKind?:string;choices?:string[];cue?:'summon'|'portal'|'thumbsup'|'blink'|'meadow'|'reward';scene?:'meadow';progress?:{value:number;nodes:{id:string;label:string;at:number}[]}};
 export class Game {
   private key:string;
   constructor(readonly store:Store,readonly threadId:string,readonly dataDir:string,readonly title:string,private displayUserText:(text:string)=>string=visibleCodexUserText){this.key=`game:${threadId}`;}

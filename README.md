@@ -6,6 +6,17 @@
 
 > **GalGame 网页端已有实验初版。** 开发分支提供人物立绘、逐字对话、顺序交接、草稿/存档和方案交付，安装见 [GALGAME.md](GALGAME.md)。Windows Codex 原任务双向消息已跑通，尚未完成全面兼容认证；Claude Code 和 macOS 未实测。这与下方纯 Skill 的使用范围不同。
 
+新版网页标题为「重生之我有天才设计师系统」，包含召唤开场、人物剧情交接、三种章节主题、确认节点进度条和设计文档道具。**安装这一版请使用开发分支链接**，不要只下载 `main` 的纯文本 Skill：
+
+```text
+请安装 GalGame 网页版及其配套 Skill：
+https://github.com/2050246567zb-coder/dont-build-an-app/tree/codex/galgame-v0.1.0
+请按此分支 GALGAME.md 安装完整工程，并从当前原任务启动网页。
+保留同一原会话，不另建模型会话；宿主尚未适配时说明限制。
+```
+
+系统精灵的 Live2D SDK 仍需按文档在本机准备；未准备时使用内置静帧，不影响其余网页流程。
+
 ## 直接发给你的 agent 安装
 
 复制下面这段话，发送给支持安装本地 Skill 的 agent：

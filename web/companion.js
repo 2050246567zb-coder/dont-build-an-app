@@ -32,6 +32,7 @@ const faces = new Map(['approval', 'surprised'].map(emotion => {
 export function prefersLive2d(){try{return localStorage.getItem('spirit-live2d')!=='off';}catch{return true;}}
 export function setLive2dPreference(value){try{localStorage.setItem('spirit-live2d',value?'on':'off');}catch{}window.dispatchEvent(new Event('spirit-preference'));}
 let runtimePromise;
+document.addEventListener('visibilitychange',()=>document.documentElement.classList.toggle('pose-paused',document.hidden));
 function runtime(){
   return runtimePromise??=fetch('/live2d/status').then(r=>r.json()).then(async status=>{
     if(!status.available)return null;

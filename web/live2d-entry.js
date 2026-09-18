@@ -63,7 +63,8 @@ export async function createSpirit({body,image,button,onFailure}) {
     set('ParamEyeBallX',gazeX);set('ParamEyeBallY',gazeY);set('ParamEyeLOpen',openness);set('ParamEyeROpen',openness);
     set('ParamMouthOpenY',emotion==='surprised'?1:0);set('ParamBreath',still?0:(Math.sin(time*1.4)+1)/2);
     model.update();
-    const box=body.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,1.5);
+    // CSS entrance transforms must not resize the WebGL drawing buffer every frame.
+    const box={width:body.clientWidth,height:body.clientHeight},dpr=Math.min(devicePixelRatio||1,1.5);
     const w=Math.max(1,Math.round(box.width*dpr)),h=Math.max(1,Math.round(box.height*dpr));
     if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
     const projection=new CubismMatrix44();projection.scale(Math.min(1,h/w),Math.min(1,w/h));
