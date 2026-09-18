@@ -27,7 +27,7 @@ Get-NetTCPConnection -LocalPort 9229 -State Listen
 在 **WorkBuddy 的目标对话** 内执行，不能从另一个 Agent 手填任务 ID 代替：
 
 ```powershell
-git clone --branch codex/galgame-v0.1.0 https://github.com/2050246567zb-coder/dont-build-an-app.git
+git clone --branch main https://github.com/2050246567zb-coder/dont-build-an-app.git
 cd dont-build-an-app
 npm ci
 npm run build

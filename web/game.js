@@ -36,6 +36,8 @@ function renderChoices(){
 }
 function chapterKey(segment){return segment?.speaker==='jobs'?'design':segment?.speaker==='xiaohei'?'experience':segment?.stage||'screening';}
 function renderProgress(actor){
+  $('chapter-progress').hidden=actor?.scene==='meadow'||current?.stage==='delivery';
+  if($('chapter-progress').hidden)return;
   const key=chapterKey(actor);let progress=null;
   for(const segment of state?.timeline.slice(0,index+1)||[])if(chapterKey(segment)===key&&segment.progress)progress=segment.progress;
   const value=progress?.value||0;

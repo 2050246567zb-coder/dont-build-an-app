@@ -214,17 +214,23 @@ header .header-right { margin-left: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-.chapter-progress { --rail-position:19.4%; --progress-color:#decba1; position:absolute; z-index:7; left:clamp(8px,1.6vw,28px); top:clamp(140px,20vh,205px); bottom:auto; width:58px; height:clamp(180px,30vh,290px); outline-offset:4px; border-radius:16px; }
-:root[data-theme="jobs"] .chapter-progress { --rail-position:50%; --progress-color:#424953; }
-:root[data-theme="xiaohei"] .chapter-progress { --rail-position:80.6%; --progress-color:#df7773; }
-:root[data-theme="meadow"] .chapter-progress { --rail-position:50%; --progress-color:#53785b; }
-.progress-track { position:absolute; top:28px; bottom:30px; left:19px; width:20px; background:url('/art/chapter-progress-atlas.png') var(--rail-position) center / 900% 100% no-repeat; }
-.progress-channel { position:absolute; inset:13% 0; }
-#progress-nodes { position:absolute; inset:0; width:20px; }
-.progress-fill { position:absolute; bottom:0; left:9px; width:2px; height:0; background:var(--progress-color); border-radius:2px; transition:height 700ms var(--ease-out); }
-.progress-node { position:absolute; left:5px; width:10px; height:10px; border-radius:50%; transform:translateY(50%); background:var(--button) center / 100% 100% no-repeat; box-shadow:0 0 0 2px var(--progress-color); transition:transform 220ms var(--ease-out); }
+.chapter-progress { --rail-position:19.4%; --progress-color:#f7d57b; --fill-shade:#c99438; --fill-light:#ffe7a4; --fill-left:11px; --fill-width:14px; --node-ink:#5b451e; position:absolute; z-index:7; left:clamp(8px,1.6vw,28px); top:clamp(140px,20vh,205px); bottom:auto; width:58px; height:clamp(180px,30vh,290px); outline-offset:4px; border-radius:16px; }
+:root[data-theme="jobs"] .chapter-progress { --rail-position:50%; --progress-color:#1687f7; --fill-shade:#0065d3; --fill-light:#59b0ff; --node-ink:#13538d; }
+:root[data-theme="xiaohei"] .chapter-progress { --progress-color:#edf0f3; --fill-shade:#a4aab2; --fill-light:#fff; --fill-left:7px; --fill-width:22px; --node-ink:#181b20; }
+:root[data-theme="meadow"] .chapter-progress { --rail-position:50%; --progress-color:#6ba777; --fill-shade:#3c7350; --fill-light:#b2d9a9; --node-ink:#2b5037; }
+.progress-track { position:absolute; top:28px; bottom:30px; left:11px; width:36px; background:url('/art/chapter-progress-atlas.png') var(--rail-position) center / 900% 100% no-repeat; }
+.progress-channel { position:absolute; inset:13% 0; z-index:1; }
+.progress-channel::before { content:''; position:absolute; top:0; bottom:0; left:var(--fill-left); width:var(--fill-width); border-radius:7px; background:#111925c9; box-shadow:inset 0 1px 3px #0006; }
+#progress-nodes { position:absolute; inset:0; width:36px; z-index:2; }
+.progress-fill { position:absolute; bottom:0; left:var(--fill-left); width:var(--fill-width); height:0; overflow:hidden; background:linear-gradient(90deg,var(--fill-shade),var(--progress-color) 46%,var(--fill-light)); border-radius:7px; box-shadow:inset 1px 0 0 #ffffff65,inset -1px 0 0 #0002; transition:height 700ms var(--ease-out); }
+.progress-fill::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:#fff9; }
+.progress-node { position:absolute; left:14px; width:8px; height:8px; border-radius:50%; transform:translateY(50%); background:var(--node-ink); box-shadow:0 0 0 1.5px var(--fill-light); transition:transform 220ms var(--ease-out); }
 :root[data-theme="system"] .progress-node { border-radius:2px; transform:translateY(50%) rotate(45deg); }
-:root[data-theme="xiaohei"] .progress-node { border-radius:1px; width:12px; height:5px; left:4px; }
+:root[data-theme="xiaohei"] .progress-track { background:none; }
+:root[data-theme="xiaohei"] .progress-track::before { content:''; position:absolute; inset:0; border:6px solid transparent; border-image:url('/art/xiaohei-panel.png') 145 130 fill / 6px / 0 stretch; }
+:root[data-theme="xiaohei"] .progress-channel { inset:5% 0; }
+:root[data-theme="xiaohei"] :is(.progress-channel::before,.progress-fill) { border-radius:1px; }
+:root[data-theme="xiaohei"] .progress-node { border-radius:0; width:24px; height:3px; left:6px; box-shadow:0 1px 0 #f5f5f5,0 -1px 0 #f5f5f5; }
 .progress-caption,.progress-value { position:absolute; left:0; width:100%; text-align:center; color:var(--heading); white-space:nowrap; font-size:11px; font-weight:500; letter-spacing:.12em; }
 .progress-caption { top:0; }
 .progress-value { bottom:0; font-size:12px; font-variant-numeric:tabular-nums; letter-spacing:.02em; opacity:.8; }
@@ -235,7 +241,7 @@ header .header-right { margin-left: auto; }
 .progress-milestone { padding:7px 0; }
 .chapter-progress:is(:hover,:focus-visible,:focus-within) .progress-details { opacity:1; visibility:visible; pointer-events:auto; transform:translateX(0); }
 .chapter-progress:focus-visible { outline:1px solid var(--focus); }
-@media(max-width:700px) { .chapter-progress { left:3px; width:48px; height:180px; top:140px; } .progress-track { left:14px; } .progress-details { left:44px; width:min(245px,70vw); } }
+@media(max-width:700px) { .chapter-progress { left:3px; width:48px; height:180px; top:140px; } .progress-track { left:6px; } .progress-details { left:44px; width:min(245px,70vw); } }
 @media(prefers-reduced-motion:reduce) { .progress-details,.progress-fill { transition:none; } }
 
 /* Jobs: one quiet material system, not an ornate skin recolored white. */
@@ -332,7 +338,29 @@ header .header-right { margin-left: auto; }
 #story-curtain.blink span { position:absolute; width:100%; height:51%; background:#040409; }
 #story-curtain.blink span:first-child { top:0; transform:translateY(-100%); }
 #story-curtain.blink span:last-child { bottom:0; transform:translateY(100%); }
-:root[data-theme="meadow"] { color-scheme:light; --ink:#243c32; --secondary:#405a48; --muted:#506654; --heading:#233e2f; --accent:#2e513b; --gold:#395c42; --input-fill:#f1f5ed; --input-ink:#243c32; --reader-ink:#243c32; --code-fill:#e7eee2; --table-fill:#f2f5ed; --table-heading:#e1ead9; --focus:#5c8554; --frame:url('/art/jobs-panel.png'); --button:var(--frame); --icons:url('/art/dialogue-icons.png'); --panel-slice:100; --backdrop:#172c2288; }
+:root[data-theme="meadow"] {
+  color-scheme:light; --ink:#344857; --secondary:#425968; --muted:#586975;
+  --heading:#354e61; --accent:#786031; --gold:#806638; --placeholder:#637888;
+  --input-fill:#eef6fb; --input-ink:#344857; --reader-ink:#344857;
+  --code-fill:#e7f0f6; --table-fill:#f2f7fa; --table-heading:#e0edf5;
+  --focus:#9b722e; --scroll-thumb:#b29864; --scroll-track:#edf4f7;
+  --frame:url('/art/meadow-panel-clean.png'); --button:var(--frame);
+  --icons:url('/art/dialogue-icons-meadow.png'); --panel-slice:140;
+  --backdrop:#354e6188;
+}
+:root[data-theme="meadow"] :is(.delivery,.dialogue,dialog) { filter:drop-shadow(0 8px 18px #35577524); }
+:root[data-theme="meadow"] header { color:var(--heading); letter-spacing:.08em; }
+:root[data-theme="meadow"] .chapter-progress { display:none; }
+/* Keep the generated panel off icon-only controls: the generic skin's #speaker
+   selector otherwise wins specificity and adds a broken miniature frame. */
+:root[data-theme="meadow"] #app button.icon-button { border:0; border-image:none; background:none; padding:0; }
+:root[data-theme="meadow"] #app :is(#speaker,#document-open,#document-download,#develop) {
+  border-image:none; background:var(--button) center / 100% 100% no-repeat;
+  background-origin:border-box;
+}
+:root[data-theme="meadow"] .save-card { color:var(--ink); background:#eff5f8; }
+:root[data-theme="meadow"] .choice { background:#edf4f8; }
+:root[data-theme="meadow"] .choice:has(input:checked) { background:#e2edf4; }
 .stage[data-scene="meadow"] .character-area { visibility:hidden; }
 .stage[data-scene="meadow"] .stage-top { visibility:hidden; }
 .stage[data-scene="meadow"] .dialogue { background-color:transparent; }
@@ -343,12 +371,18 @@ header .header-right { margin-left: auto; }
 .document-item:active img { transform:scale(.96); }
 .delivery:not([hidden]) .document-item img { animation:reward-arrival 1.1s var(--motion) both; }
 @keyframes reward-arrival { from { opacity:0; transform:translateY(25px) scale(.72) rotate(-9deg); } to { opacity:1; transform:translateY(0) scale(1) rotate(0); } }
-.stage[data-scene="meadow"] .delivery { width:min(650px,calc(100% - 70px)); max-height:calc(100% - clamp(212px,27vh,285px) - 70px); top:auto; bottom:calc(clamp(212px,27vh,285px) + 38px); left:50%; right:auto; transform:translateX(-50%); overflow:auto; display:grid; grid-template-columns:105px 1fr; gap:4px 16px; align-items:center; padding:16px 22px; }
-.stage[data-scene="meadow"] #document-item { grid-column:1; grid-row:1 / 5; width:105px; }
+.stage[data-scene="meadow"] .delivery { width:min(780px,calc(100% - 90px)); max-height:calc(100% - clamp(212px,27vh,285px) - 70px); top:auto; bottom:calc(clamp(212px,27vh,285px) + 38px); left:50%; right:auto; transform:translateX(-50%); overflow:auto; display:grid; grid-template-columns:210px minmax(0,1fr); gap:6px 22px; align-items:center; padding:10px 24px; }
+.stage[data-scene="meadow"] #document-item { grid-column:1; grid-row:1 / 5; width:210px; }
+.stage[data-scene="meadow"] #document-item img { filter:drop-shadow(0 8px 14px #9e762f55); }
 .stage[data-scene="meadow"] .delivery > :not(#document-item) { grid-column:2; margin:0; }
-.stage[data-scene="meadow"] .delivery h3 { font-size:20px; }
+.stage[data-scene="meadow"] .delivery h3 { font-size:22px; color:var(--heading); text-wrap:balance; }
 .stage[data-scene="meadow"] .delivery > div { margin-top:8px; }
 .stage[data-scene="meadow"] .delivery > div button { padding:8px 12px; }
+@media(max-width:700px) {
+  .stage[data-scene="meadow"] .delivery { width:calc(100% - 44px); grid-template-columns:160px minmax(0,1fr); gap:4px 10px; padding:8px; }
+  .stage[data-scene="meadow"] #document-item { width:160px; }
+  .stage[data-scene="meadow"] .delivery h3 { font-size:18px; }
+}
 @media(max-width:700px) { .menu h1.novel-title { font-size:clamp(36px,7vw,52px); } .document-item { width:110px; } }
 :root[data-theme="meadow"] .applause-frame.ready { animation:applause-two-frames 1.8s steps(1,end) infinite; }
 @keyframes applause-two-frames { 0% { opacity:0; } 50%,100% { opacity:1; } }

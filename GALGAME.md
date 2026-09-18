@@ -1,10 +1,12 @@
 # 不要再做 App 了 · GalGame 对话端
 
-版本：**0.1.0-alpha.2，可运行的实验初版**。将现有 Skill 的筛查、乔布斯质询、小黑体验挑刺及方案交付呈现在浏览器里，推理仍由当前原 Agent 完成。
+版本：**0.2.0，完整安装版（宿主适配仍为实验状态）**。将现有 Skill 的筛查、乔布斯质询、小黑体验挑刺及方案交付呈现在浏览器里，推理仍由当前原 Agent 完成。
 
 当前是 **Windows Codex Desktop 的实验适配**，依赖本地桌面管道和只读日志格式。真实原任务双向消息已经跑通；用户于 2026-09-16 结束继续人工编号测试。未完成的兼容验收仍保留，**正式认证列表为空**。Claude Code 未实现适配；macOS 没有真实宿主测试。
 
 新增 **WorkBuddy 5.5.6 / Windows 实验适配**：原任务启动、双向消息、重连去重和正式剧情已做实测。它需要经用户同意开启本机调试，并由 WorkBuddy 后台命令运行服务。按 [WorkBuddy 专用安装说明](docs/workbuddy.md) 操作；完整兼容验收尚未完成，见 [实际记录](docs/reports/2026-09-17-workbuddy-feasibility.md)。
+
+新增 **千问办公 1.0.6-26091603 / Windows 实验适配**，安装与启动见 [千问办公说明](docs/qwenwork.md)。走原任务本机连接器和只读完整消息库；不需要开放调试端口。Claude Desktop / Cowork 2.2553.0.0 的候选调试路线被客户端拒绝，目前不支持网页原会话同步；不要用 Claude Code 或离线夹具替代后宣称适配成功。实测边界见 [适配记录](docs/reports/2026-09-18-desktop-adapters.md)。
 
 完整范围见 [开发规格](docs/galgame-development-spec.md)，证据见 [同步记录](docs/reports/2026-09-16-sync-validation.md) 与 [本版交付记录](docs/reports/2026-09-16-galgame-alpha2.md)。纯 Skill 仍可按 [INSTALL.md](INSTALL.md) 安装。
 
@@ -14,9 +16,9 @@
 
 ```text
 请安装并运行“不要再做 App 了 · GalGame 对话端”实验版：
-https://github.com/2050246567zb-coder/dont-build-an-app/tree/codex/galgame-v0.1.0
+https://github.com/2050246567zb-coder/dont-build-an-app
 
-读取开发分支 codex/galgame-v0.1.0 的 GALGAME.md，检查当前宿主能力，
+读取 main 的 INSTALL.md 和 GALGAME.md，检查当前宿主能力，
 完成依赖、构建和 Skill 安装，然后从当前原任务启动网页。
 不要另建模型会话，不添加 API Key。缺少原任务绑定能力时报告限制。
 ```
@@ -24,7 +26,7 @@ https://github.com/2050246567zb-coder/dont-build-an-app/tree/codex/galgame-v0.1.
 需要 Node.js 24+、npm、Git。下面是 **Codex 桌面**步骤，需要当前任务提供 CODEX_THREAD_ID、CODEX_APP_TOOLS_PIPE_PATH、CODEX_HOME。WorkBuddy 使用自己的 CODEBUDDY_SESSION_ID，按上面的专用说明安装，不能手填 Codex 变量绕过绑定。
 
 ```sh
-git clone --branch codex/galgame-v0.1.0 https://github.com/2050246567zb-coder/dont-build-an-app.git
+git clone --branch main https://github.com/2050246567zb-coder/dont-build-an-app.git
 cd dont-build-an-app
 npm ci
 npm run build
@@ -33,7 +35,7 @@ npm run probe
 npm run launch
 ```
 
-安装器把整个 Skill 安装到当前 CODEX_HOME/skills/dont-build-an-app；WorkBuddy 用 `npm run install:skill -- --host workbuddy` 安装到 `~/.workbuddy/skills/dont-build-an-app`。二者都备份旧版并记录本机工程路径，不改模型或全局 MCP 配置。搬迁工程后重新安装 Skill。
+安装器把整个 Skill 安装到当前 CODEX_HOME/skills/dont-build-an-app；WorkBuddy 用 `npm run install:skill -- --host workbuddy` 安装到 `~/.workbuddy/skills/dont-build-an-app`。千问办公用 `npm run install:skill -- --host qwenwork` 安装到 `~/.qwenworkcn/skills/dont-build-an-app`。三者都备份旧版并记录本机工程路径，不改模型或全局 MCP 配置。搬迁工程后重新安装 Skill。
 
 让 Agent 打开 launch 输出的本机链接，然后说“使用不要再做 App 了，进入 GalGame 网页模式”。同一任务重复启动复用服务，不创建模型会话。Agent 必须读取 [网页输出约定](skills/dont-build-an-app/references/galgame-mode.md)；普通未结构化回复保留原文并允许续聊，不猜测角色。
 
@@ -47,7 +49,7 @@ npm run launch
 - 小黑告别后由 AI 交付实际 Markdown，可阅读、下载。主动选择“返回原 Agent 开始开发”并确认，才发送执行指令并切回原任务。
 - 删除网页存档移除剧情、草稿和专属缓存，保留原 Agent 历史及已交付的共享文件。重建须从对应原任务重新启动；当前不会恢复已删的旧剧情。
 
-「读取存档」汇总**这台电脑、同一个系统账号**下所有通过本产品连接并开始游戏的任务，显示所属 Agent、名称、更新时间和连接状态，支持按 Agent 筛选。可以在同一网页地址切换 Codex / WorkBuddy 存档；消息、草稿、配图、文档仍由对应的原任务负责。多份工程安装默认使用同一目录，不需要额外模型或云端同步。
+「读取存档」汇总**这台电脑、同一个系统账号**下所有通过本产品连接并开始游戏的任务，显示所属 Agent、名称、更新时间和连接状态，支持按 Agent 筛选。可以在同一网页地址切换 Codex / WorkBuddy / 千问办公存档；消息、草稿、配图、文档仍由对应的原任务负责。多份工程安装默认使用同一目录，不需要额外模型或云端同步。
 
 只安装 Skill 不会自动导入全部私人聊天，也不会让未适配的应用变成兼容。每个原任务需启动过一次网页并开始游戏（或发布首段剧情）。服务离线后存档仍列出；回原 Agent 对应对话重新启动，再点「刷新存档」。所有本机服务都停止时，先从任一已适配原任务打开网页入口。入口服务停止会让该页面暂不可用，可从另一个仍在线的原任务打开入口。
 
@@ -87,7 +89,7 @@ node dist/publish.js "/actual/runtime.json" "/actual/scene.json"
 npm run stop
 ```
 
-只停止当前服务，保留原 Agent 和数据。更新：停止后 git pull、npm ci、npm run build、npm run install:skill，再启动。WorkBuddy 安装时加 --host workbuddy，并由宿主后台工具重新运行 serve。已有存档和剧情保留；旧服务必须重启后才能作为新版统一入口，不能只刷新旧服务就声称已升级。卸载：先停止，再按需移除工程与安装的 Skill；保留文档请先备份 published。没有系统服务、独立模型服务、浏览器 API Key 或额外付费依赖；聊天和生图仍使用原有额度。
+只停止当前服务，保留原 Agent 和数据。更新：停止后 git pull、npm ci、npm run build、npm run install:skill，再启动。WorkBuddy 安装时加 --host workbuddy；千问办公加 --host qwenwork。这两者由宿主后台工具重新运行 serve。已有存档和剧情保留；旧服务必须重启后才能作为新版统一入口，不能只刷新旧服务就声称已升级。卸载：先停止，再按需移除工程与安装的 Skill；保留文档请先备份 published。没有系统服务、独立模型服务、浏览器 API Key 或额外付费依赖；聊天和生图仍使用原有额度。
 
 ## 开发检查
 

@@ -1,11 +1,11 @@
 import {readFile} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 export function assertRuntimeTask(runtime:{threadId:string;adapter?:string},env:NodeJS.ProcessEnv=process.env){
-  const host=env.GALGAME_HOST || (env.CODEBUDDY_SESSION_ID?'workbuddy':env.CODEX_THREAD_ID?'codex':null);
+  const host=env.GALGAME_HOST || (env.QODERWORK_SOURCE_CHAT_ID?'qwenwork':env.CODEBUDDY_SESSION_ID?'workbuddy':env.CODEX_THREAD_ID?'codex':null);
   if(!host)return; // Explicit per-task MCP config can carry only the runtime file.
-  if(!['codex','workbuddy'].includes(host))throw Error('未知的原任务宿主');
-  const current=host==='workbuddy'?env.CODEBUDDY_SESSION_ID:env.CODEX_THREAD_ID;
-  const expected=host==='workbuddy'?'workbuddy-desktop-cdp':'codex-desktop-app-tools';
+  if(!['codex','workbuddy','qwenwork'].includes(host))throw Error('未知的原任务宿主');
+  const current=host==='qwenwork'?env.QODERWORK_SOURCE_CHAT_ID:host==='workbuddy'?env.CODEBUDDY_SESSION_ID:env.CODEX_THREAD_ID;
+  const expected=host==='qwenwork'?'qwenwork-local-connector':host==='workbuddy'?'workbuddy-desktop-cdp':'codex-desktop-app-tools';
   if(!current || current!==runtime.threadId || runtime.adapter && runtime.adapter!==expected)throw Error('该运行实例属于另一个原任务');
 }
 export async function bridgeClient(runtimePath:string){

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-17",
+  "updatedAt": "2026-09-18",
   "certified": [],
   "candidates": [
     {
@@ -32,9 +32,25 @@
       "os": "macOS",
       "status": "not-tested",
       "reason": "No actual macOS host available in this run."
+    },
+    {
+      "application": "QwenWork CN",
+      "applicationVersion": "1.0.6-26091603",
+      "os": "Windows",
+      "status": "experimental-partial-validation",
+      "reason": "Original-task launch/restart, browser onboarding send, user-confirmed native visibility, native-to-browser reply and refresh/save recovery observed. Fourteen stable unique message IDs in the same order; no onboarding resend. Short live run only, no full failure-matrix certification.",
+      "report": "reports/2026-09-18-desktop-adapters.md"
+    },
+    {
+      "application": "Claude Desktop / Cowork",
+      "applicationVersion": "2.2553.0.0",
+      "os": "Windows",
+      "status": "blocked-not-supported",
+      "reason": "Desktop explicitly refuses startup with debugging switches. No same-conversation sync adapter; no client modification or bypass attempted.",
+      "report": "reports/2026-09-18-desktop-adapters.md"
     }
   ],
-  "productVersion": "0.1.0-alpha.2",
+  "productVersion": "0.2.0",
   "manualValidation": "Codex repeated manual checks stopped at user request. WorkBuddy has a separate short live run; uncompleted checks remain unverified for each host.",
   "implementationReport": "reports/2026-09-16-galgame-alpha2.md"
 }

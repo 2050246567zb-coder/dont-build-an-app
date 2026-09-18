@@ -56,7 +56,7 @@ export async function startServer(options: ServerOptions) {
   let connected = true, hostStatus = host.thread.status, lastError: string | null = null;
   let hostPoll = false, submitting = false,closing=false;
   let activePoll:Promise<void>|undefined;
-  const displayUserText=adapter.name==='workbuddy-desktop-cdp'?(text:string)=>text:visibleCodexUserText;
+  const displayUserText=adapter.name && adapter.name!=='codex-desktop-app-tools'?(text:string)=>text:visibleCodexUserText;
   const game=new Game(store,threadId,options.dataDir,host.thread.title||'新的创意',displayUserText);
   const owner={adapter:adapter.name??'codex-desktop-app-tools',threadId,hostLabel:options.hostLabel??adapter.label??'Codex 原任务'};
   let bridgeUrl='',catalogStamp='',catalogWrite=Promise.resolve();

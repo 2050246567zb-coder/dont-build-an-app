@@ -26,7 +26,7 @@ async function running(){
 async function main(){
   context=hostContext();
   const useLegacy=context.host==='codex' && legacy?.threadId===context.threadId;
-  dataDir=resolve(process.env.GALGAME_DATA_DIR || (useLegacy?join(root,'.galgame'):join(appDataRoot,'threads',context.host==='codex'?context.threadId:`workbuddy-${context.threadId}`)));
+  dataDir=resolve(process.env.GALGAME_DATA_DIR || (useLegacy?join(root,'.galgame'):join(appDataRoot,'threads',context.host==='codex'?context.threadId:`${context.host}-${context.threadId}`)));
   runtimePath=join(dataDir,'runtime.json');
   const existing=await running();
   if(process.argv[2]==='stop'){
@@ -45,8 +45,8 @@ async function main(){
     if(!game.recoverySupported)console.error('当前服务尚不支持中断后续聊：请在此原任务执行 npm run stop，再按宿主方式重新启动。数据目录和存档保持不变。');
     console.log(process.argv[2]==='info'?JSON.stringify({...existing.runtime,runtimePath,mcpCommand:process.execPath,mcpArgs:[join(root,'dist/mcp.js'),runtimePath]},null,2):existing.runtime.url);return;
   }
-  if(context.host==='workbuddy'){
-    if(process.argv[2]!=='serve')throw Error('WorkBuddy 首次启动：用它的 PowerShell/Bash 工具 run_in_background=true 运行 npm run launch -- serve，随后 npm run runtime。普通命令结束可能回收后台子进程，因此不使用瞬间成功的启动回执。');
+  if(context.host==='workbuddy'||context.host==='qwenwork'){
+    if(process.argv[2]!=='serve')throw Error('此宿主首次启动：用原任务的后台命令工具运行 npm run launch -- serve，随后 npm run runtime。普通命令结束可能回收后台子进程。');
     Object.assign(process.env,{GALGAME_HOST:context.host,GALGAME_DATA_DIR:dataDir,GALGAME_REGISTRY_DIR:registryDir,GALGAME_PORT:process.env.GALGAME_PORT||'0'});
     await import('../dist/cli.js');
     return;

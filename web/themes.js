@@ -1,7 +1,7 @@
 // Presentation only. Speaker comes from the committed story, never a new model call.
 const root=document.documentElement,reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const themes={
-  meadow:{background:'ending-meadow-clap-open.png',panel:'jobs-panel.png',label:'A NEW BEGINNING',caption:'YOUR IDEA BECOMES REAL'},
+  meadow:{background:'ending-meadow-clap-open.png',panel:'meadow-panel-clean.png',label:'A NEW BEGINNING',caption:'YOUR IDEA BECOMES REAL'},
   system:{background:'background.png',panel:'dialogue-frame.png',label:'MIDNIGHT ATELIER',caption:'MIDNIGHT CONVERSATIONS'},
   jobs:{background:'jobs-background.png',panel:'jobs-studio-surface.png',label:'THE DESIGN STUDIO',caption:'FOCUS ON WHAT MATTERS'},
   xiaohei:{background:'xiaohei-background.png',panel:'xiaohei-panel.png',label:'THE REAL WORLD',caption:'LET ME TRY IT'},

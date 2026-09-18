@@ -2,7 +2,7 @@ import {emotions} from './story.ts';
 
 /** Only generated, bundled PNG artwork. Never interpolate a caller's path. */
 export const artFiles = new Set([
-  'jobs-studio-surface.png', 'chapter-progress-atlas.png',
+  'jobs-studio-surface.png', 'chapter-progress-atlas.png', 'meadow-panel.png', 'meadow-panel-clean.png', 'dialogue-icons-meadow.png',
   'spirit-summoning-circle.png',
   'ending-meadow-clap-open.png', 'ending-meadow-clap-close.png',
   'jobs-thumbsup.png', 'ending-meadow.png', 'design-document-item.png',

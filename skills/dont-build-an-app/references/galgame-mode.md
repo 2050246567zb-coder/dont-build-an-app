@@ -1,13 +1,15 @@
 # GalGame 网页模式
 
-仅在用户要求网页审查、恢复网页存档或正在回答该模式的问题时使用。网页复用当前原任务，不能新建模型会话、索要模型密钥或改用独立推理服务。审查逻辑、乔布斯/小黑人设、真实证据与设计闭合规则继续由本 Skill 负责。
+用户要求网页审查、恢复网页存档，或完整版安装标记 preferredMode=web 且用户开始创意审查时使用。用户指定纯文字时不启动网页。网页复用当前原任务，不能新建模型会话、索要模型密钥或改用独立推理服务。审查逻辑、乔布斯/小黑人设、真实证据与设计闭合规则继续由本 Skill 负责。
 
 网页标题为「重生之我有天才设计师系统」。每次进入网页叙事前读取 [story-direction.md](story-direction.md)，按其中的开场、传送、点赞、眨眼、小黑相遇和草地终章衔接，不重复机械的旧版告别台词。
 
 ## 启动与读取上下文
 
-1. 完整工程的安装说明是仓库 `GALGAME.md`。经工程安装器安装的本 Skill 带有 `runtime-location.json`，记录本机工程与 Node 路径；先读取它。若仅装了纯文本 Skill，没有工程，按 GitHub 仓库 GALGAME.md 的说明安装完整开发分支，不猜作者电脑路径。
-2. 在工程目录由**当前原任务**启动：Codex 桌面执行 `npm run launch`；WorkBuddy Windows 实验模式先读取工程 `docs/workbuddy.md`，按已同意的本机调试配置，用宿主命令工具 `run_in_background=true` 运行 `npm run launch -- serve`，随后 `npm run runtime` 核对服务仍存活，再打开实际返回的本地链接。后者需要宿主提供 `CODEBUDDY_SESSION_ID`，不得手填、猜测任务 ID 或继承另一应用的 ID。`npm run runtime` 返回当前任务的运行信息与 MCP 配置参数。普通 CLI、Claude Code 和其他应用尚未验证原任务同步，不宣称支持。运行环境不支持后台工具时报告具体限制，不把瞬间启动当作可用。
+千问办公 Windows 实验适配：安装位置使用 `--host qwenwork`，原任务需提供 `QODERWORK_SOURCE_CHAT_ID`。先读取工程 `docs/qwenwork.md`，用宿主的后台命令工具运行 `npm run launch -- serve`，随后 `npm run runtime` 获取当前任务地址。不能手填另一个任务 ID；不要启动 `ui-fixture.ts` 并将演示界面冒充原任务同步。网页提交中的 `galgame-receipt` 注释是去重回执，不是台词或产品决定，最终回复中不复述它。Claude Desktop / Cowork 当前版本拒绝调试启动，网页同步未支持；可使用纯文本 Skill，不能改开 Claude Code/API 会话冒充 Cowork。
+
+1. 完整工程的安装说明是仓库 `GALGAME.md`。经工程安装器安装的本 Skill 带有 `runtime-location.json`，记录本机工程与 Node 路径；先读取它。有内置 Node 时使用 runtime-location.json 的 node 绝对路径运行 launcher / publisher，不依赖全局 npm。对应命令是 `<node> <launcher>`、`<node> <launcher> serve`、`<node> <launcher> info` 和 `<node> <launcher> stop`。若仅装了纯文本 Skill，没有工程，按 GitHub 仓库 GALGAME.md 的说明安装 main 中的完整工程，不猜作者电脑路径。
+2. 在工程目录由**当前原任务**启动：Codex 桌面执行 `npm run launch`；WorkBuddy Windows 实验模式先读取工程 `docs/workbuddy.md`，按已同意的本机调试配置，用宿主命令工具 `run_in_background=true` 运行 `npm run launch -- serve`，随后 `npm run runtime` 核对服务仍存活，再打开实际返回的本地链接。WorkBuddy 需要宿主提供 `CODEBUDDY_SESSION_ID`；千问办公按上方专用步骤，使用其自身 `QODERWORK_SOURCE_CHAT_ID`。不得手填、猜测任务 ID 或继承另一应用的 ID。`npm run runtime` 返回当前任务的运行信息与 MCP 配置参数。普通 CLI、Claude Code 和未列出的其他应用尚未验证原任务同步，不宣称支持。运行环境不支持后台工具时报告具体限制，不把瞬间启动当作可用。
 3. 调用 `galgame_context`，或执行 `node dist/publish.js <runtime.json的实际路径> --context`，读取图片设置与存档状态。使用内置立绘时不生成图片；实时生成时使用当前宿主已有生图能力，失败就让 `asset_id=null` 并使用内置对应情绪。首阶段结论图仍按原 Skill 的单独规则处理；用户明确选择全程内置模式时使用文字/内置替代，不额外生图。
 4. 首次开场由系统精灵召唤出场，按 story-direction 用 2–3 段介绍系统并接住用户的创意。空存档在用户点击开始后会自动发出一次开场请求，此请求和后续剧情都在同一原任务可见。已存在剧情时恢复位置，不重复开场；不要自动拿当前开发任务当新创意审查。无需反复让用户做同步测试。
 
@@ -35,7 +37,7 @@
 
 完整版本默认共用当前系统账号的 `DontBuildAnApp` 数据目录，与工程克隆位置及安装到哪个 Agent 无关。各 Agent 从自己的原任务启动网页并开始游戏（或发布首段剧情）后，任何新版入口的「读取存档」都能看到它；按 Agent 筛选，在同一网页地址切换。不要为每个宿主设置不同的 `GALGAME_HOME` 或 `GALGAME_REGISTRY_DIR`，除非用户明确要求隔离。
 
-安装 Skill 本身不会扫描、导入全部私人聊天，也不会给尚未适配的 Agent 增加同步能力。当前只说明 Codex Desktop / WorkBuddy 的实验接入范围，不宣称所有安装了 Skill 的应用都兼容。各存档保留自己的原任务、消息、草稿、图片、文档和发送目标；网页切换不转移角色记忆，不把其他 Agent 的聊天发进当前原任务。CLI/MCP 发布仍使用当前宿主自己的 runtime，不能跟着浏览器所选存档改绑。
+安装 Skill 本身不会扫描、导入全部私人聊天，也不会给尚未适配的 Agent 增加同步能力。当前仅提供 Codex Desktop / WorkBuddy / 千问办公的实验适配，具体实测边界见工程报告，不宣称所有安装了 Skill 的应用都兼容。各存档保留自己的原任务、消息、草稿、图片、文档和发送目标；网页切换不转移角色记忆，不把其他 Agent 的聊天发进当前原任务。CLI/MCP 发布仍使用当前宿主自己的 runtime，不能跟着浏览器所选存档改绑。
 
 服务离线时列表仍保留存档名称，提示回对应 Agent 的原对话重启，再点「刷新存档」。不会偷偷创建替代会话。仅宿主断开但本机桥仍在运行时可以回看；整个桥已停止则不能在网页加载剧情。所有服务都停止后，须先由任一已适配原任务启动一个入口。更新旧版时重启入口服务才能启用同页切换；已有旧版任务可被新入口识别，后续重启会更新索引而非新增一份存档。
 
