@@ -155,6 +155,44 @@ textarea:focus-visible, select:focus-visible { outline-offset: 1px; }
   #draft-status { flex: initial; }
   :root:not([data-theme="system"]) .quick-menu button { padding-inline: 7px; }
 }
+/* Generated sprite atlas supplies the icons; these rules only place its pixels. */
+header #chapter { color: var(--heading); font-size: 15px; letter-spacing: .08em; }
+header .header-right { margin-left: auto; }
+.dialogue, :root:not([data-theme="system"]) .dialogue {
+  bottom: 24px; padding: 30px 64px 82px;
+}
+#dialogue-text { margin: 8px 0 0; height: 100%; }
+.dialogue-foot { position: absolute; bottom: 55px; left: 64px; right: 64px; min-height: 22px; gap: 4px; }
+.dialogue-foot #play-state { margin-right: auto; }
+.dialogue-foot button { padding-block: 3px; }
+.dialogue .quick-menu { left: 0; right: 0; bottom: 12px; justify-content: center; gap: 14px; }
+:root #app button.icon-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+  border: 0; border-image: none; background: none; padding: 0;
+}
+#settings-open { min-width: 44px; }
+.ui-icon { display: block; width: 40px; height: 40px; flex: 0 0 40px; background: url('/art/dialogue-icons.png') 2% center / 500% auto no-repeat; pointer-events: none; }
+.quick-menu .ui-icon { display: block; margin: 0; }
+.icon-history { background-position-x: 27%; }
+.icon-save { background-position-x: 52%; }
+.icon-fast { background-position-x: 77%; }
+.icon-arrow { background-position-x: 100%; }
+#replay-forward .icon-arrow { transform: scaleX(-1); }
+.dialogue .replay-arrow { position: absolute; top: 45%; margin-top: -22px; }
+#replay-previous { left: 3px; }
+#replay-forward { right: 3px; }
+.replay-arrow .ui-icon { width: 30px; height: 40px; flex-basis: 30px; background-size: 666.667% auto; }
+#accelerate[aria-pressed="true"] { filter: brightness(1.4); transform: translateY(-2px); }
+:root[data-theme="jobs"] #accelerate[aria-pressed="true"] { filter: brightness(.6); }
+#home { display: block; margin: 12px auto 0; }
+@media (max-width:550px) {
+  .dialogue, :root:not([data-theme="system"]) .dialogue { padding-inline: 40px; padding-bottom: 98px; }
+  .dialogue-foot { left: 40px; right: 40px; bottom: 53px; }
+  .dialogue-foot #play-state { width: 100%; font-size: 9px; }
+  .dialogue .replay-arrow { width: 34px; min-width: 34px; }
+  #replay-previous { left: -9px; } #replay-forward { right: -9px; }
+}
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

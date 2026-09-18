@@ -21,8 +21,6 @@ export function setSceneTheme(role){
   theme=role;
   root.dataset.theme=role;
   for(const [name,image] of layers)image.classList.toggle('active',name===role);
-  document.querySelector('.wordmark span').textContent=themes[role].label;
-  document.querySelector('.dialogue-caption').textContent=themes[role].caption;
   // Animate live surfaces, not a document snapshot: typing and quick clicks stay live.
   for(const element of document.querySelectorAll('header,.stage-top,.dialogue,.quick-menu,#reply-panel,#delivery,dialog[open],#status-banner,#toast')){
     const previous=themeMotions.get(element),opacity=previous?.playState==='running'?getComputedStyle(element).opacity:'.25';previous?.cancel();

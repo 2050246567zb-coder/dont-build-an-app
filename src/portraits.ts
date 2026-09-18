@@ -2,7 +2,7 @@ import {emotions} from './story.ts';
 
 /** Only generated, bundled PNG artwork. Never interpolate a caller's path. */
 export const artFiles = new Set([
-  'background.png', 'dialogue-frame.png', 'button.png',
+  'background.png', 'dialogue-frame.png', 'button.png', 'dialogue-icons.png',
   'jobs-background.png', 'jobs-panel.png', 'xiaohei-background.png', 'xiaohei-panel.png',
   ...['jobs', 'xiaohei'].flatMap(role => emotions.map(emotion => `${role}-${emotion}.png`)),
   'system-neutral.png', 'system-thinking.png', 'system-approval.png', 'system-surprised.png',

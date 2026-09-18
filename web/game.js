@@ -7,13 +7,20 @@ const stageCompanion=bindCompanion({floating:$('portrait-float'),body:$('portrai
 const query=new URLSearchParams(location.hash.slice(1));
 const token=query.get('token')||sessionStorage.getItem('galgame-token');
 if(token){sessionStorage.setItem('galgame-token',token);history.replaceState(null,'',location.pathname);}
-const viewer=crypto.randomUUID(),names={system:'AI',jobs:'乔布斯',xiaohei:'小黑',user:'你说'},chapters={screening:'第一章 · 这个想法值得做吗',design:'第二章 · 把核心想清楚',experience:'第三章 · 真的好用吗',delivery:'终章 · 让想法开始发生'};
+const viewer=crypto.randomUUID(),names={system:'AI',jobs:'乔布斯',xiaohei:'小黑',user:'你说'},chapters={screening:'第一章：AI',design:'第二章：jobs',experience:'第三章：小黑',delivery:'第四章：AI'};
 const emotionNames={neutral:'',thinking:'思考中',skeptical:'有点怀疑',angry:'不太满意',approval:'这次，说通了',surprised:'出乎意料'};
 let selectedSave=sessionStorage.getItem('galgame-selected-save')||'',switching=false;
 const sessionPath=path=>selectedSave?`/api/sessions/${selectedSave}${path}`:path;
 const rootApi=async(path,method='GET',body)=>{const r=await fetch(path,{method,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const value=await r.json();if(!r.ok)throw Object.assign(Error(value.error||'连接暂时不可用'),{status:r.status});return value;};
 const api=(path,method,body)=>rootApi(sessionPath(path),method,body);
-let state=null,inGame=false,index=-1,current=null,typing=false,chars=[],shown=0,typeTimer,speedUp=false,owned=false,sending=false,base=null,initialized=false,polling=false,saveTimer,draftRevision=0,closedReply=false,waitTimer,lastProgressAt=Date.now(),signature='',doc=null,portraitBlob=null,assetRequest=0,toastTimer,saveToDelete=null,pendingSubmit=null;
+let state=null,inGame=false,index=-1,frontier=-1,current=null,typing=false,chars=[],shown=0,typeTimer,speedUp=false,owned=false,sending=false,base=null,initialized=false,polling=false,saveTimer,draftRevision=0,closedReply=false,waitTimer,lastProgressAt=Date.now(),signature='',doc=null,portraitBlob=null,assetRequest=0,toastTimer,saveToDelete=null,pendingSubmit=null;
+const isReview=()=>index<frontier;
+function replayControls(){
+  $('replay-previous').hidden=index<=0;
+  $('replay-forward').hidden=!isReview();
+  $('stage').dataset.review=String(isReview());
+}
+function setSpeedUp(value){speedUp=value;$('accelerate').setAttribute('aria-pressed',String(value));$('accelerate').setAttribute('aria-label',value?'恢复正常速度':'加速');$('accelerate').title=value?'恢复正常速度':'加速';}
 const toast=text=>{$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{$('toast').hidden=true;},6500);};
 const safe=fn=>(...args)=>Promise.resolve(fn(...args)).catch(e=>toast(e.message));
 function banner(){
@@ -23,7 +30,7 @@ function banner(){
   else if(inGame&&Date.now()-lastProgressAt>60000&&(!current||current.speaker==='user'))text='等待较久。你可以回原 Agent 查看是否需要处理权限、登录或生成错误。';
   $('status-banner').hidden=!text;$('status-banner').textContent=text;
 }
-function updateSend(){const latest=state?.timeline.at(-1),recover=current?.advance==='error'&&state?.recoverySupported;const contextValid=!latest||latest.id===current?.id&&(latest.advance==='reply'||recover);const pending=state?.submissions.some(s=>['submitting','accepted','unknown'].includes(s.status));const blocked=!state?.connected||!owned||sending||switching||pending||base!==state?.latestMessageId||!contextValid;$('reply').readOnly=!owned;$('send').disabled=blocked||!$('reply').value.trim();$('recover-role').disabled=blocked||!recover;$('review').hidden=base===state?.latestMessageId;}
+function updateSend(){const latest=state?.timeline.at(-1),recover=current?.advance==='error'&&state?.recoverySupported;const contextValid=!latest||latest.id===current?.id&&(latest.advance==='reply'||recover);const pending=state?.submissions.some(s=>['submitting','accepted','unknown'].includes(s.status));const blocked=isReview()||!state?.connected||!owned||sending||switching||pending||base!==state?.latestMessageId||!contextValid;$('reply').readOnly=!owned||isReview();$('send').disabled=blocked||!$('reply').value.trim();$('recover-role').disabled=blocked||!recover;$('review').hidden=base===state?.latestMessageId;}
 async function poll(){
   if(polling||switching)return;polling=true;
   try{
@@ -32,9 +39,9 @@ async function poll(){
     state=next;$('connection').textContent=state.connected?`已连接 · ${state.hostLabel}`:'原 Agent 未连接';
     if(!initialized){$('reply').value=state.draft;let cache;try{cache=JSON.parse(localStorage.getItem(`draft:${state.save?.id}`)||'null');pendingSubmit=JSON.parse(localStorage.getItem(`pending:${state.save?.id}`)||'null');}catch{}if(cache&&cache.text!==state.draft&&cache.at>Date.parse(state.save?.updatedAt||0)){$('reply').value=cache.text;toast('已恢复网页缓存中的未发送草稿，请核对内容。');}base=state.draftBaseMessageId??state.latestMessageId;initialized=true;applyPreferences();}
     if(!$('reply').value.trim()&&!sending)base=state.latestMessageId;
-    if(inGame){owned=(await api('/api/game/lease','POST',{clientId:viewer})).owned;if(state.deleted){goHome();toast('此网页存档已删除。请从原任务重新启动。');}else if(current?.speaker==='user'&&index<state.timeline.length-1&&!typing){show(index+1);}else if(!current&&state.timeline.length){show(0);}}
-    if(inGame&&current?.advance==='error'&&!typing)finish();
-    if(pendingSubmit){const confirmed=state.submissions.find(s=>s.id===pendingSubmit.id&&s.status==='confirmed');if(confirmed){if($('reply').value===pendingSubmit.text&&owned){$('reply').value='';base=state.latestMessageId;await saveDraft(++draftRevision);}localStorage.removeItem(`pending:${state.save?.id}`);pendingSubmit=null;const next=state.timeline.findIndex(s=>s.hostId===confirmed.host_id);if(inGame&&next>=0)show(next);}}
+    if(inGame){owned=(await api('/api/game/lease','POST',{clientId:viewer})).owned;if(state.deleted){goHome();toast('此网页存档已删除。请从原任务重新启动。');}else if(!isReview()&&current?.speaker==='user'&&index<state.timeline.length-1&&!typing){show(index+1);}else if(!current&&state.timeline.length){show(0);}}
+    if(inGame&&!isReview()&&current?.advance==='error'&&!typing)finish();
+    if(pendingSubmit){const confirmed=state.submissions.find(s=>s.id===pendingSubmit.id&&s.status==='confirmed');if(confirmed){if($('reply').value===pendingSubmit.text&&owned){$('reply').value='';base=state.latestMessageId;await saveDraft(++draftRevision);}localStorage.removeItem(`pending:${state.save?.id}`);pendingSubmit=null;const next=state.timeline.findIndex(s=>s.hostId===confirmed.host_id);if(inGame&&!isReview()&&next>=0)show(next);}}
     banner();updateSend();
   }catch(e){$('connection').textContent='连接暂时中断';if(state){state.connected=false;banner();updateSend();}else toast(selectedSave?'此存档暂未连接，可以在「读取存档」里选择其他对话。':'请从原 Agent 提供的启动链接进入。');}
   finally{polling=false;}
@@ -68,16 +75,23 @@ function tick(){
   shown=Math.min(chars.length,shown+(speedUp?4:1));$('dialogue-text').textContent=chars.slice(0,shown).join('');
   if(shown===chars.length){typing=false;finish();}else typeTimer=setTimeout(tick,1000/speed);
 }
-function show(i){
-  clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');stopType();closedReply=false;index=i;current=state.timeline[i]??null;doc=null;speedUp=false;$('accelerate').textContent='加速';
+function show(i,replay=false){
+  if(!state.timeline[i]&&state.timeline.length)return;
+  if(!replay)frontier=i;
+  clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');stopType();closedReply=false;index=i;current=state.timeline[i]??null;doc=null;setSpeedUp(false);replayControls();
   for(const id of ['reply-panel','reply-reopen','delivery','next','raw-open','recover-role','recovery-note'])$(id).hidden=true;
   if(!current){onboarding();return;}
-  $('chapter').textContent=chapters[current.stage]||'你的想法 · 在这里继续';$('speaker').textContent=names[current.speaker];$('play-state').textContent='';
-  setPortrait(current.speaker,current.emotion,current);chars=Array.from(current.text);shown=0;typing=true;$('dialogue-text').textContent='';tick();
-  if(owned)void api('/api/game/position','PUT',{clientId:viewer,position:current.id}).catch(()=>{});
+  $('speaker').textContent=names[current.speaker];$('play-state').textContent='';
+  const actor=current.speaker==='user'?state.timeline.slice(0,index).findLast(s=>s.speaker!=='user'):current;
+  $('chapter').textContent=actor?.speaker==='jobs'?chapters.design:actor?.speaker==='xiaohei'?chapters.experience:chapters[current.stage||actor?.stage]||'序章：AI';
+  if(actor)setPortrait(actor.speaker,actor.emotion,actor);chars=Array.from(current.text);shown=0;typing=true;$('dialogue-text').textContent='';tick();
+  updateSend();
+  if(owned&&!replay)void api('/api/game/position','PUT',{clientId:viewer,position:current.id}).catch(()=>{});
 }
 function finish(){
   if(!current)return;
+  replayControls();
+  if(isReview()){$('play-state').textContent='回看中 · 仅阅读';updateSend();return;}
   if(current.advance==='reply'){
     $('play-state').textContent='不用急，想清楚再回答。';
     if(index===state.timeline.length-1){$('reply-panel').hidden=closedReply;$('reply-reopen').hidden=!closedReply;updateSend();}else{$('play-state').textContent='这个问题已有后续对话。';$('next').hidden=false;}
@@ -105,7 +119,7 @@ function waiting(){
   waitTimer=setInterval(()=>{phrase.textContent=phrases[++n%phrases.length];banner();},4000);
 }
 function onboarding(){
-  $('chapter').textContent='序章 · 一个想法就够了';$('speaker').textContent='AI';$('dialogue-text').textContent='先说说你想做什么。哪怕现在只有一个模糊的念头，也可以从这里开始。';$('play-state').textContent='同一段对话，换一种打开方式。';setPortrait('system');$('reply-panel').hidden=false;updateSend();
+  $('chapter').textContent='序章：AI';$('speaker').textContent='AI';$('dialogue-text').textContent='先说说你想做什么。哪怕现在只有一个模糊的念头，也可以从这里开始。';$('play-state').textContent='同一段对话，换一种打开方式。';setPortrait('system');$('reply-panel').hidden=false;updateSend();
 }
 async function enter(){
   if(!state.save)await api('/api/game/start','POST');await poll();
@@ -113,11 +127,12 @@ async function enter(){
   menuCompanion.reset();inGame=true;$('menu').hidden=true;$('stage').hidden=false;$('save-title').textContent=state.save.title;
   const saved=state.timeline.findIndex(s=>s.id===state.save.position);show(saved>=0?saved:0);banner();
 }
-function goHome(){stopType();clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');assetRequest++;stageCompanion.reset();setSceneTheme('system');inGame=false;$('stage').hidden=true;$('menu').hidden=false;}
+function goHome(){$('settings').close();frontier=-1;index=-1;current=null;replayControls();$('chapter').textContent='序章：AI';stopType();clearInterval(waitTimer);$('dialogue-text').classList.remove('is-thinking');assetRequest++;stageCompanion.reset();setSceneTheme('system');inGame=false;$('stage').hidden=true;$('menu').hidden=false;}
 async function saveDraft(revision){if(!owned)return;const text=$('reply').value,saveId=state.save?.id;try{await api('/api/draft','PUT',{text,baseMessageId:base,viewerId:viewer,gameSessionId:saveId});if(revision===draftRevision){$('draft-status').textContent='已保存';localStorage.removeItem(`draft:${saveId}`);}}catch{if(revision===draftRevision)$('draft-status').textContent='连接中断，已暂存在此浏览器';}}
 $('reply').addEventListener('input',()=>{draftRevision++;$('draft-status').textContent='保存中…';try{localStorage.setItem(`draft:${state?.save?.id}`,JSON.stringify({text:$('reply').value,at:Date.now()}));}catch{$('draft-status').textContent='本地缓存失败，请复制文字';}clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDraft(draftRevision),250);updateSend();});
 $('reply').addEventListener('blur',()=>{clearTimeout(saveTimer);void saveDraft(draftRevision);});
 async function sendText(text){
+  if(isReview())throw Error('回看仅供阅读，请先返回当前进度。');
   if(sending)return;sending=true;updateSend();const id=crypto.randomUUID();
   pendingSubmit={id,text};localStorage.setItem(`pending:${state.save.id}`,JSON.stringify(pendingSubmit));
   try{await api('/api/messages','POST',{id,text,baseMessageId:base,viewerId:viewer,gameSessionId:state.save.id,replyTo:current?.id??null,recover:current?.advance==='error'&&state.recoverySupported===true});
@@ -126,11 +141,13 @@ async function sendText(text){
 }
 $('reply-form').addEventListener('submit',e=>{e.preventDefault();if(!$('send').disabled)void safe(()=>sendText($('reply').value))();});
 $('recover-role').onclick=safe(async()=>{if($('recover-role').disabled)return;await sendText($('reply').value.trim()?$('reply').value:'请从刚才的进度继续角色对话。');});
-$('next').onclick=()=>{if(typing){fullText();return;}if(index<state.timeline.length-1)show(index+1);};
-$('skip').onclick=()=>{if(typing)fullText();};$('accelerate').onclick=()=>{speedUp=!speedUp;$('accelerate').textContent=speedUp?'正常速度':'加速';};
+$('next').onclick=()=>{if(isReview())return;if(typing){fullText();return;}if(index<state.timeline.length-1)show(index+1);};
+$('accelerate').onclick=()=>setSpeedUp(!speedUp);
+$('replay-previous').onclick=()=>{if(index>0)show(index-1,true);};
+$('replay-forward').onclick=()=>{if(isReview())show(index+1,true);};
 $('dialogue').addEventListener('click',e=>{if(e.target.closest('button'))return;if(typing)fullText();else if(!$('next').hidden)$('next').click();});
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&inGame&&!document.querySelector('dialog[open]')&&!['TEXTAREA','INPUT','BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();if(typing)fullText();else if(!$('next').hidden)$('next').click();}});
-$('reply-close').onclick=()=>{closedReply=true;$('reply-panel').hidden=true;$('reply-reopen').hidden=false;};$('reply-reopen').onclick=()=>{closedReply=false;$('reply-panel').hidden=false;$('reply-reopen').hidden=true;$('reply').focus();};
+$('reply-close').onclick=()=>{closedReply=true;$('reply-panel').hidden=true;$('reply-reopen').hidden=false;};$('reply-reopen').onclick=()=>{if(isReview())return;closedReply=false;$('reply-panel').hidden=false;$('reply-reopen').hidden=true;$('reply').focus();};
 $('review').onclick=()=>{const last=state.timeline.at(-1);if(last&&last.id!==current?.id){show(state.timeline.findIndex(s=>s.hostId===last.hostId));toast('请先读完最新对话，草稿仍保留。');return;}base=state.latestMessageId;void saveDraft(++draftRevision);updateSend();};
 $('status-banner').onclick=safe(async()=>{if(!owned&&state.connected){owned=(await api('/api/game/lease','POST',{clientId:viewer,force:true})).owned;banner();updateSend();}});
 $('home').onclick=goHome;$('start').onclick=safe(async()=>{if(state?.deleted)throw Error('此存档已删除，请从原任务重新启动网页模式');if(state?.save)return showSaves();await enter();});
@@ -183,8 +200,7 @@ $('original-entry').onclick=safe(()=>selectSave({current:true}));
 $('saves-open').onclick=safe(showSaves);$('delete-cancel').onclick=()=>$('delete-confirm').close();$('delete-save').onclick=safe(async()=>{if(saveToDelete!==state.save?.id)throw Error('存档已改变');if(sending||switching)throw Error('请等当前操作完成再删除。');switching=true;try{while(polling)await new Promise(resolve=>setTimeout(resolve,25));clearTimeout(saveTimer);await api('/api/game/save','DELETE');localStorage.removeItem(`draft:${saveToDelete}`);localStorage.removeItem(`pending:${saveToDelete}`);pendingSubmit=null;$('reply').value='';$('delete-confirm').close();$('saves').close();goHome();assetRequest++;draftRevision++;selectedSave='';sessionStorage.removeItem('galgame-selected-save');state=null;initialized=false;owned=false;current=null;signature='';}finally{switching=false;}await poll();toast('网页存档已删除，原 Agent 对话保留。');});
 function reader(title,text,markdown=false){$('reader-title').textContent=title;$('reader-body').classList.toggle('markdown',markdown);if(markdown)renderMarkdown($('reader-body'),text);else $('reader-body').textContent=text;if(!$('reader').open)$('reader').showModal();}
 $('reader-close').onclick=()=>$('reader').close();$('raw-open').onclick=()=>reader('原窗口里的回复',current?.raw||'',true);$('history-open').onclick=()=>{reader('这段对话',state.timeline.map(s=>`${names[s.speaker]}：${s.raw||s.text}`).join('\n\n'));};
-$('host-open').onclick=safe(async()=>{await api('/api/open-host','POST');});
-async function prepareDocument(){const key=current.id,selection=selectedSave;try{const result=await api(`/api/game/document?turn=${current.turnId}&id=${current.document_id}`);if(current?.id!==key||selection!==selectedSave)return;doc=result;$('document-title').textContent=doc.title;$('delivery-caption').textContent=current.deliveryKind==='draft'?'这是按要求提前整理的草案，尚未完成全部审查。':'已整理成完整文档。阅读、下载，或交回原 Agent 开始开发。';$('delivery').hidden=false;}catch(e){toast(e.message);}}
+async function prepareDocument(){const key=current.id,selection=selectedSave;try{const result=await api(`/api/game/document?turn=${current.turnId}&id=${current.document_id}`);if(isReview()||current?.id!==key||selection!==selectedSave)return;doc=result;$('document-title').textContent=doc.title;$('delivery-caption').textContent=current.deliveryKind==='draft'?'这是按要求提前整理的草案，尚未完成全部审查。':'已整理成完整文档。阅读、下载，或交回原 Agent 开始开发。';$('delivery').hidden=false;}catch(e){toast(e.message);}}
 $('document-open').onclick=()=>{if(doc)reader(doc.title,doc.markdown,true);};$('document-download').onclick=()=>{if(!doc)return;const url=URL.createObjectURL(new Blob([doc.markdown],{type:'text/markdown;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=doc.title.replace(/[<>:"/\\|?*]/g,'_')+'.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-$('develop').onclick=()=>{if(doc)$('develop-confirm').showModal();};$('develop-cancel').onclick=()=>$('develop-confirm').close();$('develop-confirmed').onclick=safe(async()=>{if(!doc)throw Error('文档尚未就绪');const text=`请按这份产品设计方案开始开发：${doc.path}\n文档 SHA-256：${doc.hash}\n沿用已确认的范围，常规实现自行决定；遇到改变核心体验、数据流向或费用的新冲突再与我确认。`;base=state.latestMessageId;$('develop-confirm').close();await sendText(text);await api('/api/open-host','POST');});
+$('develop').onclick=()=>{if(!isReview()&&doc)$('develop-confirm').showModal();};$('develop-cancel').onclick=()=>$('develop-confirm').close();$('develop-confirmed').onclick=safe(async()=>{if(isReview()||!doc)throw Error('请回到当前进度后开始开发');const text=`请按这份产品设计方案开始开发：${doc.path}\n文档 SHA-256：${doc.hash}\n沿用已确认的范围，常规实现自行决定；遇到改变核心体验、数据流向或费用的新冲突再与我确认。`;base=state.latestMessageId;$('develop-confirm').close();await sendText(text);await api('/api/open-host','POST');});
 await poll();setInterval(poll,1500);

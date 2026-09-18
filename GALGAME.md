@@ -109,3 +109,5 @@ node --import tsx scripts/ui-fixture.ts
 设置环境变量 `GALGAME_FIXTURE_THEMES=1` 后运行上述 `ui-fixture.ts`，可依次检查系统精灵提问、乔布斯提问、双角色交接、小黑提问和系统文档交付。夹具只写演示存档，不连接模型。
 
 真实宿主诊断页保留在 /verifier。不再要求当前用户重复编号测试；其他环境的认证仍须独立完成 [验收记录](docs/sync-run-template.md)。
+
+2026-09-18：章节移至顶栏，清理品牌/连接提示等常驻文字，新增生成的设置与操作图标。对话框内左右箭头支持只读回放，实际进度、草稿与原任务不回退；右箭头仅回看时显示。详见 [布局与回放验收](docs/reports/2026-09-18-dialogue-controls.md)。
